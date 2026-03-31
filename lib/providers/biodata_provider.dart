@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/biodata_model.dart';
+
 class BiodataNotifier extends StateNotifier<Biodata> {
   BiodataNotifier() : super(Biodata.empty());
 
