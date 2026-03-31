@@ -1,0 +1,91 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'biodata_model.dart';
+
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
+
+class BiodataAdapter extends TypeAdapter<Biodata> {
+  @override
+  final int typeId = 0;
+
+  @override
+  Biodata read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return Biodata()
+      ..id = fields[0] as String
+      ..name = fields[1] as String
+      ..age = fields[2] as String
+      ..height = fields[3] as String
+      ..city = fields[4] as String
+      ..education = fields[5] as String
+      ..profession = fields[6] as String
+      ..fatherName = fields[7] as String
+      ..motherName = fields[8] as String
+      ..brothers = fields[9] as String
+      ..sisters = fields[10] as String
+      ..familyType = fields[11] as String
+      ..sect = fields[12] as String
+      ..religiousness = fields[13] as String
+      ..photoPath = fields[14] as String
+      ..templateId = fields[15] as int
+      ..notes = fields[16] as String
+      ..createdAt = fields[17] as DateTime;
+  }
+
+  @override
+  void write(BinaryWriter writer, Biodata obj) {
+    writer
+      ..writeByte(18)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.name)
+      ..writeByte(2)
+      ..write(obj.age)
+      ..writeByte(3)
+      ..write(obj.height)
+      ..writeByte(4)
+      ..write(obj.city)
+      ..writeByte(5)
+      ..write(obj.education)
+      ..writeByte(6)
+      ..write(obj.profession)
+      ..writeByte(7)
+      ..write(obj.fatherName)
+      ..writeByte(8)
+      ..write(obj.motherName)
+      ..writeByte(9)
+      ..write(obj.brothers)
+      ..writeByte(10)
+      ..write(obj.sisters)
+      ..writeByte(11)
+      ..write(obj.familyType)
+      ..writeByte(12)
+      ..write(obj.sect)
+      ..writeByte(13)
+      ..write(obj.religiousness)
+      ..writeByte(14)
+      ..write(obj.photoPath)
+      ..writeByte(15)
+      ..write(obj.templateId)
+      ..writeByte(16)
+      ..write(obj.notes)
+      ..writeByte(17)
+      ..write(obj.createdAt);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BiodataAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
