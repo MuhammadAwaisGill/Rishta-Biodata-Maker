@@ -10,52 +10,21 @@ import '../home/widgets/template_card.dart';
 
 class TemplatePreviewScreen extends ConsumerWidget {
   final int templateId;
+  const TemplatePreviewScreen({super.key, required this.templateId});
 
-  const TemplatePreviewScreen({
-    super.key,
-    required this.templateId,
-  });
-
-  // Same list as home — single source of truth via TemplateInfo
   static const List<TemplateInfo> _templates = [
-    TemplateInfo(
-      id: 1,
-      name: 'Islamic Green',
-      description: 'Classic green & gold Islamic border',
-      color: Color(0xFF1B5E20),
-    ),
-    TemplateInfo(
-      id: 2,
-      name: 'Floral Pink',
-      description: 'Soft pink floral design for girls',
-      color: Color(0xFFAD1457),
-    ),
-    TemplateInfo(
-      id: 3,
-      name: 'Royal Maroon',
-      description: 'Deep maroon mughal pattern',
-      color: Color(0xFF6A1B1B),
-    ),
-    TemplateInfo(
-      id: 4,
-      name: 'Modern Navy',
-      description: 'Clean minimal navy design',
-      color: Color(0xFF0D47A1),
-    ),
-    TemplateInfo(
-      id: 5,
-      name: 'Simple White',
-      description: 'Professional clean white card',
-      color: Color(0xFF424242),
-    ),
+    TemplateInfo(id: 1, name: 'Islamic Green', description: 'Classic green & gold Islamic border', color: Color(0xFF1B5E20)),
+    TemplateInfo(id: 2, name: 'Floral Pink', description: 'Soft pink floral design for girls', color: Color(0xFFAD1457)),
+    TemplateInfo(id: 3, name: 'Royal Maroon', description: 'Deep maroon mughal pattern', color: Color(0xFF6A1B1B)),
+    TemplateInfo(id: 4, name: 'Modern Navy', description: 'Clean minimal navy design', color: Color(0xFF0D47A1)),
+    TemplateInfo(id: 5, name: 'Simple White', description: 'Professional clean white card', color: Color(0xFF424242)),
   ];
 
-  TemplateInfo get _currentTemplate =>
-      _templates.firstWhere((t) => t.id == templateId);
+  TemplateInfo get _current => _templates.firstWhere((t) => t.id == templateId);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final template = _currentTemplate;
+    final t = _current;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -64,183 +33,102 @@ class TemplatePreviewScreen extends ConsumerWidget {
         elevation: 0,
         leading: IconButton(
           onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.white),
+          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
         ),
-        title: Text(
-          template.name,
-          style: const TextStyle(
-            color: AppColors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        title: Text(t.name, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600)),
       ),
       body: Column(
         children: [
-          // Preview area
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSizes.lg),
               child: Column(
                 children: [
-                  // Template large preview card
+                  // Large preview card
                   Container(
                     width: double.infinity,
-                    height: 420,
                     decoration: BoxDecoration(
-                      color: template.color.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-                      border: Border.all(
-                        color: template.color.withOpacity(0.3),
-                        width: 2,
+                      gradient: LinearGradient(
+                        colors: [t.color.withOpacity(0.08), t.color.withOpacity(0.15)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: template.color.withOpacity(0.15),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: t.color.withOpacity(0.25), width: 1.5),
                     ),
+                    padding: const EdgeInsets.all(32),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          width: 72,
-                          height: 72,
-                          decoration: BoxDecoration(
-                            color: template.color,
-                            shape: BoxShape.circle,
-                          ),
+                          width: 80, height: 80,
+                          decoration: BoxDecoration(color: t.color, shape: BoxShape.circle),
                           child: Center(
-                            child: Text(
-                              '${template.id}',
-                              style: const TextStyle(
-                                color: AppColors.white,
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            child: Text('${t.id}', style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
                           ),
                         ),
-                        const SizedBox(height: AppSizes.md),
-                        Text(
-                          template.name,
-                          style: TextStyle(
-                            color: template.color,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
+                        const SizedBox(height: 16),
+                        Text(t.name, style: TextStyle(color: t.color, fontSize: 22, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        Text(t.description, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textMuted, fontSize: 14)),
+                        const SizedBox(height: 28),
+                        // Mock biodata lines
+                        ...[0.75, 0.55, 0.65, 0.45, 0.6].map((w) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Row(
+                            children: [
+                              Container(width: 80, height: 8, decoration: BoxDecoration(color: t.color.withOpacity(0.35), borderRadius: BorderRadius.circular(4))),
+                              const SizedBox(width: 12),
+                              Expanded(child: FractionallySizedBox(
+                                widthFactor: w, alignment: Alignment.centerLeft,
+                                child: Container(height: 8, decoration: BoxDecoration(color: t.color.withOpacity(0.15), borderRadius: BorderRadius.circular(4))),
+                              )),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: AppSizes.sm),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSizes.xl,
-                          ),
-                          child: Text(
-                            template.description,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: AppColors.textMuted,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: AppSizes.xl),
-                        // Placeholder lines simulating biodata content
-                        _buildPreviewLine(template.color, 0.7),
-                        const SizedBox(height: AppSizes.sm),
-                        _buildPreviewLine(template.color, 0.5),
-                        const SizedBox(height: AppSizes.sm),
-                        _buildPreviewLine(template.color, 0.6),
-                        const SizedBox(height: AppSizes.sm),
-                        _buildPreviewLine(template.color, 0.4),
+                        )),
                       ],
                     ),
                   ),
 
                   const SizedBox(height: AppSizes.lg),
 
-                  // Template info
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(AppSizes.md),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          template.name,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textDark,
-                          ),
-                        ),
-                        const SizedBox(height: AppSizes.xs),
-                        Text(
-                          template.description,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textMuted,
-                          ),
-                        ),
-                      ],
-                    ),
+                  // Feature highlights
+                  Row(
+                    children: [
+                      _featureChip(Icons.download_rounded, 'Downloadable', t.color),
+                      const SizedBox(width: 8),
+                      _featureChip(Icons.share_rounded, 'Shareable', t.color),
+                      const SizedBox(width: 8),
+                      _featureChip(Icons.edit_rounded, 'Editable', t.color),
+                    ],
                   ),
                 ],
               ),
             ),
           ),
 
-          // Bottom action button
+          // Bottom CTA
           Container(
             padding: const EdgeInsets.all(AppSizes.lg),
             decoration: BoxDecoration(
               color: AppColors.surface,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
-                  blurRadius: 10,
-                  offset: const Offset(0, -3),
-                ),
-              ],
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, -3))],
             ),
             child: SizedBox(
               width: double.infinity,
               height: 52,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  ref.read(selectedTemplateProvider.notifier).state =
-                      templateId;
+                  ref.read(selectedTemplateProvider.notifier).state = templateId;
                   context.push(AppRoutes.form);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                  ),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusMd)),
                   elevation: 2,
                 ),
                 icon: const Icon(Icons.edit_rounded, size: 20),
-                label: const Text(
-                  AppStrings.btnUseTemplate,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                label: const Text(AppStrings.btnUseTemplate, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
               ),
             ),
           ),
@@ -249,14 +137,21 @@ class TemplatePreviewScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPreviewLine(Color color, double widthFactor) {
-    return FractionallySizedBox(
-      widthFactor: widthFactor,
+  Widget _featureChip(IconData icon, String label, Color color) {
+    return Expanded(
       child: Container(
-        height: 8,
+        padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(4),
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withOpacity(0.2)),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(height: 4),
+            Text(label, style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w600)),
+          ],
         ),
       ),
     );
