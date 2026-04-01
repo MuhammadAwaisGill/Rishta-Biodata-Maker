@@ -62,7 +62,3 @@ flutter:
     - assets/templates/
     - assets/fonts/
 
-  fonts:
-    - family: JameelNoori
-      fonts:
-        - asset: assets/fonts/JameelNooriNastaleeq.ttf
