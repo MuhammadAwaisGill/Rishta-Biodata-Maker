@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/biodata_model.dart';
-import 'base_template.dart';
+import '../../models/biodata_model.dart';
+import '../base_template.dart';
 
 class Template4Modern extends BaseTemplate {
   const Template4Modern({super.key, required super.biodata});
@@ -20,7 +20,7 @@ class Template4Modern extends BaseTemplate {
       ),
       child: Column(
         children: [
-          // Header with accent bar
+          // Header
           Container(
             width: double.infinity,
             color: _navy,
@@ -66,7 +66,6 @@ class Template4Modern extends BaseTemplate {
             ),
           ),
 
-          // Accent line
           Container(height: 4, color: _accent),
 
           // Body

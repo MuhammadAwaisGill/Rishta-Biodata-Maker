@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/biodata_model.dart';
-import 'base_template.dart';
+import '../../models/biodata_model.dart';
+import '../base_template.dart';
 
 class Template3Royal extends BaseTemplate {
   const Template3Royal({super.key, required super.biodata});
@@ -25,14 +25,11 @@ class Template3Royal extends BaseTemplate {
             width: double.infinity,
             color: _darkMaroon,
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-            child: Column(
+            child: const Column(
               children: [
-                const Text(
-                  '✦ ✦ ✦',
-                  style: TextStyle(fontSize: 16, color: _gold),
-                ),
-                const SizedBox(height: 6),
-                const Text(
+                Text('✦ ✦ ✦', style: TextStyle(fontSize: 16, color: _gold)),
+                SizedBox(height: 6),
+                Text(
                   'RISHTA BIODATA',
                   style: TextStyle(
                     fontSize: 16,
@@ -41,16 +38,12 @@ class Template3Royal extends BaseTemplate {
                     letterSpacing: 3,
                   ),
                 ),
-                const SizedBox(height: 6),
-                const Text(
-                  '✦ ✦ ✦',
-                  style: TextStyle(fontSize: 16, color: _gold),
-                ),
+                SizedBox(height: 6),
+                Text('✦ ✦ ✦', style: TextStyle(fontSize: 16, color: _gold)),
               ],
             ),
           ),
 
-          // Gold divider
           Container(height: 3, color: _gold),
 
           // Body
@@ -110,7 +103,6 @@ class Template3Royal extends BaseTemplate {
             ),
           ),
 
-          // Gold divider
           Container(height: 3, color: _gold),
 
           // Footer

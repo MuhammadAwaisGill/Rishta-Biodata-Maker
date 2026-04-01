@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/biodata_model.dart';
-import 'base_template.dart';
+import '../../models/biodata_model.dart';
+import '../base_template.dart';
 
 class Template5Simple extends BaseTemplate {
   const Template5Simple({super.key, required super.biodata});

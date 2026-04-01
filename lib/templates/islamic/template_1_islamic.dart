@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../models/biodata_model.dart';
+import '../base_template.dart';
 
 class Template1Islamic extends BaseTemplate {
   const Template1Islamic({super.key, required super.biodata});
@@ -25,13 +27,9 @@ class Template1Islamic extends BaseTemplate {
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
             child: Column(
               children: [
-                // Bismillah text
                 const Text(
                   '﷽',
-                  style: TextStyle(
-                    fontSize: 22,
-                    color: _gold,
-                  ),
+                  style: TextStyle(fontSize: 22, color: _gold),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -84,27 +82,18 @@ class Template1Islamic extends BaseTemplate {
                                 color: _green,
                               ),
                             ),
-                          if (biodata.age.isNotEmpty ||
-                              biodata.height.isNotEmpty)
+                          if (biodata.age.isNotEmpty || biodata.height.isNotEmpty)
                             Text(
                               [
-                                if (biodata.age.isNotEmpty)
-                                  'Age: ${biodata.age}',
-                                if (biodata.height.isNotEmpty)
-                                  biodata.height,
+                                if (biodata.age.isNotEmpty) 'Age: ${biodata.age}',
+                                if (biodata.height.isNotEmpty) biodata.height,
                               ].join('  |  '),
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.black54,
-                              ),
+                              style: const TextStyle(fontSize: 12, color: Colors.black54),
                             ),
                           if (biodata.city.isNotEmpty)
                             Text(
                               biodata.city,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.black54,
-                              ),
+                              style: const TextStyle(fontSize: 12, color: Colors.black54),
                             ),
                         ],
                       ),
@@ -112,106 +101,32 @@ class Template1Islamic extends BaseTemplate {
                   ],
                 ),
 
-                // Personal section
                 buildSectionTitle(title: 'Personal', color: _green),
-                buildInfoRow(
-                  label: 'Full Name',
-                  value: biodata.name,
-                  labelColor: _lightGreen,
-                  valueColor: Colors.black87,
-                ),
-                buildInfoRow(
-                  label: 'Age',
-                  value: biodata.age,
-                  labelColor: _lightGreen,
-                  valueColor: Colors.black87,
-                ),
-                buildInfoRow(
-                  label: 'Height',
-                  value: biodata.height,
-                  labelColor: _lightGreen,
-                  valueColor: Colors.black87,
-                ),
-                buildInfoRow(
-                  label: 'City',
-                  value: biodata.city,
-                  labelColor: _lightGreen,
-                  valueColor: Colors.black87,
-                ),
+                buildInfoRow(label: 'Full Name', value: biodata.name, labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Age', value: biodata.age, labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Height', value: biodata.height, labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'City', value: biodata.city, labelColor: _lightGreen, valueColor: Colors.black87),
 
-                // Education section
                 buildSectionTitle(title: 'Education & Career', color: _green),
-                buildInfoRow(
-                  label: 'Education',
-                  value: biodata.education,
-                  labelColor: _lightGreen,
-                  valueColor: Colors.black87,
-                ),
-                buildInfoRow(
-                  label: 'Profession',
-                  value: biodata.profession,
-                  labelColor: _lightGreen,
-                  valueColor: Colors.black87,
-                ),
+                buildInfoRow(label: 'Education', value: biodata.education, labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Profession', value: biodata.profession, labelColor: _lightGreen, valueColor: Colors.black87),
 
-                // Family section
                 buildSectionTitle(title: 'Family', color: _green),
-                buildInfoRow(
-                  label: "Father's Name",
-                  value: biodata.fatherName,
-                  labelColor: _lightGreen,
-                  valueColor: Colors.black87,
-                ),
-                buildInfoRow(
-                  label: "Mother's Name",
-                  value: biodata.motherName,
-                  labelColor: _lightGreen,
-                  valueColor: Colors.black87,
-                ),
-                buildInfoRow(
-                  label: 'Brothers',
-                  value: biodata.brothers,
-                  labelColor: _lightGreen,
-                  valueColor: Colors.black87,
-                ),
-                buildInfoRow(
-                  label: 'Sisters',
-                  value: biodata.sisters,
-                  labelColor: _lightGreen,
-                  valueColor: Colors.black87,
-                ),
-                buildInfoRow(
-                  label: 'Family Type',
-                  value: biodata.familyType,
-                  labelColor: _lightGreen,
-                  valueColor: Colors.black87,
-                ),
+                buildInfoRow(label: "Father's Name", value: biodata.fatherName, labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: "Mother's Name", value: biodata.motherName, labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Brothers', value: biodata.brothers, labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Sisters', value: biodata.sisters, labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Family Type', value: biodata.familyType, labelColor: _lightGreen, valueColor: Colors.black87),
 
-                // Religious section
                 buildSectionTitle(title: 'Religious', color: _green),
-                buildInfoRow(
-                  label: 'Sect',
-                  value: biodata.sect,
-                  labelColor: _lightGreen,
-                  valueColor: Colors.black87,
-                ),
-                buildInfoRow(
-                  label: 'Religiousness',
-                  value: biodata.religiousness,
-                  labelColor: _lightGreen,
-                  valueColor: Colors.black87,
-                ),
+                buildInfoRow(label: 'Sect', value: biodata.sect, labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Religiousness', value: biodata.religiousness, labelColor: _lightGreen, valueColor: Colors.black87),
 
-                // Notes
                 if (biodata.notes.isNotEmpty) ...[
                   buildSectionTitle(title: 'Additional Notes', color: _green),
                   Text(
                     biodata.notes,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.black87,
-                      height: 1.5,
-                    ),
+                    style: const TextStyle(fontSize: 12, color: Colors.black87, height: 1.5),
                   ),
                 ],
 
@@ -228,11 +143,7 @@ class Template1Islamic extends BaseTemplate {
             child: const Center(
               child: Text(
                 '❁ Made with Rishta Biodata Maker ❁',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: _gold,
-                  letterSpacing: 0.5,
-                ),
+                style: TextStyle(fontSize: 11, color: _gold, letterSpacing: 0.5),
               ),
             ),
           ),
@@ -241,6 +152,8 @@ class Template1Islamic extends BaseTemplate {
     );
   }
 
+  // Fixed: use a plain Container instead of Expanded (Expanded can't be
+  // used inside a Row that is itself inside a Column without constraints)
   Widget _buildDividerLine() {
     return Expanded(
       child: Container(height: 1, color: _gold.withOpacity(0.5)),

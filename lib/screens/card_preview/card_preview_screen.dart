@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_routes.dart';
 import '../../core/constants/app_sizes.dart';
+import '../../core/constants/app_strings.dart';
 import '../../providers/biodata_provider.dart';
 import '../../providers/template_provider.dart';
 import '../../providers/saved_designs_provider.dart';
@@ -13,11 +14,11 @@ import '../../providers/ad_provider.dart';
 import '../../services/export_service.dart';
 import '../../services/share_service.dart';
 import '../../services/ad_service.dart';
-import '../../templates/template_1_islamic.dart';
-import '../../templates/template_2_floral.dart';
-import '../../templates/template_3_royal.dart';
-import '../../templates/template_4_modern.dart';
-import '../../templates/template_5_simple.dart';
+import '../../templates/islamic/template_1_islamic.dart';
+import '../../templates/floral/template_2_floral.dart';
+import '../../templates/royal/template_3_royal.dart';
+import '../../templates/modern/template_4_modern.dart';
+import '../../templates/simple/template_5_simple.dart';
 import 'widgets/action_bar.dart';
 
 class CardPreviewScreen extends ConsumerStatefulWidget {
@@ -126,7 +127,7 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
     );
   }
 
-  // ── Template router ─────────────────────────────────────────────────────────
+  // ── Template router ──────────────────────────────────────────────────────────
 
   Widget _buildTemplate(int templateId) {
     final biodata = ref.watch(biodataProvider);
@@ -153,14 +154,12 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
     final adReady = ref.read(rewardedAdReadyProvider);
 
     if (adReady) {
-      // Show rewarded ad then download
       AdService().showRewardedAd(
         onRewarded: () async {
           await _captureAndSave();
         },
       );
     } else {
-      // No ad ready — download directly
       await _captureAndSave();
     }
   }
@@ -199,7 +198,6 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
     if (_savedImagePath != null) {
       await ShareService().shareImage(_savedImagePath!);
     } else {
-      // Capture first then share
       setState(() => _isExporting = true);
       try {
         final Uint8List? imageBytes =

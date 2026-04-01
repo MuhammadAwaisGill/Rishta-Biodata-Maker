@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/biodata_model.dart';
-import 'base_template.dart';
+import '../../models/biodata_model.dart';
+import '../base_template.dart';
 
 class Template2Floral extends BaseTemplate {
   const Template2Floral({super.key, required super.biodata});
@@ -31,14 +31,11 @@ class Template2Floral extends BaseTemplate {
               ),
             ),
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-            child: Column(
+            child: const Column(
               children: [
-                const Text(
-                  '❀ ❀ ❀',
-                  style: TextStyle(fontSize: 18, color: _lightPink),
-                ),
-                const SizedBox(height: 6),
-                const Text(
+                Text('❀ ❀ ❀', style: TextStyle(fontSize: 18, color: _lightPink)),
+                SizedBox(height: 6),
+                Text(
                   'RISHTA BIODATA',
                   style: TextStyle(
                     fontSize: 16,
@@ -47,11 +44,8 @@ class Template2Floral extends BaseTemplate {
                     letterSpacing: 2,
                   ),
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  '❀ ❀ ❀',
-                  style: TextStyle(fontSize: 18, color: _lightPink),
-                ),
+                SizedBox(height: 4),
+                Text('❀ ❀ ❀', style: TextStyle(fontSize: 18, color: _lightPink)),
               ],
             ),
           ),
@@ -61,15 +55,10 @@ class Template2Floral extends BaseTemplate {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                // Photo + name
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildPhoto(
-                      photoPath: biodata.photoPath,
-                      borderColor: _pink,
-                      size: 85,
-                    ),
+                    buildPhoto(photoPath: biodata.photoPath, borderColor: _pink, size: 85),
                     const SizedBox(width: 14),
                     Expanded(
                       child: Column(
@@ -78,28 +67,12 @@ class Template2Floral extends BaseTemplate {
                           if (biodata.name.isNotEmpty)
                             Text(
                               biodata.name,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: _pink,
-                              ),
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _pink),
                             ),
                           if (biodata.age.isNotEmpty)
-                            Text(
-                              'Age: ${biodata.age}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.black54,
-                              ),
-                            ),
+                            Text('Age: ${biodata.age}', style: const TextStyle(fontSize: 12, color: Colors.black54)),
                           if (biodata.city.isNotEmpty)
-                            Text(
-                              biodata.city,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.black54,
-                              ),
-                            ),
+                            Text(biodata.city, style: const TextStyle(fontSize: 12, color: Colors.black54)),
                         ],
                       ),
                     ),
