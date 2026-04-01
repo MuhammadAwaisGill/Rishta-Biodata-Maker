@@ -35,4 +35,9 @@ class AppStrings {
   // Misc
   static const noDesigns   = 'No designs yet. Create your first biodata!';
   static const adWatchMsg  = 'Watch a short video to download your card for free.';
+
+  // Buttons (add to existing buttons section)
+  static const btnSkip       = 'Skip';
+  static const btnNext       = 'Next';
+  static const btnGetStarted = 'Get Started';
 }

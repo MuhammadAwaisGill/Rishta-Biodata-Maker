@@ -21,6 +21,7 @@ class BiodataNotifier extends StateNotifier<Biodata> {
   void updatePhotoPath(String v)     => state = state.copyWith(photoPath: v);
   void updateTemplateId(int v)       => state = state.copyWith(templateId: v);
   void updateNotes(String v)         => state = state.copyWith(notes: v);
+  void loadFromSaved(Biodata biodata) => state = biodata;
 
   void resetForm() => state = Biodata.empty();
 }

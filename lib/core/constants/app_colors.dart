@@ -11,4 +11,5 @@ class AppColors {
   static const textMuted  = Color(0xFF757575);
   static const error      = Color(0xFFD32F2F);
   static const adBg       = Color(0xFFF5F5F5);
+  static const white = Color(0xFFFFFFFF);
 }
