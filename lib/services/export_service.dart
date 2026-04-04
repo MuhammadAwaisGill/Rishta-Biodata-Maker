@@ -1,9 +1,8 @@
-import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 class ExportService {
 
@@ -11,14 +10,12 @@ class ExportService {
     try {
       final boundary = key.currentContext?.findRenderObject()
       as RenderRepaintBoundary?;
-
       if (boundary == null) return null;
 
       final image = await boundary.toImage(pixelRatio: 2.0);
       final byteData = await image.toByteData(
         format: ui.ImageByteFormat.png,
       );
-
       return byteData?.buffer.asUint8List();
     } catch (e) {
       return null;
@@ -27,15 +24,15 @@ class ExportService {
 
   Future<String?> saveToGallery(Uint8List bytes) async {
     try {
-      final directory = await getExternalStorageDirectory();
-      if (directory == null) return null;
-
-      final fileName =
-          'biodata_${DateTime.now().millisecondsSinceEpoch}.png';
-      final file = File('${directory.path}/$fileName');
-      await file.writeAsBytes(bytes);
-
-      return file.path;
+      final result = await ImageGallerySaver.saveImage(
+        bytes,
+        quality: 95,
+        name: 'biodata_${DateTime.now().millisecondsSinceEpoch}',
+      );
+      if (result['isSuccess'] == true) {
+        return result['filePath'] as String?;
+      }
+      return null;
     } catch (e) {
       return null;
     }
