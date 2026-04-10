@@ -8,6 +8,7 @@ class ActionBar extends StatelessWidget {
   final VoidCallback onDownload;
   final VoidCallback onEdit;
   final VoidCallback onShare;
+  final VoidCallback onPdf;
 
   const ActionBar({
     super.key,
@@ -15,58 +16,50 @@ class ActionBar extends StatelessWidget {
     required this.onDownload,
     required this.onEdit,
     required this.onShare,
+    required this.onPdf,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSizes.md,
-        vertical: AppSizes.md,
-      ),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
       decoration: BoxDecoration(
         color: AppColors.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.07),
-            blurRadius: 10,
-            offset: const Offset(0, -3),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 16,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Edit button
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: onEdit,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.primary),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppSizes.radiusSm),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-              icon: const Icon(Icons.edit_rounded, size: 18),
-              label: const Text(AppStrings.btnEdit),
+          // Handle bar
+          Container(
+            width: 36,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: AppColors.textMuted.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(2),
             ),
           ),
 
-          const SizedBox(width: AppSizes.sm),
-
-          // Download button
-          Expanded(
-            flex: 2,
+          // Download button (primary, full width)
+          SizedBox(
+            width: double.infinity,
+            height: 50,
             child: ElevatedButton.icon(
               onPressed: isExporting ? null : onDownload,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.white,
+                foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+                  borderRadius: BorderRadius.circular(AppSizes.radiusMd),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                elevation: 0,
               ),
               icon: isExporting
                   ? const SizedBox(
@@ -74,35 +67,90 @@ class ActionBar extends StatelessWidget {
                 height: 18,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: AppColors.white,
+                  color: Colors.white,
                 ),
               )
-                  : const Icon(Icons.download_rounded, size: 18),
+                  : const Icon(Icons.download_rounded, size: 20),
               label: Text(
-                isExporting ? 'Saving...' : AppStrings.btnDownload,
+                isExporting ? 'Saving...' : '${AppStrings.btnDownload} to Gallery',
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
 
-          const SizedBox(width: AppSizes.sm),
+          const SizedBox(height: 10),
 
-          // Share button
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: isExporting ? null : onShare,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.primary),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+          // Second row — Edit, PDF, Share
+          Row(
+            children: [
+              // Edit
+              Expanded(
+                child: _secondaryButton(
+                  icon: Icons.edit_rounded,
+                  label: AppStrings.btnEdit,
+                  color: AppColors.primary,
+                  onTap: onEdit,
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
               ),
-              icon: const Icon(Icons.share_rounded, size: 18),
-              label: const Text(AppStrings.btnShare),
-            ),
+              const SizedBox(width: 10),
+              // PDF
+              Expanded(
+                child: _secondaryButton(
+                  icon: Icons.picture_as_pdf_rounded,
+                  label: 'Save PDF',
+                  color: AppColors.error,
+                  onTap: isExporting ? () {} : onPdf,
+                ),
+              ),
+              const SizedBox(width: 10),
+              // Share
+              Expanded(
+                child: _secondaryButton(
+                  icon: Icons.share_rounded,
+                  label: AppStrings.btnShare,
+                  color: const Color(0xFF0D47A1),
+                  onTap: isExporting ? () {} : onShare,
+                ),
+              ),
+            ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _secondaryButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+          border: Border.all(color: color.withOpacity(0.25)),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: color,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

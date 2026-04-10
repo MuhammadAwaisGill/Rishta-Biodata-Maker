@@ -16,6 +16,9 @@ import 'screens/form/form_screen.dart';
 import 'screens/card_preview/card_preview_screen.dart';
 import 'screens/saved_designs/saved_designs_screen.dart';
 import 'screens/settings/settings_screen.dart';
+import 'screens/settings/privacy_policy_screen.dart';
+import 'screens/settings/terms_of_use_screen.dart';
+import 'screens/settings/about_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -69,6 +72,18 @@ final _router = GoRouter(
         GoRoute(
           path: AppRoutes.settings,
           builder: (context, state) => const SettingsScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.privacyPolicy,
+          builder: (context, state) => const PrivacyPolicyScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.termsOfUse,
+          builder: (context, state) => const TermsOfUseScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.about,
+          builder: (context, state) => const AboutScreen(),
         ),
       ],
     ),

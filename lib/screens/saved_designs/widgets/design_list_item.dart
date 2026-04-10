@@ -6,113 +6,159 @@ import '../../../models/biodata_model.dart';
 
 class DesignListItem extends StatelessWidget {
   final Biodata biodata;
+  final int index;
   final VoidCallback onTap;
   final VoidCallback onDelete;
 
   const DesignListItem({
     super.key,
     required this.biodata,
+    required this.index,
     required this.onTap,
     required this.onDelete,
   });
 
+  static const _templateColors = {
+    1: Color(0xFF1B5E20),
+    2: Color(0xFFAD1457),
+    3: Color(0xFF6A1B1B),
+    4: Color(0xFF0D47A1),
+    5: Color(0xFF424242),
+  };
+
+  static const _templateNames = {
+    1: 'Islamic Green',
+    2: 'Floral Pink',
+    3: 'Royal Maroon',
+    4: 'Modern Navy',
+    5: 'Simple White',
+  };
+
+  static const _templateEmojis = {
+    1: '☪️',
+    2: '🌸',
+    3: '👑',
+    4: '💼',
+    5: '📄',
+  };
+
   @override
   Widget build(BuildContext context) {
+    final color = _templateColors[biodata.templateId] ?? AppColors.primary;
+    final templateName = _templateNames[biodata.templateId] ?? 'Template';
+    final emoji = _templateEmojis[biodata.templateId] ?? '📄';
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(AppSizes.md),
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(AppSizes.radiusMd),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
-              blurRadius: 6,
+              blurRadius: 8,
               offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Row(
           children: [
-            // Photo thumbnail
+            // Colored left accent + emoji
             Container(
-              width: 56,
-              height: 56,
+              width: 72,
+              height: 90,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primary.withOpacity(0.1),
-                image: biodata.photoPath.isNotEmpty
-                    ? DecorationImage(
-                  image: FileImage(File(biodata.photoPath)),
-                  fit: BoxFit.cover,
-                )
-                    : null,
+                color: color.withOpacity(0.1),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(AppSizes.radiusMd),
+                  bottomLeft: Radius.circular(AppSizes.radiusMd),
+                ),
               ),
-              child: biodata.photoPath.isEmpty
-                  ? const Icon(
-                Icons.person_rounded,
-                color: AppColors.primary,
-                size: 28,
-              )
-                  : null,
-            ),
-
-            const SizedBox(width: AppSizes.md),
-
-            // Info
-            Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    biodata.name.isEmpty ? 'Unnamed Biodata' : biodata.name,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textDark,
-                    ),
-                  ),
+                  biodata.photoPath.isNotEmpty
+                      ? CircleAvatar(
+                    radius: 22,
+                    backgroundImage: FileImage(File(biodata.photoPath)),
+                  )
+                      : Text(emoji, style: const TextStyle(fontSize: 28)),
                   const SizedBox(height: 4),
                   Text(
-                    _buildSubtitle(),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textMuted,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  // Template badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      'Template ${biodata.templateId}',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    '#${index + 1}',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: color,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
             ),
 
-            // Delete button
-            IconButton(
-              onPressed: onDelete,
-              icon: const Icon(
-                Icons.delete_outline_rounded,
-                color: AppColors.error,
-                size: 22,
+            const SizedBox(width: 12),
+
+            // Info
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      biodata.name.isEmpty ? 'Unnamed Biodata' : biodata.name,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textDark,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _buildSubtitle(),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        templateName,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: color,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+            ),
+
+            // Actions
+            Column(
+              children: [
+                IconButton(
+                  onPressed: onTap,
+                  icon: Icon(Icons.visibility_rounded, color: color, size: 20),
+                  tooltip: 'View',
+                ),
+                IconButton(
+                  onPressed: onDelete,
+                  icon: const Icon(Icons.delete_outline_rounded,
+                      color: AppColors.error, size: 20),
+                  tooltip: 'Delete',
+                ),
+              ],
             ),
           ],
         ),
@@ -122,7 +168,7 @@ class DesignListItem extends StatelessWidget {
 
   String _buildSubtitle() {
     final parts = <String>[];
-    if (biodata.age.isNotEmpty) parts.add('Age: ${biodata.age}');
+    if (biodata.age.isNotEmpty) parts.add('Age ${biodata.age}');
     if (biodata.city.isNotEmpty) parts.add(biodata.city);
     if (biodata.education.isNotEmpty) parts.add(biodata.education);
     return parts.isEmpty ? 'No details added' : parts.join(' • ');

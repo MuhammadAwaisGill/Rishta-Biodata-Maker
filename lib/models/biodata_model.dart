@@ -73,7 +73,7 @@ class Biodata extends HiveObject {
     motherName = '';
     brothers = '0';
     sisters = '0';
-    familyType = 'separate';
+    familyType = '';
     sect = '';
     religiousness = '';
     photoPath = '';
