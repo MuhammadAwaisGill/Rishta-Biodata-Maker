@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
@@ -22,17 +23,33 @@ import 'screens/settings/about_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Lock orientation to portrait — biodata cards are portrait-only
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // Status bar style
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+    ),
+  );
+
   await Hive.initFlutter();
   Hive.registerAdapter(BiodataAdapter());
   await Hive.openBox<Biodata>('biodatas');
   await AdService.initialize();
+
   runApp(const ProviderScope(child: MyApp()));
 }
 
 final _router = GoRouter(
   initialLocation: AppRoutes.splash,
   routes: [
-    // Screens WITHOUT bottom nav
+    // ── Standalone screens (no bottom nav) ───────────────────────────────
     GoRoute(
       path: AppRoutes.splash,
       builder: (context, state) => const SplashScreen(),
@@ -56,8 +73,22 @@ final _router = GoRouter(
       path: AppRoutes.cardPreview,
       builder: (context, state) => const CardPreviewScreen(),
     ),
+    // Legal & info screens — outside ShellRoute so Navigator.pop() works
+    // and no bottom nav is shown
+    GoRoute(
+      path: AppRoutes.privacyPolicy,
+      builder: (context, state) => const PrivacyPolicyScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.termsOfUse,
+      builder: (context, state) => const TermsOfUseScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.about,
+      builder: (context, state) => const AboutScreen(),
+    ),
 
-    // Screens WITH persistent bottom nav
+    // ── Shell with persistent bottom nav ─────────────────────────────────
     ShellRoute(
       builder: (context, state, child) => _ScaffoldWithNav(child: child),
       routes: [
@@ -72,18 +103,6 @@ final _router = GoRouter(
         GoRoute(
           path: AppRoutes.settings,
           builder: (context, state) => const SettingsScreen(),
-        ),
-        GoRoute(
-          path: AppRoutes.privacyPolicy,
-          builder: (context, state) => const PrivacyPolicyScreen(),
-        ),
-        GoRoute(
-          path: AppRoutes.termsOfUse,
-          builder: (context, state) => const TermsOfUseScreen(),
-        ),
-        GoRoute(
-          path: AppRoutes.about,
-          builder: (context, state) => const AboutScreen(),
         ),
       ],
     ),

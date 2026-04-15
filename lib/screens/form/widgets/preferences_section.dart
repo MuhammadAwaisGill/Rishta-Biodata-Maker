@@ -19,20 +19,14 @@ class PreferencesSection extends ConsumerWidget {
       icon: Icons.tune_rounded,
       children: [
         _buildTextField(
-          label: 'Preferred City',
-          initialValue: biodata.city,
-          onChanged: notifier.updateCity,
-        ),
-        _buildTextField(
-          label: 'Additional Notes',
+          label: 'Additional Notes / Preferences',
           initialValue: biodata.notes,
           onChanged: notifier.updateNotes,
           maxLines: 3,
+          hint: 'Any special preferences or additional info...',
         ),
 
-        // ── WhatsApp number ────────────────────────────────────────────────
-        // Optional. When filled, a scannable QR code appears on the
-        // biodata card linking directly to this WhatsApp number.
+        // WhatsApp number for QR code
         Padding(
           padding: const EdgeInsets.only(bottom: AppSizes.md),
           child: TextFormField(
@@ -62,6 +56,7 @@ class PreferencesSection extends ConsumerWidget {
     required String initialValue,
     required Function(String) onChanged,
     int maxLines = 1,
+    String? hint,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSizes.md),
@@ -69,7 +64,10 @@ class PreferencesSection extends ConsumerWidget {
         initialValue: initialValue,
         onChanged: onChanged,
         maxLines: maxLines,
-        decoration: _inputDecoration(label),
+        decoration: _inputDecoration(label).copyWith(
+          hintText: hint,
+          hintStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+        ),
       ),
     );
   }

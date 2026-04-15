@@ -14,7 +14,6 @@ import '../../providers/saved_designs_provider.dart';
 import '../../providers/ad_provider.dart';
 import '../../services/export_service.dart';
 import '../../services/share_service.dart';
-import '../../services/ad_service.dart';
 import '../../templates/islamic/template_1_islamic.dart';
 import '../../templates/floral/template_2_floral.dart';
 import '../../templates/royal/template_3_royal.dart';
@@ -33,18 +32,38 @@ class CardPreviewScreen extends ConsumerStatefulWidget {
 class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
   final GlobalKey _repaintKey = GlobalKey();
   bool _isExporting = false;
+  bool _designSaved = false; // Track if already saved to avoid duplicates
 
-  // ── Zoom state ────────────────────────────────────────────────────────────
   final TransformationController _transformController =
   TransformationController();
   bool _isZoomed = false;
 
   static const List<TemplateInfo> _templates = [
-    TemplateInfo(id: 1, name: 'Islamic Green', description: '', color: Color(0xFF1B5E20)),
-    TemplateInfo(id: 2, name: 'Floral Pink', description: '', color: Color(0xFFAD1457)),
-    TemplateInfo(id: 3, name: 'Royal Maroon', description: '', color: Color(0xFF6A1B1B)),
-    TemplateInfo(id: 4, name: 'Modern Navy', description: '', color: Color(0xFF0D47A1)),
-    TemplateInfo(id: 5, name: 'Simple White', description: '', color: Color(0xFF424242)),
+    TemplateInfo(
+        id: 1,
+        name: 'Islamic Green',
+        description: '',
+        color: Color(0xFF1B5E20)),
+    TemplateInfo(
+        id: 2,
+        name: 'Floral Pink',
+        description: '',
+        color: Color(0xFFAD1457)),
+    TemplateInfo(
+        id: 3,
+        name: 'Royal Maroon',
+        description: '',
+        color: Color(0xFF6A1B1B)),
+    TemplateInfo(
+        id: 4,
+        name: 'Modern Navy',
+        description: '',
+        color: Color(0xFF0D47A1)),
+    TemplateInfo(
+        id: 5,
+        name: 'Simple White',
+        description: '',
+        color: Color(0xFF424242)),
   ];
 
   @override
@@ -58,8 +77,29 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
     setState(() => _isZoomed = false);
   }
 
+  // Build the correct template widget based on templateId.
+  // NOTE: biodata is passed as a parameter (read from provider in build())
+  // to avoid calling ref.watch() inside a non-build method.
+  Widget _buildTemplate(int templateId, biodata) {
+    switch (templateId) {
+      case 1:
+        return Template1Islamic(biodata: biodata);
+      case 2:
+        return Template2Floral(biodata: biodata);
+      case 3:
+        return Template3Royal(biodata: biodata);
+      case 4:
+        return Template4Modern(biodata: biodata);
+      case 5:
+        return Template5Simple(biodata: biodata);
+      default:
+        return Template1Islamic(biodata: biodata);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Read all provider data here in build() — the correct place
     final biodata = ref.watch(biodataProvider);
     final selectedTemplate = ref.watch(selectedTemplateProvider);
     final currentTemplate =
@@ -68,7 +108,6 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF0F0F0),
       body: CustomScrollView(
-        // Disable list scrolling while the user is zoomed in so pan works
         physics: _isZoomed
             ? const NeverScrollableScrollPhysics()
             : const ClampingScrollPhysics(),
@@ -80,7 +119,8 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
             elevation: 0,
             leading: IconButton(
               onPressed: () => context.pop(),
-              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+              icon:
+              const Icon(Icons.arrow_back_rounded, color: Colors.white),
             ),
             title: const Text(
               'Your Biodata Card',
@@ -91,7 +131,6 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
               ),
             ),
             actions: [
-              // Reset zoom button — only visible when zoomed in
               if (_isZoomed)
                 IconButton(
                   onPressed: _resetZoom,
@@ -99,12 +138,20 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
                       color: Colors.white),
                   tooltip: 'Reset zoom',
                 ),
-              IconButton(
-                onPressed: _isExporting ? null : _saveDesign,
-                icon: const Icon(Icons.bookmark_add_rounded,
-                    color: Colors.white),
-                tooltip: 'Save Design',
-              ),
+              // Manual save button — only shown if not already auto-saved
+              if (!_designSaved)
+                IconButton(
+                  onPressed: _isExporting ? null : _saveDesignManually,
+                  icon: const Icon(Icons.bookmark_add_rounded,
+                      color: Colors.white),
+                  tooltip: 'Save Design',
+                )
+              else
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  child: Icon(Icons.bookmark_rounded,
+                      color: Colors.white70),
+                ),
             ],
           ),
 
@@ -117,9 +164,7 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
+                        horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(10),
@@ -135,9 +180,7 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
                                 ? 'Pinch to zoom out • Tap 🔍 to reset'
                                 : 'Pinch to zoom in • ${AppStrings.adWatchMsg}',
                             style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
+                                color: Colors.white, fontSize: 12),
                           ),
                         ),
                       ],
@@ -186,22 +229,20 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
                         onTap: () => context.pop(),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
+                              horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color:
                             currentTemplate.color.withOpacity(0.08),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: currentTemplate.color.withOpacity(0.2),
+                              color:
+                              currentTemplate.color.withOpacity(0.2),
                             ),
                           ),
                           child: Row(
                             children: [
                               Icon(Icons.swap_horiz_rounded,
-                                  size: 14,
-                                  color: currentTemplate.color),
+                                  size: 14, color: currentTemplate.color),
                               const SizedBox(width: 4),
                               Text(
                                 'Change',
@@ -221,16 +262,10 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
 
                 const SizedBox(height: 12),
 
-                // ── Zoomable card ────────────────────────────────────────────
-                // InteractiveViewer handles pinch-zoom and pan.
-                // minScale 0.8 lets the user zoom slightly out (handy on
-                // small phones), maxScale 4.0 gives plenty of detail.
-                // The RepaintBoundary is INSIDE the viewer so the exported
-                // image is always at 1:1 scale regardless of zoom level.
+                // Zoomable card with RepaintBoundary inside
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: ClipRRect(
-                    // Clip so the card doesn't overflow during zoom
                     borderRadius: BorderRadius.circular(12),
                     child: InteractiveViewer(
                       transformationController: _transformController,
@@ -238,8 +273,6 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
                       maxScale: 4.0,
                       clipBehavior: Clip.none,
                       onInteractionEnd: (details) {
-                        // Track whether we're zoomed so we can disable
-                        // list scrolling and show the reset button
                         final scale =
                         _transformController.value.getMaxScaleOnAxis();
                         setState(() => _isZoomed = scale > 1.05);
@@ -249,7 +282,8 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: currentTemplate.color.withOpacity(0.2),
+                              color:
+                              currentTemplate.color.withOpacity(0.2),
                               blurRadius: 24,
                               offset: const Offset(0, 8),
                             ),
@@ -264,7 +298,9 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
                           key: _repaintKey,
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: _buildTemplate(selectedTemplate),
+                            // Pass biodata directly — no ref.watch in method
+                            child:
+                            _buildTemplate(selectedTemplate, biodata),
                           ),
                         ),
                       ),
@@ -272,7 +308,6 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
                   ),
                 ),
 
-                // Zoom hint pill — shown only when not zoomed
                 if (!_isZoomed)
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
@@ -287,15 +322,12 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.pinch_rounded,
-                              size: 14,
-                              color: AppColors.textMuted),
+                              size: 14, color: AppColors.textMuted),
                           const SizedBox(width: 6),
                           Text(
                             'Pinch to zoom',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: AppColors.textMuted,
-                            ),
+                            style:
+                            TextStyle(fontSize: 11, color: AppColors.textMuted),
                           ),
                         ],
                       ),
@@ -319,24 +351,6 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
     );
   }
 
-  Widget _buildTemplate(int templateId) {
-    final biodata = ref.watch(biodataProvider);
-    switch (templateId) {
-      case 1:
-        return Template1Islamic(biodata: biodata);
-      case 2:
-        return Template2Floral(biodata: biodata);
-      case 3:
-        return Template3Royal(biodata: biodata);
-      case 4:
-        return Template4Modern(biodata: biodata);
-      case 5:
-        return Template5Simple(biodata: biodata);
-      default:
-        return Template1Islamic(biodata: biodata);
-    }
-  }
-
   Future<void> _handleDownload() async {
     final adReady = ref.read(rewardedAdReadyProvider);
     if (adReady) {
@@ -351,9 +365,7 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
   Future<void> _captureAndSave() async {
     if (_isExporting) return;
 
-    // Reset zoom before capture so the exported image is always full-size
     if (_isZoomed) _resetZoom();
-    // Give Flutter one frame to apply the reset before we capture
     await Future.delayed(const Duration(milliseconds: 80));
 
     setState(() => _isExporting = true);
@@ -366,7 +378,11 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
       }
       final String? path = await ExportService().saveToGallery(imageBytes);
       if (path != null) {
-        _saveDesign();
+        // Auto-save design once on first download — avoid duplicates
+        if (!_designSaved) {
+          _saveDesign();
+          setState(() => _designSaved = true);
+        }
         _showSnackBar('✅ Biodata saved to gallery!');
       } else {
         _showSnackBar('Failed to save. Check storage permission.');
@@ -379,7 +395,6 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
   }
 
   Future<void> _handleShare() async {
-    // Reset zoom so the shared image is full-size
     if (_isZoomed) _resetZoom();
     await Future.delayed(const Duration(milliseconds: 80));
 
@@ -395,6 +410,8 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
       final file = File('${dir.path}/biodata_share.png');
       await file.writeAsBytes(imageBytes);
       await ShareService().shareImage(file.path);
+    } catch (e) {
+      _showSnackBar('Something went wrong. Please try again.');
     } finally {
       if (mounted) setState(() => _isExporting = false);
     }
@@ -419,9 +436,17 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
     }
   }
 
+  // Auto-save (internal — no snackbar)
   void _saveDesign() {
     final biodata = ref.read(biodataProvider);
     ref.read(savedDesignsProvider.notifier).save(biodata);
+  }
+
+  // Manual save via bookmark button (with snackbar)
+  void _saveDesignManually() {
+    _saveDesign();
+    setState(() => _designSaved = true);
+    _showSnackBar('💾 Design saved!');
   }
 
   void _showSnackBar(String message) {

@@ -60,16 +60,26 @@ dev_dependencies:
   riverpod_annotation: 2.6.1
   flutter_launcher_icons: ^0.14.4
 
+# ── App Icon ──────────────────────────────────────────────────────────────────
 flutter_launcher_icons:
   android: true
   ios: false
   image_path: "assets/images/app_logo.png"
 
+# ── Native Splash Screen ──────────────────────────────────────────────────────
+flutter_native_splash:
+  color: "#1B5E20"
+  image: assets/images/app_logo.png
+  android: true
+  ios: false
+  fullscreen: false
+
+# ── Flutter ───────────────────────────────────────────────────────────────────
 flutter:
   uses-material-design: true
 
   assets:
-   - assets/images/
+    - assets/images/
   #   - assets/templates/
   #   - assets/fonts/
 
