@@ -32,6 +32,11 @@ class FormScreen extends ConsumerWidget {
     final selectedTemplate = ref.watch(selectedTemplateProvider);
     final currentTemplate = _templates.firstWhere((t) => t.id == selectedTemplate);
 
+    // Watch the biodata id — when Reset is tapped, Biodata.empty() creates
+    // a new id (timestamp-based), which changes this value and causes all
+    // keyed section widgets to be fully rebuilt, clearing their TextFormFields.
+    final biodataId = ref.watch(biodataProvider.select((b) => b.id));
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
@@ -132,8 +137,9 @@ class FormScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Photo picker card
+                    // Photo picker card — also keyed so photo clears on reset
                     Container(
+                      key: ValueKey('photo_$biodataId'),
                       width: double.infinity,
                       padding: const EdgeInsets.all(AppSizes.lg),
                       decoration: BoxDecoration(
@@ -200,16 +206,22 @@ class FormScreen extends ConsumerWidget {
 
                     const SizedBox(height: AppSizes.sm),
 
-                    // Form sections
-                    const PersonalSection(),
+                    // ── Form sections ────────────────────────────────────────
+                    // Each section receives a ValueKey derived from biodataId.
+                    // When the user taps Reset, BiodataNotifier.resetForm()
+                    // calls Biodata.empty() which generates a new timestamp id.
+                    // Flutter sees the key change and fully recreates the widget,
+                    // which forces TextFormField to re-read initialValue — so
+                    // all fields visually clear without needing controllers.
+                    PersonalSection(key: ValueKey('personal_$biodataId')),
                     const SizedBox(height: AppSizes.sm),
-                    const EducationSection(),
+                    EducationSection(key: ValueKey('education_$biodataId')),
                     const SizedBox(height: AppSizes.sm),
-                    const FamilySection(),
+                    FamilySection(key: ValueKey('family_$biodataId')),
                     const SizedBox(height: AppSizes.sm),
-                    const ReligiousSection(),
+                    ReligiousSection(key: ValueKey('religious_$biodataId')),
                     const SizedBox(height: AppSizes.sm),
-                    const PreferencesSection(),
+                    PreferencesSection(key: ValueKey('prefs_$biodataId')),
 
                     const SizedBox(height: AppSizes.xl),
 

@@ -11,7 +11,7 @@ class PreferencesSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final biodata = ref.watch(biodataProvider);
+    final biodata  = ref.watch(biodataProvider);
     final notifier = ref.read(biodataProvider.notifier);
 
     return FormSectionWrapper(
@@ -28,6 +28,30 @@ class PreferencesSection extends ConsumerWidget {
           initialValue: biodata.notes,
           onChanged: notifier.updateNotes,
           maxLines: 3,
+        ),
+
+        // ── WhatsApp number ────────────────────────────────────────────────
+        // Optional. When filled, a scannable QR code appears on the
+        // biodata card linking directly to this WhatsApp number.
+        Padding(
+          padding: const EdgeInsets.only(bottom: AppSizes.md),
+          child: TextFormField(
+            initialValue: biodata.whatsappNumber,
+            onChanged: notifier.updateWhatsappNumber,
+            keyboardType: TextInputType.phone,
+            decoration: _inputDecoration('WhatsApp Number (optional)').copyWith(
+              prefixIcon: const Padding(
+                padding: EdgeInsets.all(12),
+                child: Icon(Icons.qr_code_rounded,
+                    color: AppColors.primary, size: 22),
+              ),
+              helperText: 'Adds a QR code to your card. e.g. 03001234567',
+              helperStyle: const TextStyle(
+                fontSize: 11,
+                color: AppColors.textMuted,
+              ),
+            ),
+          ),
         ),
       ],
     );

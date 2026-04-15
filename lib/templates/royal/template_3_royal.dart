@@ -77,10 +77,14 @@ class Template3Royal extends BaseTemplate {
                 buildInfoRow(label: 'Age', value: biodata.age, labelColor: _maroon, valueColor: Colors.black87),
                 buildInfoRow(label: 'Height', value: biodata.height, labelColor: _maroon, valueColor: Colors.black87),
                 buildInfoRow(label: 'City', value: biodata.city, labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: 'Complexion',    value: biodata.complexion,   labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: 'Mother Tongue', value: biodata.motherTongue, labelColor: _maroon, valueColor: Colors.black87),
 
                 buildSectionTitle(title: 'Education & Career', color: _maroon),
                 buildInfoRow(label: 'Education', value: biodata.education, labelColor: _maroon, valueColor: Colors.black87),
                 buildInfoRow(label: 'Profession', value: biodata.profession, labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: 'Salary',        value: biodata.salary, labelColor: _maroon, valueColor: Colors.black87),
+
 
                 buildSectionTitle(title: 'Family', color: _maroon),
                 buildInfoRow(label: "Father's Name", value: biodata.fatherName, labelColor: _maroon, valueColor: Colors.black87),

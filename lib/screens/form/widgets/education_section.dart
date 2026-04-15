@@ -14,9 +14,19 @@ class EducationSection extends ConsumerWidget {
     'MBA', 'MBBS', 'Engineering', 'PhD', 'Other',
   ];
 
+  static const _salaryRanges = [
+    'Prefer not to say',
+    'Below 30,000 PKR',
+    '30,000 - 50,000 PKR',
+    '50,000 - 80,000 PKR',
+    '80,000 - 1,20,000 PKR',
+    '1,20,000 - 2,00,000 PKR',
+    'Above 2,00,000 PKR',
+  ];
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final biodata = ref.watch(biodataProvider);
+    final biodata  = ref.watch(biodataProvider);
     final notifier = ref.read(biodataProvider.notifier);
 
     return FormSectionWrapper(
@@ -33,6 +43,12 @@ class EducationSection extends ConsumerWidget {
           label: 'Profession / Job',
           initialValue: biodata.profession,
           onChanged: notifier.updateProfession,
+        ),
+        _buildDropdown(
+          label: 'Salary Range (optional)',
+          value: biodata.salary.isEmpty ? null : biodata.salary,
+          items: _salaryRanges,
+          onChanged: (v) => notifier.updateSalary(v ?? ''),
         ),
       ],
     );

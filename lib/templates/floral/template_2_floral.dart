@@ -84,10 +84,13 @@ class Template2Floral extends BaseTemplate {
                 buildInfoRow(label: 'Age', value: biodata.age, labelColor: _pink, valueColor: Colors.black87),
                 buildInfoRow(label: 'Height', value: biodata.height, labelColor: _pink, valueColor: Colors.black87),
                 buildInfoRow(label: 'City', value: biodata.city, labelColor: _pink, valueColor: Colors.black87),
+                buildInfoRow(label: 'Complexion',    value: biodata.complexion,   labelColor: _pink, valueColor: Colors.black87),
+                buildInfoRow(label: 'Mother Tongue', value: biodata.motherTongue, labelColor: _pink, valueColor: Colors.black87),
 
                 buildSectionTitle(title: 'Education & Career', color: _pink),
                 buildInfoRow(label: 'Education', value: biodata.education, labelColor: _pink, valueColor: Colors.black87),
                 buildInfoRow(label: 'Profession', value: biodata.profession, labelColor: _pink, valueColor: Colors.black87),
+                buildInfoRow(label: 'Salary',        value: biodata.salary, labelColor: _pink, valueColor: Colors.black87),
 
                 buildSectionTitle(title: 'Family', color: _pink),
                 buildInfoRow(label: "Father's Name", value: biodata.fatherName, labelColor: _pink, valueColor: Colors.black87),

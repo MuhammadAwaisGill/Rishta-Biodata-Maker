@@ -77,10 +77,14 @@ class Template4Modern extends BaseTemplate {
                 buildInfoRow(label: 'Age', value: biodata.age, labelColor: _lightNavy, valueColor: Colors.black87),
                 buildInfoRow(label: 'Height', value: biodata.height, labelColor: _lightNavy, valueColor: Colors.black87),
                 buildInfoRow(label: 'City', value: biodata.city, labelColor: _lightNavy, valueColor: Colors.black87),
+                buildInfoRow(label: 'Complexion',    value: biodata.complexion,   labelColor: _lightNavy, valueColor: Colors.black87),
+                buildInfoRow(label: 'Mother Tongue', value: biodata.motherTongue, labelColor: _lightNavy, valueColor: Colors.black87),
 
                 buildSectionTitle(title: 'Education & Career', color: _navy),
                 buildInfoRow(label: 'Education', value: biodata.education, labelColor: _lightNavy, valueColor: Colors.black87),
                 buildInfoRow(label: 'Profession', value: biodata.profession, labelColor: _lightNavy, valueColor: Colors.black87),
+                buildInfoRow(label: 'Salary',        value: biodata.salary, labelColor: _lightNavy, valueColor: Colors.black87),
+
 
                 buildSectionTitle(title: 'Family', color: _navy),
                 buildInfoRow(label: "Father's Name", value: biodata.fatherName, labelColor: _lightNavy, valueColor: Colors.black87),

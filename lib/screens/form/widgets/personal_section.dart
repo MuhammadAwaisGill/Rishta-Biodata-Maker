@@ -10,9 +10,18 @@ import 'form_section_wrapper.dart';
 class PersonalSection extends ConsumerWidget {
   const PersonalSection({super.key});
 
+  static const _complexions = [
+    'Fair', 'Wheatish', 'Brown', 'Dark Brown',
+  ];
+
+  static const _motherTongues = [
+    'Urdu', 'Punjabi', 'Sindhi', 'Pashto', 'Balochi',
+    'Saraiki', 'Kashmiri', 'English', 'Other',
+  ];
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final biodata = ref.watch(biodataProvider);
+    final biodata  = ref.watch(biodataProvider);
     final notifier = ref.read(biodataProvider.notifier);
 
     return FormSectionWrapper(
@@ -39,11 +48,23 @@ class PersonalSection extends ConsumerWidget {
           items: _heightOptions(),
           onChanged: (v) => notifier.updateHeight(v ?? ''),
         ),
+        _buildDropdown(
+          label: 'Complexion',
+          value: biodata.complexion.isEmpty ? null : biodata.complexion,
+          items: _complexions,
+          onChanged: (v) => notifier.updateComplexion(v ?? ''),
+        ),
         _buildTextField(
           label: 'City / Location',
           initialValue: biodata.city,
           onChanged: notifier.updateCity,
           keyboardType: TextInputType.text,
+        ),
+        _buildDropdown(
+          label: 'Mother Tongue',
+          value: biodata.motherTongue.isEmpty ? null : biodata.motherTongue,
+          items: _motherTongues,
+          onChanged: (v) => notifier.updateMotherTongue(v ?? ''),
         ),
       ],
     );

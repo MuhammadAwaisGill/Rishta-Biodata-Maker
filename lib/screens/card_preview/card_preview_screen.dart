@@ -1,13 +1,11 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_routes.dart';
 import '../../core/constants/app_sizes.dart';
 import '../../core/constants/app_strings.dart';
 import '../../providers/biodata_provider.dart';
@@ -36,6 +34,11 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
   final GlobalKey _repaintKey = GlobalKey();
   bool _isExporting = false;
 
+  // ── Zoom state ────────────────────────────────────────────────────────────
+  final TransformationController _transformController =
+  TransformationController();
+  bool _isZoomed = false;
+
   static const List<TemplateInfo> _templates = [
     TemplateInfo(id: 1, name: 'Islamic Green', description: '', color: Color(0xFF1B5E20)),
     TemplateInfo(id: 2, name: 'Floral Pink', description: '', color: Color(0xFFAD1457)),
@@ -45,14 +48,30 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
   ];
 
   @override
+  void dispose() {
+    _transformController.dispose();
+    super.dispose();
+  }
+
+  void _resetZoom() {
+    _transformController.value = Matrix4.identity();
+    setState(() => _isZoomed = false);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final biodata = ref.watch(biodataProvider);
     final selectedTemplate = ref.watch(selectedTemplateProvider);
-    final currentTemplate = _templates.firstWhere((t) => t.id == selectedTemplate);
+    final currentTemplate =
+    _templates.firstWhere((t) => t.id == selectedTemplate);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF0F0F0),
       body: CustomScrollView(
+        // Disable list scrolling while the user is zoomed in so pan works
+        physics: _isZoomed
+            ? const NeverScrollableScrollPhysics()
+            : const ClampingScrollPhysics(),
         slivers: [
           SliverAppBar(
             expandedHeight: 0,
@@ -72,10 +91,18 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
               ),
             ),
             actions: [
-              // Save design bookmark
+              // Reset zoom button — only visible when zoomed in
+              if (_isZoomed)
+                IconButton(
+                  onPressed: _resetZoom,
+                  icon: const Icon(Icons.zoom_out_map_rounded,
+                      color: Colors.white),
+                  tooltip: 'Reset zoom',
+                ),
               IconButton(
                 onPressed: _isExporting ? null : _saveDesign,
-                icon: const Icon(Icons.bookmark_add_rounded, color: Colors.white),
+                icon: const Icon(Icons.bookmark_add_rounded,
+                    color: Colors.white),
                 tooltip: 'Save Design',
               ),
             ],
@@ -99,12 +126,14 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline_rounded,
+                        const Icon(Icons.pinch_rounded,
                             color: Colors.white, size: 16),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            AppStrings.adWatchMsg,
+                            _isZoomed
+                                ? 'Pinch to zoom out • Tap 🔍 to reset'
+                                : 'Pinch to zoom in • ${AppStrings.adWatchMsg}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -130,7 +159,7 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
 
                 const SizedBox(height: 16),
 
-                // Card label
+                // Card label row
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
@@ -161,7 +190,8 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: currentTemplate.color.withOpacity(0.08),
+                            color:
+                            currentTemplate.color.withOpacity(0.08),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
                               color: currentTemplate.color.withOpacity(0.2),
@@ -170,7 +200,8 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
                           child: Row(
                             children: [
                               Icon(Icons.swap_horiz_rounded,
-                                  size: 14, color: currentTemplate.color),
+                                  size: 14,
+                                  color: currentTemplate.color),
                               const SizedBox(width: 4),
                               Text(
                                 'Change',
@@ -190,34 +221,86 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
 
                 const SizedBox(height: 12),
 
-                // The actual card with shadow
+                // ── Zoomable card ────────────────────────────────────────────
+                // InteractiveViewer handles pinch-zoom and pan.
+                // minScale 0.8 lets the user zoom slightly out (handy on
+                // small phones), maxScale 4.0 gives plenty of detail.
+                // The RepaintBoundary is INSIDE the viewer so the exported
+                // image is always at 1:1 scale regardless of zoom level.
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: currentTemplate.color.withOpacity(0.2),
-                          blurRadius: 24,
-                          offset: const Offset(0, 8),
+                  child: ClipRRect(
+                    // Clip so the card doesn't overflow during zoom
+                    borderRadius: BorderRadius.circular(12),
+                    child: InteractiveViewer(
+                      transformationController: _transformController,
+                      minScale: 0.8,
+                      maxScale: 4.0,
+                      clipBehavior: Clip.none,
+                      onInteractionEnd: (details) {
+                        // Track whether we're zoomed so we can disable
+                        // list scrolling and show the reset button
+                        final scale =
+                        _transformController.value.getMaxScaleOnAxis();
+                        setState(() => _isZoomed = scale > 1.05);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: currentTemplate.color.withOpacity(0.2),
+                              blurRadius: 24,
+                              offset: const Offset(0, 8),
+                            ),
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
+                        child: RepaintBoundary(
+                          key: _repaintKey,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: _buildTemplate(selectedTemplate),
+                          ),
                         ),
-                      ],
-                    ),
-                    child: RepaintBoundary(
-                      key: _repaintKey,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: _buildTemplate(selectedTemplate),
                       ),
                     ),
                   ),
                 ),
+
+                // Zoom hint pill — shown only when not zoomed
+                if (!_isZoomed)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.06),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.pinch_rounded,
+                              size: 14,
+                              color: AppColors.textMuted),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Pinch to zoom',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textMuted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
 
                 const SizedBox(height: 120),
               ],
@@ -239,19 +322,25 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
   Widget _buildTemplate(int templateId) {
     final biodata = ref.watch(biodataProvider);
     switch (templateId) {
-      case 1: return Template1Islamic(biodata: biodata);
-      case 2: return Template2Floral(biodata: biodata);
-      case 3: return Template3Royal(biodata: biodata);
-      case 4: return Template4Modern(biodata: biodata);
-      case 5: return Template5Simple(biodata: biodata);
-      default: return Template1Islamic(biodata: biodata);
+      case 1:
+        return Template1Islamic(biodata: biodata);
+      case 2:
+        return Template2Floral(biodata: biodata);
+      case 3:
+        return Template3Royal(biodata: biodata);
+      case 4:
+        return Template4Modern(biodata: biodata);
+      case 5:
+        return Template5Simple(biodata: biodata);
+      default:
+        return Template1Islamic(biodata: biodata);
     }
   }
 
   Future<void> _handleDownload() async {
     final adReady = ref.read(rewardedAdReadyProvider);
     if (adReady) {
-      AdService().showRewardedAd(onRewarded: () async {
+      ref.read(adServiceProvider).showRewardedAd(onRewarded: () async {
         await _captureAndSave();
       });
     } else {
@@ -261,6 +350,12 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
 
   Future<void> _captureAndSave() async {
     if (_isExporting) return;
+
+    // Reset zoom before capture so the exported image is always full-size
+    if (_isZoomed) _resetZoom();
+    // Give Flutter one frame to apply the reset before we capture
+    await Future.delayed(const Duration(milliseconds: 80));
+
     setState(() => _isExporting = true);
     try {
       final Uint8List? imageBytes =
@@ -284,6 +379,10 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
   }
 
   Future<void> _handleShare() async {
+    // Reset zoom so the shared image is full-size
+    if (_isZoomed) _resetZoom();
+    await Future.delayed(const Duration(milliseconds: 80));
+
     setState(() => _isExporting = true);
     try {
       final Uint8List? imageBytes =

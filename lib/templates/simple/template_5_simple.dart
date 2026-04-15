@@ -77,10 +77,14 @@ class Template5Simple extends BaseTemplate {
                 buildInfoRow(label: 'Age', value: biodata.age, labelColor: _grey, valueColor: _dark),
                 buildInfoRow(label: 'Height', value: biodata.height, labelColor: _grey, valueColor: _dark),
                 buildInfoRow(label: 'City', value: biodata.city, labelColor: _grey, valueColor: _dark),
+                buildInfoRow(label: 'Complexion',    value: biodata.complexion,   labelColor: _grey, valueColor: Colors.black87),
+                buildInfoRow(label: 'Mother Tongue', value: biodata.motherTongue, labelColor: _grey, valueColor: Colors.black87),
 
                 buildSectionTitle(title: 'Education & Career', color: _dark),
                 buildInfoRow(label: 'Education', value: biodata.education, labelColor: _grey, valueColor: _dark),
                 buildInfoRow(label: 'Profession', value: biodata.profession, labelColor: _grey, valueColor: _dark),
+                buildInfoRow(label: 'Salary',        value: biodata.salary, labelColor: _grey, valueColor: Colors.black87),
+
 
                 buildSectionTitle(title: 'Family', color: _dark),
                 buildInfoRow(label: "Father's Name", value: biodata.fatherName, labelColor: _grey, valueColor: _dark),
