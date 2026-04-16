@@ -17,7 +17,7 @@ class FamilySection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final biodata = ref.watch(biodataProvider);
+    final biodata  = ref.watch(biodataProvider);
     final notifier = ref.read(biodataProvider.notifier);
 
     return FormSectionWrapper(
@@ -28,6 +28,12 @@ class FamilySection extends ConsumerWidget {
           label: "Father's Name",
           initialValue: biodata.fatherName,
           onChanged: notifier.updateFatherName,
+        ),
+        _buildTextField(
+          label: "Father's Profession",
+          initialValue: biodata.fatherProfession,
+          onChanged: notifier.updateFatherProfession,
+          hint: 'e.g. Business, Teacher',
         ),
         _buildTextField(
           label: "Mother's Name",
@@ -52,6 +58,12 @@ class FamilySection extends ConsumerWidget {
           items: _familyTypes,
           onChanged: (v) => notifier.updateFamilyType(v ?? ''),
         ),
+        _buildTextField(
+          label: 'Caste / Biradari (optional)',
+          initialValue: biodata.caste,
+          onChanged: notifier.updateCaste,
+          hint: 'e.g. Rajput, Ansari, Arain',
+        ),
       ],
     );
   }
@@ -60,13 +72,17 @@ class FamilySection extends ConsumerWidget {
     required String label,
     required String initialValue,
     required Function(String) onChanged,
+    String? hint,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSizes.md),
       child: TextFormField(
         initialValue: initialValue,
         onChanged: onChanged,
-        decoration: _inputDecoration(label),
+        decoration: _inputDecoration(label).copyWith(
+          hintText: hint,
+          hintStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+        ),
       ),
     );
   }
@@ -81,6 +97,7 @@ class FamilySection extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: AppSizes.md),
       child: DropdownButtonFormField<String>(
         value: value,
+        isExpanded: true,
         decoration: _inputDecoration(label),
         items: items
             .map((e) => DropdownMenuItem(value: e, child: Text(e)))

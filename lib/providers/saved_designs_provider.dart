@@ -20,10 +20,23 @@ class SavedDesignsNotifier extends StateNotifier<List<Biodata>> {
     load();
   }
 
+  void update(Biodata biodata) {
+    _hive.updateDesign(biodata);
+    load();
+  }
+
   void delete(String id) {
     _hive.deleteDesign(id);
     load();
   }
+
+  /// Deletes all saved designs in one operation — avoids multiple rebuilds
+  void deleteAll() {
+    _hive.deleteAll();
+    state = [];
+  }
+
+  bool containsId(String id) => state.any((b) => b.id == id);
 }
 
 final savedDesignsProvider =

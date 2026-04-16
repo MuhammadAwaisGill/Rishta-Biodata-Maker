@@ -11,7 +11,7 @@ class ShareService {
   Future<void> shareApp() async {
     await Share.share(
       'Create beautiful rishta biodata cards!\n'
-          'Download Rishta Biodata Maker: https://play.google.com/store/apps/details?id=com.example.rishta_biodata_maker',
+          'Download Rishta Biodata Maker: https://play.google.com/store/apps/details?id=com.gillzlabs.rishta_biodata_maker',
     );
   }
 }

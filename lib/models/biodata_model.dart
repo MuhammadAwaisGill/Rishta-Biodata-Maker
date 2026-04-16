@@ -27,32 +27,40 @@ class Biodata extends HiveObject {
   @HiveField(19) late String   motherTongue;
   @HiveField(20) late String   salary;
   @HiveField(21) late String   whatsappNumber;
+  @HiveField(22) late String   institute;
+  @HiveField(23) late String   fatherProfession;
+  @HiveField(24) late String   caste;
+  @HiveField(25) late String   maritalStatus;
 
   Biodata();
 
   Biodata.empty() {
-    id             = DateTime.now().millisecondsSinceEpoch.toString();
-    name           = '';
-    age            = '';
-    height         = '';
-    city           = '';
-    education      = '';
-    profession     = '';
-    fatherName     = '';
-    motherName     = '';
-    brothers       = '0';
-    sisters        = '0';
-    familyType     = '';
-    sect           = '';
-    religiousness  = '';
-    photoPath      = '';
-    templateId     = 1;
-    notes          = '';
-    createdAt      = DateTime.now();
-    complexion     = '';
-    motherTongue   = '';
-    salary         = '';
-    whatsappNumber = '';
+    id               = DateTime.now().millisecondsSinceEpoch.toString();
+    name             = '';
+    age              = '';
+    height           = '';
+    city             = '';
+    education        = '';
+    profession       = '';
+    fatherName       = '';
+    motherName       = '';
+    brothers         = '';
+    sisters          = '';
+    familyType       = '';
+    sect             = '';
+    religiousness    = '';
+    photoPath        = '';
+    templateId       = 1;
+    notes            = '';
+    createdAt        = DateTime.now();
+    complexion       = '';
+    motherTongue     = '';
+    salary           = '';
+    whatsappNumber   = '';
+    institute        = '';
+    fatherProfession = '';
+    caste            = '';
+    maritalStatus    = '';
   }
 
   Biodata copyWith({
@@ -76,30 +84,54 @@ class Biodata extends HiveObject {
     String?   motherTongue,
     String?   salary,
     String?   whatsappNumber,
+    String?   institute,
+    String?   fatherProfession,
+    String?   caste,
+    String?   maritalStatus,
   }) {
-    final b          = Biodata.empty();
-    b.id             = id;
-    b.createdAt      = createdAt;
-    b.name           = name           ?? this.name;
-    b.age            = age            ?? this.age;
-    b.height         = height         ?? this.height;
-    b.city           = city           ?? this.city;
-    b.education      = education      ?? this.education;
-    b.profession     = profession     ?? this.profession;
-    b.fatherName     = fatherName     ?? this.fatherName;
-    b.motherName     = motherName     ?? this.motherName;
-    b.brothers       = brothers       ?? this.brothers;
-    b.sisters        = sisters        ?? this.sisters;
-    b.familyType     = familyType     ?? this.familyType;
-    b.sect           = sect           ?? this.sect;
-    b.religiousness  = religiousness  ?? this.religiousness;
-    b.photoPath      = photoPath      ?? this.photoPath;
-    b.templateId     = templateId     ?? this.templateId;
-    b.notes          = notes          ?? this.notes;
-    b.complexion     = complexion     ?? this.complexion;
-    b.motherTongue   = motherTongue   ?? this.motherTongue;
-    b.salary         = salary         ?? this.salary;
-    b.whatsappNumber = whatsappNumber ?? this.whatsappNumber;
+    final b              = Biodata.empty();
+    b.id                 = id;
+    b.createdAt          = createdAt;
+    b.name               = name            ?? this.name;
+    b.age                = age             ?? this.age;
+    b.height             = height          ?? this.height;
+    b.city               = city            ?? this.city;
+    b.education          = education       ?? this.education;
+    b.profession         = profession      ?? this.profession;
+    b.fatherName         = fatherName      ?? this.fatherName;
+    b.motherName         = motherName      ?? this.motherName;
+    b.brothers           = brothers        ?? this.brothers;
+    b.sisters            = sisters         ?? this.sisters;
+    b.familyType         = familyType      ?? this.familyType;
+    b.sect               = sect            ?? this.sect;
+    b.religiousness      = religiousness   ?? this.religiousness;
+    b.photoPath          = photoPath       ?? this.photoPath;
+    b.templateId         = templateId      ?? this.templateId;
+    b.notes              = notes           ?? this.notes;
+    b.complexion         = complexion      ?? this.complexion;
+    b.motherTongue       = motherTongue    ?? this.motherTongue;
+    b.salary             = salary          ?? this.salary;
+    b.whatsappNumber     = whatsappNumber  ?? this.whatsappNumber;
+    b.institute          = institute       ?? this.institute;
+    b.fatherProfession   = fatherProfession ?? this.fatherProfession;
+    b.caste              = caste           ?? this.caste;
+    b.maritalStatus      = maritalStatus   ?? this.maritalStatus;
     return b;
+  }
+
+  /// Returns true if at minimum name or age is filled (form is usable)
+  bool get isValid => name.trim().isNotEmpty || age.trim().isNotEmpty;
+
+  /// Returns a display name — falls back to "Unnamed Biodata"
+  String get displayName => name.trim().isEmpty ? 'Unnamed Biodata' : name.trim();
+
+  /// Completion percentage for progress indicator
+  double get completionPercent {
+    final fields = [
+      name, age, height, city, education, profession,
+      fatherName, motherName, sect, religiousness,
+    ];
+    final filled = fields.where((f) => f.trim().isNotEmpty).length;
+    return filled / fields.length;
   }
 }

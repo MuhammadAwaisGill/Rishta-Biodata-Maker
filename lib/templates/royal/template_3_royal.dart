@@ -5,8 +5,8 @@ import '../base_template.dart';
 class Template3Royal extends BaseTemplate {
   const Template3Royal({super.key, required super.biodata});
 
-  static const _maroon = Color(0xFF6A1B1B);
-  static const _gold = Color(0xFFFFD700);
+  static const _maroon     = Color(0xFF6A1B1B);
+  static const _gold       = Color(0xFFFFD700);
   static const _darkMaroon = Color(0xFF4A0E0E);
 
   @override
@@ -20,7 +20,7 @@ class Template3Royal extends BaseTemplate {
       ),
       child: Column(
         children: [
-          // Header
+          // ── Header ───────────────────────────────────────────────────────
           Container(
             width: double.infinity,
             color: _darkMaroon,
@@ -29,24 +29,15 @@ class Template3Royal extends BaseTemplate {
               children: [
                 Text('✦ ✦ ✦', style: TextStyle(fontSize: 16, color: _gold)),
                 SizedBox(height: 6),
-                Text(
-                  'RISHTA BIODATA',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: _gold,
-                    letterSpacing: 3,
-                  ),
-                ),
+                Text('RISHTA BIODATA', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _gold, letterSpacing: 3)),
                 SizedBox(height: 6),
                 Text('✦ ✦ ✦', style: TextStyle(fontSize: 16, color: _gold)),
               ],
             ),
           ),
-
           Container(height: 3, color: _gold),
 
-          // Body
+          // ── Body ─────────────────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -62,6 +53,8 @@ class Template3Royal extends BaseTemplate {
                         children: [
                           if (biodata.name.isNotEmpty)
                             Text(biodata.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _maroon)),
+                          if (biodata.maritalStatus.isNotEmpty)
+                            Text(biodata.maritalStatus, style: const TextStyle(fontSize: 11, color: Colors.black54)),
                           if (biodata.age.isNotEmpty)
                             Text('Age: ${biodata.age}', style: const TextStyle(fontSize: 12, color: Colors.black54)),
                           if (biodata.city.isNotEmpty)
@@ -73,28 +66,31 @@ class Template3Royal extends BaseTemplate {
                 ),
 
                 buildSectionTitle(title: 'Personal', color: _maroon),
-                buildInfoRow(label: 'Full Name', value: biodata.name, labelColor: _maroon, valueColor: Colors.black87),
-                buildInfoRow(label: 'Age', value: biodata.age, labelColor: _maroon, valueColor: Colors.black87),
-                buildInfoRow(label: 'Height', value: biodata.height, labelColor: _maroon, valueColor: Colors.black87),
-                buildInfoRow(label: 'City', value: biodata.city, labelColor: _maroon, valueColor: Colors.black87),
-                buildInfoRow(label: 'Complexion',    value: biodata.complexion,   labelColor: _maroon, valueColor: Colors.black87),
-                buildInfoRow(label: 'Mother Tongue', value: biodata.motherTongue, labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: 'Full Name',      value: biodata.name,          labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: 'Age',            value: biodata.age,           labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: 'Height',         value: biodata.height,        labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: 'Complexion',     value: biodata.complexion,    labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: 'City',           value: biodata.city,          labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: 'Mother Tongue',  value: biodata.motherTongue,  labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: 'Marital Status', value: biodata.maritalStatus, labelColor: _maroon, valueColor: Colors.black87),
 
                 buildSectionTitle(title: 'Education & Career', color: _maroon),
-                buildInfoRow(label: 'Education', value: biodata.education, labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: 'Education',  value: biodata.education,  labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: 'Institute',  value: biodata.institute,  labelColor: _maroon, valueColor: Colors.black87),
                 buildInfoRow(label: 'Profession', value: biodata.profession, labelColor: _maroon, valueColor: Colors.black87),
-                buildInfoRow(label: 'Salary',        value: biodata.salary, labelColor: _maroon, valueColor: Colors.black87),
-
+                buildInfoRow(label: 'Salary',     value: biodata.salary,     labelColor: _maroon, valueColor: Colors.black87),
 
                 buildSectionTitle(title: 'Family', color: _maroon),
-                buildInfoRow(label: "Father's Name", value: biodata.fatherName, labelColor: _maroon, valueColor: Colors.black87),
-                buildInfoRow(label: "Mother's Name", value: biodata.motherName, labelColor: _maroon, valueColor: Colors.black87),
-                buildInfoRow(label: 'Brothers', value: biodata.brothers, labelColor: _maroon, valueColor: Colors.black87),
-                buildInfoRow(label: 'Sisters', value: biodata.sisters, labelColor: _maroon, valueColor: Colors.black87),
-                buildInfoRow(label: 'Family Type', value: biodata.familyType, labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: "Father's Name", value: biodata.fatherName,       labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: "Father's Job",  value: biodata.fatherProfession, labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: "Mother's Name", value: biodata.motherName,       labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: 'Brothers',      value: biodata.brothers,         labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: 'Sisters',       value: biodata.sisters,          labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: 'Family Type',   value: biodata.familyType,       labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: 'Caste',         value: biodata.caste,            labelColor: _maroon, valueColor: Colors.black87),
 
                 buildSectionTitle(title: 'Religious', color: _maroon),
-                buildInfoRow(label: 'Sect', value: biodata.sect, labelColor: _maroon, valueColor: Colors.black87),
+                buildInfoRow(label: 'Sect',          value: biodata.sect,          labelColor: _maroon, valueColor: Colors.black87),
                 buildInfoRow(label: 'Religiousness', value: biodata.religiousness, labelColor: _maroon, valueColor: Colors.black87),
 
                 if (biodata.notes.isNotEmpty) ...[
@@ -108,17 +104,12 @@ class Template3Royal extends BaseTemplate {
           ),
 
           Container(height: 3, color: _gold),
-
-          // Footer
           Container(
             width: double.infinity,
             color: _darkMaroon,
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: const Center(
-              child: Text(
-                '✦ Made with Rishta Biodata Maker ✦',
-                style: TextStyle(fontSize: 11, color: _gold),
-              ),
+              child: Text('✦ Made with Rishta Biodata Maker ✦', style: TextStyle(fontSize: 11, color: _gold)),
             ),
           ),
         ],

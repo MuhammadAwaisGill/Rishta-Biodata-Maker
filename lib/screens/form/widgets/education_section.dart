@@ -11,7 +11,7 @@ class EducationSection extends ConsumerWidget {
 
   static const _qualifications = [
     'Matric', 'Intermediate', 'BA / BSc', 'MA / MSc',
-    'MBA', 'MBBS', 'Engineering', 'PhD', 'Other',
+    'MBA', 'MBBS', 'BDS', 'Engineering', 'LLB', 'PhD', 'Other',
   ];
 
   static const _salaryRanges = [
@@ -40,12 +40,19 @@ class EducationSection extends ConsumerWidget {
           onChanged: (v) => notifier.updateEducation(v ?? ''),
         ),
         _buildTextField(
+          label: 'Institute / University',
+          initialValue: biodata.institute,
+          onChanged: notifier.updateInstitute,
+          hint: 'e.g. University of Punjab',
+        ),
+        _buildTextField(
           label: 'Profession / Job',
           initialValue: biodata.profession,
           onChanged: notifier.updateProfession,
+          hint: 'e.g. Software Engineer',
         ),
         _buildDropdown(
-          label: 'Salary Range (optional)',
+          label: 'Monthly Salary (optional)',
           value: biodata.salary.isEmpty ? null : biodata.salary,
           items: _salaryRanges,
           onChanged: (v) => notifier.updateSalary(v ?? ''),
@@ -58,13 +65,17 @@ class EducationSection extends ConsumerWidget {
     required String label,
     required String initialValue,
     required Function(String) onChanged,
+    String? hint,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSizes.md),
       child: TextFormField(
         initialValue: initialValue,
         onChanged: onChanged,
-        decoration: _inputDecoration(label),
+        decoration: _inputDecoration(label).copyWith(
+          hintText: hint,
+          hintStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+        ),
       ),
     );
   }
@@ -79,9 +90,10 @@ class EducationSection extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: AppSizes.md),
       child: DropdownButtonFormField<String>(
         value: value,
+        isExpanded: true,
         decoration: _inputDecoration(label),
         items: items
-            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+            .map((e) => DropdownMenuItem(value: e, child: Text(e, overflow: TextOverflow.ellipsis)))
             .toList(),
         onChanged: onChanged,
       ),

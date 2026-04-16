@@ -10,13 +10,15 @@ import 'form_section_wrapper.dart';
 class PersonalSection extends ConsumerWidget {
   const PersonalSection({super.key});
 
-  static const _complexions = [
-    'Fair', 'Wheatish', 'Brown', 'Dark Brown',
-  ];
+  static const _complexions = ['Fair', 'Wheatish', 'Brown', 'Dark Brown'];
 
   static const _motherTongues = [
     'Urdu', 'Punjabi', 'Sindhi', 'Pashto', 'Balochi',
     'Saraiki', 'Kashmiri', 'English', 'Other',
+  ];
+
+  static const _maritalStatuses = [
+    'Never Married', 'Divorced', 'Widowed',
   ];
 
   @override
@@ -27,16 +29,18 @@ class PersonalSection extends ConsumerWidget {
     return FormSectionWrapper(
       title: AppStrings.sectionPersonal,
       icon: Icons.person_rounded,
+      initiallyExpanded: true,
       children: [
         _buildTextField(
-          label: 'Full Name',
+          label: 'Full Name *',
           initialValue: biodata.name,
           validator: Validators.validateName,
           onChanged: notifier.updateName,
           keyboardType: TextInputType.name,
+          textCapitalization: TextCapitalization.words,
         ),
         _buildTextField(
-          label: 'Age',
+          label: 'Age *',
           initialValue: biodata.age,
           validator: Validators.validateAge,
           onChanged: notifier.updateAge,
@@ -49,6 +53,12 @@ class PersonalSection extends ConsumerWidget {
           onChanged: (v) => notifier.updateHeight(v ?? ''),
         ),
         _buildDropdown(
+          label: 'Marital Status',
+          value: biodata.maritalStatus.isEmpty ? null : biodata.maritalStatus,
+          items: _maritalStatuses,
+          onChanged: (v) => notifier.updateMaritalStatus(v ?? ''),
+        ),
+        _buildDropdown(
           label: 'Complexion',
           value: biodata.complexion.isEmpty ? null : biodata.complexion,
           items: _complexions,
@@ -59,6 +69,7 @@ class PersonalSection extends ConsumerWidget {
           initialValue: biodata.city,
           onChanged: notifier.updateCity,
           keyboardType: TextInputType.text,
+          hint: 'e.g. Lahore, Karachi',
         ),
         _buildDropdown(
           label: 'Mother Tongue',
@@ -73,7 +84,7 @@ class PersonalSection extends ConsumerWidget {
   List<String> _heightOptions() {
     final List<String> heights = [];
     for (int feet = 4; feet <= 6; feet++) {
-      int maxInch = feet == 6 ? 5 : 11;
+      final int maxInch = feet == 6 ? 5 : 11;
       for (int inch = 0; inch <= maxInch; inch++) {
         heights.add("$feet'$inch\"");
       }
@@ -87,15 +98,21 @@ class PersonalSection extends ConsumerWidget {
     required Function(String) onChanged,
     String? Function(String?)? validator,
     TextInputType keyboardType = TextInputType.text,
+    TextCapitalization textCapitalization = TextCapitalization.none,
+    String? hint,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSizes.md),
       child: TextFormField(
         initialValue: initialValue,
         keyboardType: keyboardType,
+        textCapitalization: textCapitalization,
         validator: validator,
         onChanged: onChanged,
-        decoration: _inputDecoration(label),
+        decoration: _inputDecoration(label).copyWith(
+          hintText: hint,
+          hintStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+        ),
       ),
     );
   }
@@ -110,9 +127,10 @@ class PersonalSection extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: AppSizes.md),
       child: DropdownButtonFormField<String>(
         value: value,
+        isExpanded: true,
         decoration: _inputDecoration(label),
         items: items
-            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+            .map((e) => DropdownMenuItem(value: e, child: Text(e, overflow: TextOverflow.ellipsis)))
             .toList(),
         onChanged: onChanged,
       ),
@@ -136,6 +154,10 @@ class PersonalSection extends ConsumerWidget {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppSizes.radiusSm),
         borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+        borderSide: const BorderSide(color: AppColors.error, width: 1.5),
       ),
     );
   }

@@ -1,4 +1,4 @@
-package com.example.rishta_biodata_maker
+package com.gillzlabs.rishta_biodata_maker
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -318,7 +318,7 @@ class AboutScreen extends StatelessWidget {
                           label: 'Rate App',
                           color: const Color(0xFFFFC107),
                           onTap: () => _launchUrl(
-                              'https://play.google.com/store/apps/details?id=com.example.rishta_biodata_maker'),
+                              'https://play.google.com/store/apps/details?id=com.gillzlabs.rishta_biodata_maker'),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -536,7 +536,7 @@ class AboutScreen extends StatelessWidget {
 
   Future<void> _shareApp() async {
     await Share.share(
-      'Create beautiful rishta biodata cards!\nDownload: https://play.google.com/store/apps/details?id=com.example.rishta_biodata_maker',
+      'Create beautiful rishta biodata cards!\nDownload: https://play.google.com/store/apps/details?id=com.gillzlabs.rishta_biodata_maker',
     );
   }
 }

@@ -20,7 +20,7 @@ class SavedDesignsScreen extends ConsumerWidget {
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          // Enhanced AppBar
+          // ── Enhanced AppBar ─────────────────────────────────────────────
           SliverAppBar(
             expandedHeight: 140,
             pinned: true,
@@ -33,12 +33,8 @@ class SavedDesignsScreen extends ConsumerWidget {
                   padding: const EdgeInsets.only(right: 8),
                   child: TextButton.icon(
                     onPressed: () => _showClearAllDialog(context, ref),
-                    icon: const Icon(Icons.delete_sweep_rounded,
-                        color: Colors.white70, size: 16),
-                    label: const Text(
-                      'Clear All',
-                      style: TextStyle(color: Colors.white70, fontSize: 13),
-                    ),
+                    icon: const Icon(Icons.delete_sweep_rounded, color: Colors.white70, size: 16),
+                    label: const Text('Clear All', style: TextStyle(color: Colors.white70, fontSize: 13)),
                   ),
                 ),
             ],
@@ -61,14 +57,12 @@ class SavedDesignsScreen extends ConsumerWidget {
                         Row(
                           children: [
                             Container(
-                              width: 40,
-                              height: 40,
+                              width: 40, height: 40,
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.15),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Icon(Icons.bookmark_rounded,
-                                  color: Colors.white, size: 22),
+                              child: const Icon(Icons.bookmark_rounded, color: Colors.white, size: 22),
                             ),
                             const SizedBox(width: 12),
                             Column(
@@ -76,20 +70,13 @@ class SavedDesignsScreen extends ConsumerWidget {
                               children: [
                                 const Text(
                                   'My Designs',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
                                 ),
                                 Text(
                                   designs.isEmpty
                                       ? 'No designs yet'
                                       : '${designs.length} saved ${designs.length == 1 ? 'design' : 'designs'}',
-                                  style: const TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 13,
-                                  ),
+                                  style: const TextStyle(color: Colors.white70, fontSize: 13),
                                 ),
                               ],
                             ),
@@ -122,49 +109,31 @@ class SavedDesignsScreen extends ConsumerWidget {
                   color: AppColors.surface,
                   borderRadius: BorderRadius.circular(AppSizes.radiusMd),
                   boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
+                    BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6, offset: const Offset(0, 2)),
                   ],
                 ),
                 child: Row(
                   children: [
-                    _statChip(
-                      Icons.bookmark_rounded,
-                      '${designs.length}',
-                      'Saved',
-                      AppColors.primary,
-                    ),
+                    _statChip(Icons.bookmark_rounded, '${designs.length}', 'Saved', AppColors.primary),
                     const SizedBox(width: 12),
                     _statChip(
                       Icons.article_rounded,
                       '${designs.map((d) => d.templateId).toSet().length}',
-                      'Templates Used',
+                      'Templates',
                       const Color(0xFF0D47A1),
                     ),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: AppColors.primary.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Row(
                         children: [
-                          Icon(Icons.touch_app_rounded,
-                              size: 13, color: AppColors.primary),
+                          Icon(Icons.touch_app_rounded, size: 13, color: AppColors.primary),
                           SizedBox(width: 4),
-                          Text(
-                            'Tap to open',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                          Text('Tap to open', style: TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w500)),
                         ],
                       ),
                     ),
@@ -186,16 +155,11 @@ class SavedDesignsScreen extends ConsumerWidget {
                         biodata: design,
                         index: index,
                         onTap: () {
-                          ref
-                              .read(biodataProvider.notifier)
-                              .loadFromSaved(design);
-                          ref
-                              .read(selectedTemplateProvider.notifier)
-                              .state = design.templateId;
+                          ref.read(biodataProvider.notifier).loadFromSaved(design);
+                          ref.read(selectedTemplateProvider.notifier).state = design.templateId;
                           context.push(AppRoutes.cardPreview);
                         },
-                        onDelete: () =>
-                            _showDeleteDialog(context, ref, design.id),
+                        onDelete: () => _showDeleteDialog(context, ref, design.id),
                       ),
                     );
                   },
@@ -216,10 +180,7 @@ class SavedDesignsScreen extends ConsumerWidget {
         foregroundColor: Colors.white,
         elevation: 4,
         icon: const Icon(Icons.add_rounded),
-        label: const Text(
-          'New Biodata',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
+        label: const Text('New Biodata', style: TextStyle(fontWeight: FontWeight.w600)),
       ),
     );
   }
@@ -228,8 +189,7 @@ class SavedDesignsScreen extends ConsumerWidget {
     return Row(
       children: [
         Container(
-          width: 32,
-          height: 32,
+          width: 32, height: 32,
           decoration: BoxDecoration(
             color: color.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
@@ -240,21 +200,8 @@ class SavedDesignsScreen extends ConsumerWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 10,
-                color: AppColors.textMuted,
-              ),
-            ),
+            Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: color)),
+            Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
           ],
         ),
       ],
@@ -265,8 +212,7 @@ class SavedDesignsScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSizes.radiusMd)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusMd)),
         title: const Row(
           children: [
             Icon(Icons.delete_outline_rounded, color: AppColors.error),
@@ -288,9 +234,7 @@ class SavedDesignsScreen extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.error,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSizes.radiusSm),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusSm)),
             ),
             child: const Text('Delete'),
           ),
@@ -303,8 +247,7 @@ class SavedDesignsScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSizes.radiusMd)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusMd)),
         title: const Row(
           children: [
             Icon(Icons.delete_sweep_rounded, color: AppColors.error),
@@ -312,8 +255,7 @@ class SavedDesignsScreen extends ConsumerWidget {
             Text('Clear All'),
           ],
         ),
-        content: const Text(
-            'This will delete all your saved designs. This cannot be undone.'),
+        content: const Text('This will delete ALL saved designs. This cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -321,18 +263,14 @@ class SavedDesignsScreen extends ConsumerWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              final designs = ref.read(savedDesignsProvider);
-              for (final d in designs) {
-                ref.read(savedDesignsProvider.notifier).delete(d.id);
-              }
+              // ✅ Single call — avoids multiple state rebuilds
+              ref.read(savedDesignsProvider.notifier).deleteAll();
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.error,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSizes.radiusSm),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusSm)),
             ),
             child: const Text('Clear All'),
           ),
@@ -357,36 +295,23 @@ class _EmptyState extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 120,
-              height: 120,
+              width: 120, height: 120,
               decoration: BoxDecoration(
                 color: AppColors.primary.withOpacity(0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.bookmark_border_rounded,
-                size: 60,
-                color: AppColors.primary,
-              ),
+              child: const Icon(Icons.bookmark_border_rounded, size: 60, color: AppColors.primary),
             ),
             const SizedBox(height: 28),
             const Text(
               'No Designs Yet',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textDark,
-              ),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textDark),
             ),
             const SizedBox(height: 12),
             const Text(
               'Create your first biodata by choosing a template from the Home screen.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textMuted,
-                height: 1.6,
-              ),
+              style: TextStyle(fontSize: 14, color: AppColors.textMuted, height: 1.6),
             ),
             const SizedBox(height: 32),
             ElevatedButton.icon(
@@ -396,11 +321,8 @@ class _EmptyState extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 28, vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusMd)),
               ),
             ),
           ],

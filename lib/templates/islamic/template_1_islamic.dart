@@ -20,7 +20,7 @@ class Template1Islamic extends BaseTemplate {
       ),
       child: Column(
         children: [
-          // Header
+          // ── Header ───────────────────────────────────────────────────────
           Container(
             width: double.infinity,
             color: _green,
@@ -46,12 +46,12 @@ class Template1Islamic extends BaseTemplate {
             ),
           ),
 
-          // Body
+          // ── Body ─────────────────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                // Photo + name row
+                // Photo + name + QR row
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -62,7 +62,12 @@ class Template1Islamic extends BaseTemplate {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (biodata.name.isNotEmpty)
-                            Text(biodata.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _green)),
+                            Text(
+                              biodata.name,
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _green),
+                            ),
+                          if (biodata.maritalStatus.isNotEmpty)
+                            Text(biodata.maritalStatus, style: const TextStyle(fontSize: 11, color: Colors.black54)),
                           if (biodata.age.isNotEmpty || biodata.height.isNotEmpty)
                             Text(
                               [
@@ -76,35 +81,38 @@ class Template1Islamic extends BaseTemplate {
                         ],
                       ),
                     ),
-                    // QR code sits top-right next to the name block
                     buildQrCode(foregroundColor: _green, backgroundColor: Colors.white),
                   ],
                 ),
 
-                // Personal
+                // ── Personal ────────────────────────────────────────────────
                 buildSectionTitle(title: 'Personal', color: _green),
-                buildInfoRow(label: 'Full Name',     value: biodata.name,          labelColor: _lightGreen, valueColor: Colors.black87),
-                buildInfoRow(label: 'Age',           value: biodata.age,           labelColor: _lightGreen, valueColor: Colors.black87),
-                buildInfoRow(label: 'Height',        value: biodata.height,        labelColor: _lightGreen, valueColor: Colors.black87),
-                buildInfoRow(label: 'Complexion',    value: biodata.complexion,    labelColor: _lightGreen, valueColor: Colors.black87),
-                buildInfoRow(label: 'City',          value: biodata.city,          labelColor: _lightGreen, valueColor: Colors.black87),
-                buildInfoRow(label: 'Mother Tongue', value: biodata.motherTongue,  labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Full Name',      value: biodata.name,          labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Age',            value: biodata.age,           labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Height',         value: biodata.height,        labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Complexion',     value: biodata.complexion,    labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'City',           value: biodata.city,          labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Mother Tongue',  value: biodata.motherTongue,  labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Marital Status', value: biodata.maritalStatus, labelColor: _lightGreen, valueColor: Colors.black87),
 
-                // Education
+                // ── Education & Career ────────────────────────────────────
                 buildSectionTitle(title: 'Education & Career', color: _green),
-                buildInfoRow(label: 'Education',     value: biodata.education,     labelColor: _lightGreen, valueColor: Colors.black87),
-                buildInfoRow(label: 'Profession',    value: biodata.profession,    labelColor: _lightGreen, valueColor: Colors.black87),
-                buildInfoRow(label: 'Salary',        value: biodata.salary,        labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Education',  value: biodata.education,  labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Institute',  value: biodata.institute,  labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Profession', value: biodata.profession, labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Salary',     value: biodata.salary,     labelColor: _lightGreen, valueColor: Colors.black87),
 
-                // Family
+                // ── Family ───────────────────────────────────────────────
                 buildSectionTitle(title: 'Family', color: _green),
-                buildInfoRow(label: "Father's Name", value: biodata.fatherName,   labelColor: _lightGreen, valueColor: Colors.black87),
-                buildInfoRow(label: "Mother's Name", value: biodata.motherName,   labelColor: _lightGreen, valueColor: Colors.black87),
-                buildInfoRow(label: 'Brothers',      value: biodata.brothers,     labelColor: _lightGreen, valueColor: Colors.black87),
-                buildInfoRow(label: 'Sisters',       value: biodata.sisters,      labelColor: _lightGreen, valueColor: Colors.black87),
-                buildInfoRow(label: 'Family Type',   value: biodata.familyType,   labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: "Father's Name",  value: biodata.fatherName,       labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: "Father's Job",   value: biodata.fatherProfession, labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: "Mother's Name",  value: biodata.motherName,       labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Brothers',       value: biodata.brothers,         labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Sisters',        value: biodata.sisters,          labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Family Type',    value: biodata.familyType,       labelColor: _lightGreen, valueColor: Colors.black87),
+                buildInfoRow(label: 'Caste',          value: biodata.caste,            labelColor: _lightGreen, valueColor: Colors.black87),
 
-                // Religious
+                // ── Religious ────────────────────────────────────────────
                 buildSectionTitle(title: 'Religious', color: _green),
                 buildInfoRow(label: 'Sect',          value: biodata.sect,          labelColor: _lightGreen, valueColor: Colors.black87),
                 buildInfoRow(label: 'Religiousness', value: biodata.religiousness, labelColor: _lightGreen, valueColor: Colors.black87),
@@ -119,7 +127,7 @@ class Template1Islamic extends BaseTemplate {
             ),
           ),
 
-          // Footer
+          // ── Footer ───────────────────────────────────────────────────────
           Container(
             width: double.infinity,
             color: _green,

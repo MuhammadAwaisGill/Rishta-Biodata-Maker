@@ -15,33 +15,75 @@ import 'widgets/religious_section.dart';
 import 'widgets/preferences_section.dart';
 import 'widgets/photo_picker_widget.dart';
 
-class FormScreen extends ConsumerWidget {
+class FormScreen extends ConsumerStatefulWidget {
   const FormScreen({super.key});
+
+  @override
+  ConsumerState<FormScreen> createState() => _FormScreenState();
+}
+
+class _FormScreenState extends ConsumerState<FormScreen> {
+  // ✅ formKey as a field — NEVER create GlobalKey in build()
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   static const List<TemplateInfo> _templates = [
     TemplateInfo(id: 1, name: 'Islamic Green', description: '', color: Color(0xFF1B5E20)),
-    TemplateInfo(id: 2, name: 'Floral Pink', description: '', color: Color(0xFFAD1457)),
-    TemplateInfo(id: 3, name: 'Royal Maroon', description: '', color: Color(0xFF6A1B1B)),
-    TemplateInfo(id: 4, name: 'Modern Navy', description: '', color: Color(0xFF0D47A1)),
-    TemplateInfo(id: 5, name: 'Simple White', description: '', color: Color(0xFF424242)),
+    TemplateInfo(id: 2, name: 'Floral Pink',   description: '', color: Color(0xFFAD1457)),
+    TemplateInfo(id: 3, name: 'Royal Maroon',  description: '', color: Color(0xFF6A1B1B)),
+    TemplateInfo(id: 4, name: 'Modern Navy',   description: '', color: Color(0xFF0D47A1)),
+    TemplateInfo(id: 5, name: 'Simple White',  description: '', color: Color(0xFF424242)),
   ];
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final formKey = GlobalKey<FormState>();
-    final selectedTemplate = ref.watch(selectedTemplateProvider);
-    final currentTemplate = _templates.firstWhere((t) => t.id == selectedTemplate);
+  void _showResetDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.refresh_rounded, color: AppColors.primary),
+            SizedBox(width: 8),
+            Text('Reset Form?'),
+          ],
+        ),
+        content: const Text('All your entered data will be cleared. Are you sure?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              ref.read(biodataProvider.notifier).resetForm();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Reset'),
+          ),
+        ],
+      ),
+    );
+  }
 
-    // Watch the biodata id — when Reset is tapped, Biodata.empty() creates
-    // a new id (timestamp-based), which changes this value and causes all
-    // keyed section widgets to be fully rebuilt, clearing their TextFormFields.
-    final biodataId = ref.watch(biodataProvider.select((b) => b.id));
+  @override
+  Widget build(BuildContext context) {
+    final selectedTemplate = ref.watch(selectedTemplateProvider);
+    final biodataId        = ref.watch(biodataProvider.select((b) => b.id));
+    final currentTemplate  = _templates.firstWhere(
+          (t) => t.id == selectedTemplate,
+      orElse: () => _templates.first,
+    );
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          // Enhanced AppBar
+          // ── AppBar ────────────────────────────────────────────────────────
           SliverAppBar(
             expandedHeight: 130,
             pinned: true,
@@ -53,25 +95,16 @@ class FormScreen extends ConsumerWidget {
             ),
             actions: [
               TextButton.icon(
-                onPressed: () {
-                  ref.read(biodataProvider.notifier).resetForm();
-                },
-                icon: const Icon(Icons.refresh_rounded,
-                    color: Colors.white70, size: 16),
-                label: const Text(
-                  'Reset',
-                  style: TextStyle(color: Colors.white70, fontSize: 13),
-                ),
+                onPressed: _showResetDialog,
+                icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 16),
+                label: const Text('Reset', style: TextStyle(color: Colors.white70, fontSize: 13)),
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      currentTemplate.color,
-                      currentTemplate.color.withOpacity(0.8),
-                    ],
+                    colors: [currentTemplate.color, currentTemplate.color.withOpacity(0.8)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -95,28 +128,20 @@ class FormScreen extends ConsumerWidget {
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
                                 currentTemplate.name,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500),
                               ),
                             ),
                             const SizedBox(width: 8),
                             Text(
                               'template selected',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
-                                fontSize: 11,
-                              ),
+                              style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 11),
                             ),
                           ],
                         ),
@@ -128,16 +153,16 @@ class FormScreen extends ConsumerWidget {
             ),
           ),
 
-          // Form body
+          // ── Form body ──────────────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Form(
-              key: formKey,
+              key: _formKey,
               child: Padding(
                 padding: const EdgeInsets.all(AppSizes.md),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Photo picker card — also keyed so photo clears on reset
+                    // Photo picker — keyed to biodataId so it clears on reset
                     Container(
                       key: ValueKey('photo_$biodataId'),
                       width: double.infinity,
@@ -176,14 +201,11 @@ class FormScreen extends ConsumerWidget {
                       decoration: BoxDecoration(
                         color: currentTemplate.color.withOpacity(0.06),
                         borderRadius: BorderRadius.circular(AppSizes.radiusSm),
-                        border: Border.all(
-                          color: currentTemplate.color.withOpacity(0.2),
-                        ),
+                        border: Border.all(color: currentTemplate.color.withOpacity(0.2)),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.lightbulb_rounded,
-                              color: currentTemplate.color, size: 18),
+                          Icon(Icons.lightbulb_rounded, color: currentTemplate.color, size: 18),
                           const SizedBox(width: AppSizes.sm),
                           Expanded(
                             child: Text(
@@ -201,18 +223,10 @@ class FormScreen extends ConsumerWidget {
 
                     const SizedBox(height: AppSizes.md),
 
-                    // Section label
                     _sectionLabel('Your Information'),
-
                     const SizedBox(height: AppSizes.sm),
 
-                    // ── Form sections ────────────────────────────────────────
-                    // Each section receives a ValueKey derived from biodataId.
-                    // When the user taps Reset, BiodataNotifier.resetForm()
-                    // calls Biodata.empty() which generates a new timestamp id.
-                    // Flutter sees the key change and fully recreates the widget,
-                    // which forces TextFormField to re-read initialValue — so
-                    // all fields visually clear without needing controllers.
+                    // ── Form sections — keyed to biodataId for reset support ──
                     PersonalSection(key: ValueKey('personal_$biodataId')),
                     const SizedBox(height: AppSizes.sm),
                     EducationSection(key: ValueKey('education_$biodataId')),
@@ -225,53 +239,8 @@ class FormScreen extends ConsumerWidget {
 
                     const SizedBox(height: AppSizes.xl),
 
-                    // Generate button
-                    Container(
-                      width: double.infinity,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            currentTemplate.color,
-                            currentTemplate.color.withOpacity(0.8),
-                          ],
-                        ),
-                        borderRadius:
-                        BorderRadius.circular(AppSizes.radiusMd),
-                        boxShadow: [
-                          BoxShadow(
-                            color: currentTemplate.color.withOpacity(0.4),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          if (formKey.currentState?.validate() ?? false) {
-                            context.push(AppRoutes.cardPreview);
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                            BorderRadius.circular(AppSizes.radiusMd),
-                          ),
-                        ),
-                        icon: const Icon(Icons.auto_awesome_rounded,
-                            size: 22, color: Colors.white),
-                        label: const Text(
-                          AppStrings.btnGenerate,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
+                    // ── Generate button ────────────────────────────────────
+                    _buildGenerateButton(currentTemplate),
 
                     const SizedBox(height: AppSizes.xl),
                   ],
@@ -284,11 +253,49 @@ class FormScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildGenerateButton(TemplateInfo template) {
+    return Container(
+      width: double.infinity,
+      height: 56,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [template.color, template.color.withOpacity(0.85)],
+        ),
+        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+        boxShadow: [
+          BoxShadow(
+            color: template.color.withOpacity(0.4),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ElevatedButton.icon(
+        onPressed: () {
+          if (_formKey.currentState?.validate() ?? false) {
+            context.push(AppRoutes.cardPreview);
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+          ),
+        ),
+        icon: const Icon(Icons.auto_awesome_rounded, size: 22, color: Colors.white),
+        label: const Text(
+          AppStrings.btnGenerate,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+      ),
+    );
+  }
+
   Widget _sectionLabel(String label) {
     return Row(
       children: [
-        const Icon(Icons.info_outline_rounded,
-            size: 15, color: AppColors.textMuted),
+        const Icon(Icons.info_outline_rounded, size: 15, color: AppColors.textMuted),
         const SizedBox(width: 6),
         Text(
           label,
