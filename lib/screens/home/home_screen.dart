@@ -10,13 +10,21 @@ import 'widgets/template_card.dart';
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
-  static const List<TemplateInfo> _templates = [
-    TemplateInfo(id: 1, name: 'Islamic Green', description: 'Classic green & gold Islamic border', color: Color(0xFF1B5E20)),
-    TemplateInfo(id: 2, name: 'Floral Pink', description: 'Soft pink floral design for girls', color: Color(0xFFAD1457)),
-    TemplateInfo(id: 3, name: 'Royal Maroon', description: 'Deep maroon mughal pattern', color: Color(0xFF6A1B1B)),
-    TemplateInfo(id: 4, name: 'Modern Navy', description: 'Clean minimal navy design', color: Color(0xFF0D47A1)),
-    TemplateInfo(id: 5, name: 'Simple White', description: 'Professional clean white card', color: Color(0xFF424242)),
-  ];
+  // Use AppTemplates.all for all 10 templates
+  static final List<TemplateInfo> _templates = AppTemplates.all;
+
+  static const Map<int, String> _templateEmojis = {
+    1: '☪️',
+    2: '🌸',
+    3: '👑',
+    4: '💼',
+    5: '📄',
+    6: '🕌',
+    7: '📊',
+    8: '🌙',
+    9: '⚜️',
+    10: '📸',
+  };
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,7 +36,7 @@ class HomeScreen extends ConsumerWidget {
         slivers: [
           // Enhanced SliverAppBar
           SliverAppBar(
-            expandedHeight: 180,
+            expandedHeight: 190,
             floating: false,
             pinned: true,
             backgroundColor: AppColors.primary,
@@ -37,112 +45,146 @@ class HomeScreen extends ConsumerWidget {
               background: Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFF1B5E20), Color(0xFF2E7D32), Color(0xFF388E3C)],
+                    colors: [
+                      Color(0xFF0A3D0A),
+                      Color(0xFF1B5E20),
+                      Color(0xFF2E7D32)
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                 ),
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Top row
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Stack(
+                  children: [
+                    // Decorative circles
+                    Positioned(
+                      top: -20,
+                      right: -20,
+                      child: Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.05),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 30,
+                      right: 60,
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.06),
+                        ),
+                      ),
+                    ),
+                    SafeArea(
+                      child: Padding(
+                        padding:
+                        const EdgeInsets.fromLTRB(20, 12, 20, 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Top row
                             Row(
+                              mainAxisAlignment:
+                              MainAxisAlignment.spaceBetween,
                               children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 38,
+                                      height: 38,
+                                      decoration: BoxDecoration(
+                                        color:
+                                        Colors.white.withOpacity(0.15),
+                                        borderRadius:
+                                        BorderRadius.circular(11),
+                                        border: Border.all(
+                                          color:
+                                          Colors.white.withOpacity(0.2),
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.favorite_rounded,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    const Text(
+                                      'Rishta Biodata Maker',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                                 Container(
-                                  width: 36,
-                                  height: 36,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(10),
+                                    color: const Color(0xFFFFD700)
+                                        .withOpacity(0.2),
+                                    borderRadius:
+                                    BorderRadius.circular(20),
                                     border: Border.all(
-                                      color: Colors.white.withOpacity(0.3),
+                                      color: const Color(0xFFFFD700)
+                                          .withOpacity(0.5),
                                     ),
                                   ),
-                                  child: const Icon(
-                                    Icons.favorite_rounded,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                const Text(
-                                  'Rishta Biodata Maker',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.bold,
+                                  child: const Row(
+                                    children: [
+                                      Icon(Icons.star_rounded,
+                                          color: Color(0xFFFFD700),
+                                          size: 14),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Free',
+                                        style: TextStyle(
+                                          color: Color(0xFFFFD700),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
-                            // Gold badge
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
+
+                            const Spacer(),
+
+                            const Text(
+                              'Assalam o Alaikum! 👋',
+                              style: TextStyle(
+                                  color: Colors.white70, fontSize: 13),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'Choose a Template',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
                               ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFD700).withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: const Color(0xFFFFD700).withOpacity(0.5),
-                                ),
-                              ),
-                              child: const Row(
-                                children: [
-                                  Icon(Icons.star_rounded,
-                                      color: Color(0xFFFFD700), size: 14),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    'Free',
-                                    style: TextStyle(
-                                      color: Color(0xFFFFD700),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            const Text(
+                              'Create your perfect rishta biodata in minutes',
+                              style: TextStyle(
+                                  color: Colors.white60, fontSize: 12),
                             ),
                           ],
                         ),
-
-                        const Spacer(),
-
-                        // Welcome text
-                        const Text(
-                          'Assalam o Alaikum! 👋',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Choose a Template',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Create your perfect rishta biodata in minutes',
-                          style: TextStyle(
-                            color: Colors.white60,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -152,10 +194,12 @@ class HomeScreen extends ConsumerWidget {
           SliverToBoxAdapter(
             child: Container(
               margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+              padding:
+              const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
               decoration: BoxDecoration(
                 color: AppColors.surface,
-                borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                borderRadius:
+                BorderRadius.circular(AppSizes.radiusMd),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.05),
@@ -166,13 +210,17 @@ class HomeScreen extends ConsumerWidget {
               ),
               child: Row(
                 children: [
-                  _statItem(Icons.article_rounded, '5', 'Templates', AppColors.primary),
+                  _statItem(Icons.article_rounded, '10', 'Templates',
+                      AppColors.primary),
                   _divider(),
-                  _statItem(Icons.download_rounded, 'Free', 'Download', const Color(0xFF0D47A1)),
+                  _statItem(Icons.download_rounded, 'Free', 'Download',
+                      const Color(0xFF0D47A1)),
                   _divider(),
-                  _statItem(Icons.picture_as_pdf_rounded, 'PDF', 'Export', AppColors.error),
+                  _statItem(Icons.picture_as_pdf_rounded, 'PDF',
+                      'Export', AppColors.error),
                   _divider(),
-                  _statItem(Icons.share_rounded, 'Easy', 'Share', const Color(0xFFAD1457)),
+                  _statItem(Icons.qr_code_rounded, 'QR', 'Code',
+                      const Color(0xFF6A0DAD)),
                 ],
               ),
             ),
@@ -181,7 +229,8 @@ class HomeScreen extends ConsumerWidget {
           // Section label
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              padding:
+              const EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Row(
                 children: [
                   Container(
@@ -203,7 +252,8 @@ class HomeScreen extends ConsumerWidget {
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(20),
@@ -222,26 +272,33 @@ class HomeScreen extends ConsumerWidget {
             ),
           ),
 
-          // Template grid
+          // Template grid — ALL 10 templates
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+            padding:
+            const EdgeInsets.fromLTRB(16, 4, 16, 24),
             sliver: SliverGrid(
               delegate: SliverChildBuilderDelegate(
                     (context, index) {
                   final template = _templates[index];
                   final isSelected = selectedTemplate == template.id;
+                  final emoji = _templateEmojis[template.id] ?? '📄';
                   return TemplateCard(
                     templateInfo: template,
                     isSelected: isSelected,
+                    emoji: emoji,
                     onTap: () {
-                      ref.read(selectedTemplateProvider.notifier).state = template.id;
-                      context.push(AppRoutes.templatePreview, extra: template.id);
+                      ref
+                          .read(selectedTemplateProvider.notifier)
+                          .state = template.id;
+                      context.push(AppRoutes.templatePreview,
+                          extra: template.id);
                     },
                   );
                 },
                 childCount: _templates.length,
               ),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate:
+              const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 crossAxisSpacing: AppSizes.md,
                 mainAxisSpacing: AppSizes.md,
@@ -254,7 +311,8 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _statItem(IconData icon, String value, String label, Color color) {
+  Widget _statItem(
+      IconData icon, String value, String label, Color color) {
     return Expanded(
       child: Column(
         children: [

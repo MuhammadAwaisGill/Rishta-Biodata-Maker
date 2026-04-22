@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_routes.dart';
-import '../../core/constants/app_strings.dart';
 import '../../core/constants/app_sizes.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -23,31 +22,34 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   final List<_OnboardingData> _pages = const [
     _OnboardingData(
-      icon: Icons.favorite_rounded,
       emoji: '💍',
-      title: 'Beautiful Biodata Cards',
-      subtitle: 'Choose from elegant templates designed for Pakistani & Indian families.',
-      gradient: [Color(0xFF1B5E20), Color(0xFF2E7D32)],
+      title: 'Beautiful Biodata\nCards',
+      subtitle:
+      'Choose from 10 elegant templates crafted for Pakistani & Indian families.',
+      gradient: [Color(0xFF0A3D0A), Color(0xFF1B5E20)],
       accentColor: Color(0xFFFFD700),
-      features: ['5 Elegant Templates', 'Islamic & Modern Styles', 'Professional Design'],
+      features: ['10 Elegant Templates', 'Islamic & Modern Styles', 'Professional Design'],
+      icon: Icons.auto_awesome_rounded,
     ),
     _OnboardingData(
-      icon: Icons.edit_note_rounded,
       emoji: '✍️',
-      title: 'Fill Your Details',
-      subtitle: 'Simple form with all the sections a rishta biodata needs.',
-      gradient: [Color(0xFF1A237E), Color(0xFF283593)],
+      title: 'Fill Your Details\nEasily',
+      subtitle:
+      'Smart form with all rishta biodata sections. Toggle fields on/off as needed.',
+      gradient: [Color(0xFF0D2B6B), Color(0xFF1565C0)],
       accentColor: Color(0xFF90CAF9),
       features: ['Personal & Family Info', 'Education & Career', 'Religious Details'],
+      icon: Icons.edit_note_rounded,
     ),
     _OnboardingData(
-      icon: Icons.share_rounded,
       emoji: '🚀',
-      title: 'Download & Share',
-      subtitle: 'Save as image or PDF and share instantly on WhatsApp.',
-      gradient: [Color(0xFF880E4F), Color(0xFFAD1457)],
+      title: 'Download & Share\nInstantly',
+      subtitle:
+      'Export as image or PDF. Share on WhatsApp with a single tap.',
+      gradient: [Color(0xFF6A0080), Color(0xFFAD1457)],
       accentColor: Color(0xFFF48FB1),
-      features: ['Save to Gallery', 'Export as PDF', 'Share on WhatsApp'],
+      features: ['Save to Gallery', 'Export as PDF', 'QR Code & WhatsApp'],
+      icon: Icons.share_rounded,
     ),
   ];
 
@@ -56,15 +58,16 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     super.initState();
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 500),
     );
     _fadeAnim = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _animController, curve: Curves.easeIn),
     );
     _slideAnim = Tween<Offset>(
-      begin: const Offset(0, 0.1),
+      begin: const Offset(0, 0.08),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
+    ).animate(
+        CurvedAnimation(parent: _animController, curve: Curves.easeOut));
     _animController.forward();
   }
 
@@ -114,112 +117,141 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           ),
         ),
         child: SafeArea(
-          child: Column(
+          child: Stack(
             children: [
-              // Skip button
-              Align(
-                alignment: Alignment.topRight,
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSizes.md),
-                  child: TextButton(
-                    onPressed: _finishOnboarding,
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(0.15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    ),
-                    child: const Text(
-                      'Skip',
-                      style: TextStyle(color: Colors.white, fontSize: 13),
+              // Background decorative elements
+              ..._buildBgDecor(page),
+
+              Column(
+                children: [
+                  // Top bar
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Page counter
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '${_currentPage + 1} / ${_pages.length}',
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 13),
+                          ),
+                        ),
+                        // Skip button
+                        TextButton(
+                          onPressed: _finishOnboarding,
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.white.withOpacity(0.12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                          ),
+                          child: const Text(
+                            'Skip',
+                            style:
+                            TextStyle(color: Colors.white70, fontSize: 13),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ),
 
-              // Page content
-              Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: _pages.length,
-                  onPageChanged: _onPageChanged,
-                  itemBuilder: (context, index) {
-                    return _OnboardingPage(
-                      data: _pages[index],
-                      fadeAnim: _fadeAnim,
-                      slideAnim: _slideAnim,
-                    );
-                  },
-                ),
-              ),
-
-              // Bottom section
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-                child: Column(
-                  children: [
-                    // Dots
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        _pages.length,
-                            (index) => AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          width: _currentPage == index ? 28 : 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: _currentPage == index
-                                ? Colors.white
-                                : Colors.white.withOpacity(0.35),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                      ),
+                  // Page content
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      itemCount: _pages.length,
+                      onPageChanged: _onPageChanged,
+                      itemBuilder: (context, index) {
+                        return _OnboardingPage(
+                          data: _pages[index],
+                          fadeAnim: _fadeAnim,
+                          slideAnim: _slideAnim,
+                        );
+                      },
                     ),
+                  ),
 
-                    const SizedBox(height: 28),
-
-                    // Next button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 54,
-                      child: ElevatedButton(
-                        onPressed: _nextPage,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: page.gradient[0],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: Row(
+                  // Bottom section
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 36),
+                    child: Column(
+                      children: [
+                        // Dots
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              _currentPage == _pages.length - 1
-                                  ? 'Get Started'
-                                  : 'Next',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                          children: List.generate(
+                            _pages.length,
+                                (index) => AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              margin:
+                              const EdgeInsets.symmetric(horizontal: 4),
+                              width: _currentPage == index ? 32 : 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: _currentPage == index
+                                    ? Colors.white
+                                    : Colors.white.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(4),
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Icon(
-                              _currentPage == _pages.length - 1
-                                  ? Icons.rocket_launch_rounded
-                                  : Icons.arrow_forward_rounded,
-                              size: 18,
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
+
+                        const SizedBox(height: 28),
+
+                        // Next/Get Started button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: _nextPage,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: page.gradient[0],
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                BorderRadius.circular(AppSizes.radiusMd),
+                              ),
+                              elevation: 8,
+                              shadowColor: Colors.black38,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  _currentPage == _pages.length - 1
+                                      ? 'Get Started'
+                                      : 'Continue',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Icon(
+                                  _currentPage == _pages.length - 1
+                                      ? Icons.rocket_launch_rounded
+                                      : Icons.arrow_forward_rounded,
+                                  size: 18,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -227,9 +259,49 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       ),
     );
   }
-}
 
-// ── Single page ───────────────────────────────────────────────────────────────
+  List<Widget> _buildBgDecor(_OnboardingData page) {
+    return [
+      Positioned(
+        top: -50,
+        right: -50,
+        child: Container(
+          width: 200,
+          height: 200,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withOpacity(0.05),
+          ),
+        ),
+      ),
+      Positioned(
+        bottom: 80,
+        left: -60,
+        child: Container(
+          width: 180,
+          height: 180,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withOpacity(0.04),
+          ),
+        ),
+      ),
+      Positioned(
+        top: 120,
+        left: -30,
+        child: Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border:
+            Border.all(color: page.accentColor.withOpacity(0.2), width: 1),
+          ),
+        ),
+      ),
+    ];
+  }
+}
 
 class _OnboardingPage extends StatelessWidget {
   final _OnboardingData data;
@@ -253,17 +325,24 @@ class _OnboardingPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Big emoji + icon card
+              // Hero emoji card
               Container(
-                width: 150,
-                height: 150,
+                width: 140,
+                height: 140,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withOpacity(0.12),
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
+                    color: data.accentColor.withOpacity(0.4),
                     width: 2,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: data.accentColor.withOpacity(0.2),
+                      blurRadius: 30,
+                      spreadRadius: 5,
+                    ),
+                  ],
                 ),
                 child: Center(
                   child: Text(
@@ -273,21 +352,21 @@ class _OnboardingPage extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 36),
+              const SizedBox(height: 40),
 
               // Title
               Text(
                 data.title,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
                   color: Colors.white,
                   height: 1.2,
                 ),
               ),
 
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
 
               // Subtitle
               Text(
@@ -295,28 +374,27 @@ class _OnboardingPage extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
-                  color: Colors.white.withOpacity(0.85),
+                  color: Colors.white.withOpacity(0.8),
                   height: 1.6,
                 ),
               ),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 36),
 
               // Feature pills
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
                 alignment: WrapAlignment.center,
-                children: data.features.map((f) => Container(
+                children: data.features
+                    .map((f) => Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 8,
-                  ),
+                      horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withOpacity(0.25),
                     ),
                   ),
                   child: Row(
@@ -338,7 +416,8 @@ class _OnboardingPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                )).toList(),
+                ))
+                    .toList(),
               ),
             ],
           ),
@@ -348,24 +427,22 @@ class _OnboardingPage extends StatelessWidget {
   }
 }
 
-// ── Data model ────────────────────────────────────────────────────────────────
-
 class _OnboardingData {
-  final IconData icon;
   final String emoji;
   final String title;
   final String subtitle;
   final List<Color> gradient;
   final Color accentColor;
   final List<String> features;
+  final IconData icon;
 
   const _OnboardingData({
-    required this.icon,
     required this.emoji,
     required this.title,
     required this.subtitle,
     required this.gradient,
     required this.accentColor,
     required this.features,
+    required this.icon,
   });
 }

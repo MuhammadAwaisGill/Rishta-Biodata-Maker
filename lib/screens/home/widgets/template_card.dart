@@ -18,46 +18,21 @@ class TemplateInfo {
   });
 }
 
-// ── All templates in one place ────────────────────────────────────────────────
+// ── All 10 templates ──────────────────────────────────────────────────────────
 
 class AppTemplates {
   AppTemplates._();
 
   static const List<TemplateInfo> all = [
-    TemplateInfo(
-      id: 1,
-      name: 'Islamic Green',
-      description: 'Classic green & gold Islamic border',
-      color: Color(0xFF1B5E20),
-    ),
-    TemplateInfo(
-      id: 2,
-      name: 'Floral Pink',
-      description: 'Soft pink floral design for girls',
-      color: Color(0xFFAD1457),
-    ),
-    TemplateInfo(
-      id: 3,
-      name: 'Royal Maroon',
-      description: 'Deep maroon mughal pattern',
-      color: Color(0xFF6A1B1B),
-    ),
-    TemplateInfo(
-      id: 4,
-      name: 'Modern Navy',
-      description: 'Clean minimal navy design',
-      color: Color(0xFF0D47A1),
-    ),
-    TemplateInfo(
-      id: 5,
-      name: 'Simple White',
-      description: 'Professional clean white card',
-      color: Color(0xFF424242),
-    ),
-    TemplateInfo(id: 6, name: 'Urdu Calligraphy', description: 'Classical Urdu style with ornate borders', color: Color(0xFF6A0DAD)),
-    TemplateInfo(id: 7, name: 'Two Column', description: 'Compact two-column teal layout', color: Color(0xFF00695C)),
-    TemplateInfo(id: 8, name: 'Minimalist Dark', description: 'Sleek dark mode with orange accents', color: Color(0xFF1C1C1E)),
-    TemplateInfo(id: 9, name: 'Mughal Royal', description: 'Ornate Mughal-inspired gold & burgundy', color: Color(0xFF4A0828)),
+    TemplateInfo(id: 1, name: 'Islamic Green', description: 'Classic green & gold Islamic border', color: Color(0xFF1B5E20)),
+    TemplateInfo(id: 2, name: 'Floral Pink',   description: 'Soft pink floral design for girls',  color: Color(0xFFAD1457)),
+    TemplateInfo(id: 3, name: 'Royal Maroon',  description: 'Deep maroon mughal pattern',         color: Color(0xFF6A1B1B)),
+    TemplateInfo(id: 4, name: 'Modern Navy',   description: 'Clean minimal navy design',          color: Color(0xFF0D47A1)),
+    TemplateInfo(id: 5, name: 'Simple White',  description: 'Professional clean white card',      color: Color(0xFF424242)),
+    TemplateInfo(id: 6, name: 'Urdu Calligraphy', description: 'Ornate Urdu calligraphy style',   color: Color(0xFF6A0DAD)),
+    TemplateInfo(id: 7, name: 'Two Column',    description: 'Compact teal two-column layout',     color: Color(0xFF00695C)),
+    TemplateInfo(id: 8, name: 'Minimalist Dark', description: 'Sleek dark with orange accents',   color: Color(0xFF1C1C1E)),
+    TemplateInfo(id: 9, name: 'Mughal Royal',  description: 'Ornate gold & burgundy Mughal',      color: Color(0xFF4A0828)),
     TemplateInfo(id: 10, name: 'Photo Focused', description: 'Large photo hero with indigo theme', color: Color(0xFF283593)),
   ];
 }
@@ -68,12 +43,14 @@ class TemplateCard extends StatelessWidget {
   final TemplateInfo templateInfo;
   final bool isSelected;
   final VoidCallback onTap;
+  final String emoji;
 
   const TemplateCard({
     super.key,
     required this.templateInfo,
     required this.isSelected,
     required this.onTap,
+    this.emoji = '📄',
   });
 
   @override
@@ -85,13 +62,17 @@ class TemplateCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppSizes.radiusMd),
           border: Border.all(
-            color: isSelected ? AppColors.secondary : Colors.transparent,
-            width: 3,
+            color: isSelected
+                ? AppColors.secondary
+                : templateInfo.color.withOpacity(0.15),
+            width: isSelected ? 3 : 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 8,
+              color: isSelected
+                  ? templateInfo.color.withOpacity(0.2)
+                  : Colors.black.withOpacity(0.07),
+              blurRadius: isSelected ? 16 : 8,
               offset: const Offset(0, 3),
             ),
           ],
@@ -105,46 +86,82 @@ class TemplateCard extends StatelessWidget {
               Expanded(
                 child: Container(
                   width: double.infinity,
-                  color: templateInfo.color.withOpacity(0.12),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        templateInfo.color.withOpacity(0.15),
+                        templateInfo.color.withOpacity(0.08),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Background icon
-                      Icon(
-                        Icons.article_rounded,
-                        size: 80,
-                        color: templateInfo.color.withOpacity(0.15),
+                      // Background icon (subtle)
+                      Positioned(
+                        right: -10,
+                        bottom: -10,
+                        child: Icon(
+                          Icons.article_rounded,
+                          size: 90,
+                          color: templateInfo.color.withOpacity(0.08),
+                        ),
                       ),
 
                       // Center content
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          // Emoji in colored circle
                           Container(
-                            width: 48,
-                            height: 48,
+                            width: 56,
+                            height: 56,
                             decoration: BoxDecoration(
                               color: templateInfo.color,
                               shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: templateInfo.color.withOpacity(0.4),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
                             child: Center(
                               child: Text(
-                                '${templateInfo.id}',
-                                style: const TextStyle(
-                                  color: AppColors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
+                                emoji,
+                                style: const TextStyle(fontSize: 26),
                               ),
                             ),
                           ),
                           const SizedBox(height: AppSizes.sm),
                           Text(
                             templateInfo.name,
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               color: templateInfo.color,
                               fontWeight: FontWeight.bold,
-                              fontSize: 13,
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          // Template ID badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: templateInfo.color.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              'Template ${templateInfo.id}',
+                              style: TextStyle(
+                                fontSize: 9,
+                                color: templateInfo.color,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ],
@@ -156,15 +173,39 @@ class TemplateCard extends StatelessWidget {
                           top: 8,
                           right: 8,
                           child: Container(
-                            padding: const EdgeInsets.all(2),
+                            padding: const EdgeInsets.all(3),
                             decoration: const BoxDecoration(
                               color: AppColors.secondary,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
                               Icons.check_rounded,
-                              size: 16,
-                              color: AppColors.white,
+                              size: 14,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+
+                      // "New" badge for templates 6-10
+                      if (templateInfo.id > 5 && !isSelected)
+                        Positioned(
+                          top: 8,
+                          left: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFF6B35),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Text(
+                              'NEW',
+                              style: TextStyle(
+                                fontSize: 8,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
                             ),
                           ),
                         ),
@@ -179,12 +220,12 @@ class TemplateCard extends StatelessWidget {
                 color: AppColors.surface,
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSizes.sm,
-                  vertical: AppSizes.xs,
+                  vertical: 6,
                 ),
                 child: Text(
                   templateInfo.description,
                   style: const TextStyle(
-                    fontSize: 11,
+                    fontSize: 10,
                     color: AppColors.textMuted,
                   ),
                   maxLines: 2,

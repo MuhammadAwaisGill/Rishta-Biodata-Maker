@@ -16,9 +16,8 @@ class SettingsScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          // Enhanced AppBar
           SliverAppBar(
-            expandedHeight: 200,
+            expandedHeight: 210,
             pinned: true,
             automaticallyImplyLeading: false,
             backgroundColor: AppColors.primary,
@@ -27,80 +26,83 @@ class SettingsScreen extends StatelessWidget {
               background: Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      Color(0xFF1B5E20),
-                      Color(0xFF2E7D32),
-                      Color(0xFF388E3C),
-                    ],
+                    colors: [Color(0xFF0A3D0A), Color(0xFF1B5E20), Color(0xFF2E7D32)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                 ),
-                child: SafeArea(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 8),
-                      // App icon circle
-                      Container(
-                        width: 72,
-                        height: 72,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: -30,
+                      right: -30,
+                      child: Container(
+                        width: 140,
+                        height: 140,
                         decoration: BoxDecoration(
-                          color: Colors.white,
                           shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.15),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
+                          color: Colors.white.withOpacity(0.05),
+                        ),
+                      ),
+                    ),
+                    SafeArea(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 8),
+                          Container(
+                            width: 76,
+                            height: 76,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.favorite_rounded,
-                          color: AppColors.primary,
-                          size: 36,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        AppStrings.appName,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        AppStrings.appTagline,
-                        style: TextStyle(
-                          color: Color(0xFFFFD700),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.3),
+                            child: const Icon(Icons.favorite_rounded,
+                                color: AppColors.primary, size: 36),
                           ),
-                        ),
-                        child: const Text(
-                          'Version 1.0.0',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
+                          const SizedBox(height: 12),
+                          const Text(
+                            AppStrings.appName,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 19,
+                                fontWeight: FontWeight.bold),
                           ),
-                        ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            AppStrings.appTagline,
+                            style: TextStyle(
+                                color: Color(0xFFFFD700),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500),
+                          ),
+                          const SizedBox(height: 10),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                  color: Colors.white.withOpacity(0.25)),
+                            ),
+                            child: const Text(
+                              'Version 1.0.0',
+                              style:
+                              TextStyle(color: Colors.white, fontSize: 12),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -124,14 +126,14 @@ class SettingsScreen extends StatelessWidget {
                         onTap: () => _launchUrl(
                             'https://play.google.com/store/apps/details?id=com.gillzlabs.rishta_biodata_maker'),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 10),
                       _quickAction(
                         icon: Icons.share_rounded,
                         label: 'Share App',
                         color: AppColors.primary,
                         onTap: _shareApp,
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 10),
                       _quickAction(
                         icon: Icons.bug_report_rounded,
                         label: 'Report Bug',
@@ -145,14 +147,13 @@ class SettingsScreen extends StatelessWidget {
 
                 const SizedBox(height: AppSizes.lg),
 
-                // Support section
                 _sectionHeader('Support'),
                 _tile(
                   icon: Icons.star_rounded,
                   iconColor: const Color(0xFFFFC107),
                   iconBg: const Color(0xFFFFF8E1),
                   title: 'Rate the App',
-                  subtitle: 'Love the app? Give us 5 stars!',
+                  subtitle: 'Love the app? Give us 5 stars! ⭐',
                   trailing: _goldBadge('⭐ Rate'),
                   onTap: () => _launchUrl(
                       'https://play.google.com/store/apps/details?id=com.gillzlabs.rishta_biodata_maker'),
@@ -177,7 +178,6 @@ class SettingsScreen extends StatelessWidget {
 
                 const SizedBox(height: AppSizes.md),
 
-                // Legal section
                 _sectionHeader('Legal'),
                 _tile(
                   icon: Icons.privacy_tip_rounded,
@@ -198,7 +198,6 @@ class SettingsScreen extends StatelessWidget {
 
                 const SizedBox(height: AppSizes.md),
 
-                // About section
                 _sectionHeader('About'),
                 _tile(
                   icon: Icons.info_rounded,
@@ -211,7 +210,7 @@ class SettingsScreen extends StatelessWidget {
 
                 const SizedBox(height: AppSizes.lg),
 
-                // App features banner
+                // Features banner — updated to 10 templates
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Container(
@@ -223,7 +222,8 @@ class SettingsScreen extends StatelessWidget {
                           AppColors.primary.withOpacity(0.04),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                      borderRadius:
+                      BorderRadius.circular(AppSizes.radiusMd),
                       border: Border.all(
                         color: AppColors.primary.withOpacity(0.15),
                       ),
@@ -247,11 +247,12 @@ class SettingsScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        _featureRow('☪️', '5 beautiful biodata templates'),
+                        _featureRow('🎨', '10 beautiful biodata templates'),
                         _featureRow('📸', 'Add your photo to the card'),
                         _featureRow('📥', 'Download card to gallery'),
                         _featureRow('📄', 'Export as PDF'),
                         _featureRow('📤', 'Share on WhatsApp instantly'),
+                        _featureRow('🔗', 'QR code for WhatsApp contact'),
                         _featureRow('💾', 'Save multiple designs'),
                       ],
                     ),
@@ -267,9 +268,7 @@ class SettingsScreen extends StatelessWidget {
                       const Text(
                         'Made with ❤️ for Pakistani & Indian families',
                         style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textMuted,
-                        ),
+                            fontSize: 12, color: AppColors.textMuted),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -356,17 +355,13 @@ class SettingsScreen extends StatelessWidget {
         title: Text(
           title,
           style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textDark,
-          ),
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textDark),
         ),
         subtitle: Text(
           subtitle,
-          style: const TextStyle(
-            fontSize: 12,
-            color: AppColors.textMuted,
-          ),
+          style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
         ),
         trailing: trailing ??
             const Icon(Icons.chevron_right_rounded,
@@ -391,7 +386,8 @@ class SettingsScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
             color: color.withOpacity(0.08),
-            borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+            borderRadius:
+            BorderRadius.circular(AppSizes.radiusMd),
             border: Border.all(color: color.withOpacity(0.2)),
           ),
           child: Column(
@@ -401,10 +397,9 @@ class SettingsScreen extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 11,
-                  color: color,
-                  fontWeight: FontWeight.w600,
-                ),
+                    fontSize: 11,
+                    color: color,
+                    fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -420,13 +415,9 @@ class SettingsScreen extends StatelessWidget {
         children: [
           Text(emoji, style: const TextStyle(fontSize: 16)),
           const SizedBox(width: 10),
-          Text(
-            text,
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppColors.textDark,
-            ),
-          ),
+          Text(text,
+              style: const TextStyle(
+                  fontSize: 13, color: AppColors.textDark)),
         ],
       ),
     );
@@ -438,15 +429,15 @@ class SettingsScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFFFF8E1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFFFD700).withOpacity(0.5)),
+        border: Border.all(
+            color: const Color(0xFFFFD700).withOpacity(0.5)),
       ),
       child: Text(
         text,
         style: const TextStyle(
-          fontSize: 11,
-          color: Color(0xFFE65100),
-          fontWeight: FontWeight.bold,
-        ),
+            fontSize: 11,
+            color: Color(0xFFE65100),
+            fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -461,44 +452,6 @@ class SettingsScreen extends StatelessWidget {
   Future<void> _shareApp() async {
     await Share.share(
       'Create beautiful rishta biodata cards!\nDownload: https://play.google.com/store/apps/details?id=com.gillzlabs.rishta_biodata_maker',
-    );
-  }
-
-  void _showAboutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSizes.radiusMd)),
-        title: const Text(AppStrings.appName),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(AppStrings.appTagline,
-                style: TextStyle(
-                    color: AppColors.primary, fontWeight: FontWeight.w500)),
-            SizedBox(height: AppSizes.md),
-            Text(
-                'Create beautiful rishta biodata cards for Pakistani & Indian families.',
-                style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textMuted,
-                    height: 1.5)),
-            SizedBox(height: AppSizes.md),
-            Text('Version 1.0.0',
-                style:
-                TextStyle(fontSize: 12, color: AppColors.textMuted)),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close',
-                style: TextStyle(color: AppColors.primary)),
-          ),
-        ],
-      ),
     );
   }
 }

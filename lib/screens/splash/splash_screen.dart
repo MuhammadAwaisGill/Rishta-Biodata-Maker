@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,43 +15,66 @@ class SplashScreen extends ConsumerStatefulWidget {
 }
 
 class _SplashScreenState extends ConsumerState<SplashScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _scaleAnimation;
+    with TickerProviderStateMixin {
+  late AnimationController _logoController;
+  late AnimationController _textController;
+  late AnimationController _ringController;
+
+  late Animation<double> _logoScale;
+  late Animation<double> _logoFade;
+  late Animation<double> _textFade;
+  late Animation<Offset> _textSlide;
+  late Animation<double> _ringRotation;
 
   @override
   void initState() {
     super.initState();
-    _setupAnimations();
+
+    _ringController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 8),
+    )..repeat();
+
+    _logoController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+
+    _textController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+
+    _ringRotation = Tween<double>(begin: 0, end: 2 * math.pi)
+        .animate(_ringController);
+
+    _logoScale = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
+    );
+    _logoFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+          parent: _logoController,
+          curve: const Interval(0.0, 0.5, curve: Curves.easeIn)),
+    );
+
+    _textFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _textController, curve: Curves.easeIn),
+    );
+    _textSlide = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(
+        CurvedAnimation(parent: _textController, curve: Curves.easeOut));
+
+    _logoController.forward().then((_) {
+      _textController.forward();
+    });
+
     _navigate();
   }
 
-  void _setupAnimations() {
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.0, 0.6, curve: Curves.easeIn),
-      ),
-    );
-
-    _scaleAnimation = Tween<double>(begin: 0.7, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
-      ),
-    );
-
-    _animationController.forward();
-  }
-
   Future<void> _navigate() async {
-    await Future.delayed(const Duration(milliseconds: 2500));
+    await Future.delayed(const Duration(milliseconds: 2800));
     if (!mounted) return;
 
     final prefs = await SharedPreferences.getInstance();
@@ -63,8 +87,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       return;
     }
 
-    // Check for saved draft
-    final notifier = ProviderScope.containerOf(context).read(biodataProvider.notifier);
+    final notifier =
+    ProviderScope.containerOf(context).read(biodataProvider.notifier);
     final hasDraft = await notifier.hasDraft();
 
     if (!mounted) return;
@@ -83,7 +107,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape:
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
             Icon(Icons.edit_note_rounded, color: Color(0xFF1B5E20)),
@@ -104,7 +129,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
               Navigator.pop(context);
               context.go(AppRoutes.home);
             },
-            child: const Text('Start Fresh', style: TextStyle(color: Colors.grey)),
+            child: const Text('Start Fresh',
+                style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -114,7 +140,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1B5E20),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text('Resume'),
           ),
@@ -125,106 +152,290 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _logoController.dispose();
+    _textController.dispose();
+    _ringController.dispose();
     super.dispose();
   }
 
-  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF1B5E20), Color(0xFF2E7D32), Color(0xFF388E3C)],
+            colors: [Color(0xFF0A3D0A), Color(0xFF1B5E20), Color(0xFF2E7D32)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         ),
-        child: Center(
-          child: AnimatedBuilder(
-            animation: _animationController,
-            builder: (context, child) {
-              return FadeTransition(
-                opacity: _fadeAnimation,
-                child: ScaleTransition(
-                  scale: _scaleAnimation,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Logo on white card
-                      Container(
-                        width: 110,
-                        height: 110,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(28),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 24,
-                              offset: const Offset(0, 10),
+        child: Stack(
+          children: [
+            // Decorative circles background
+            ..._buildBackgroundCircles(),
+
+            // Main content
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Animated ring + logo
+                  AnimatedBuilder(
+                    animation: Listenable.merge(
+                        [_logoController, _ringController]),
+                    builder: (context, child) {
+                      return FadeTransition(
+                        opacity: _logoFade,
+                        child: ScaleTransition(
+                          scale: _logoScale,
+                          child: SizedBox(
+                            width: 160,
+                            height: 160,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                // Rotating ring
+                                Transform.rotate(
+                                  angle: _ringRotation.value,
+                                  child: CustomPaint(
+                                    size: const Size(155, 155),
+                                    painter: _RingPainter(),
+                                  ),
+                                ),
+                                // Logo card
+                                Container(
+                                  width: 110,
+                                  height: 110,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(28),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color:
+                                        Colors.black.withOpacity(0.25),
+                                        blurRadius: 30,
+                                        offset: const Offset(0, 12),
+                                      ),
+                                      BoxShadow(
+                                        color: const Color(0xFFFFD700)
+                                            .withOpacity(0.3),
+                                        blurRadius: 20,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(28),
+                                    child: Image.asset(
+                                      'assets/images/app_logo.png',
+                                      width: 110,
+                                      height: 110,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(28),
-                          child: Image.asset(
-                            'assets/images/app_logo.png',
-                            width: 110,
-                            height: 110,
-                            fit: BoxFit.cover,
                           ),
                         ),
-                      ),
-
-                      const SizedBox(height: 32),
-
-                      // App name
-                      const Text(
-                        AppStrings.appName,
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-
-                      const SizedBox(height: 8),
-
-                      // Tagline with gold color
-                      const Text(
-                        AppStrings.appTagline,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFFFFD700),
-                          letterSpacing: 0.5,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-
-                      const SizedBox(height: 80),
-
-                      // Loading dots instead of spinner
-                      _LoadingDots(),
-                    ],
+                      );
+                    },
                   ),
+
+                  const SizedBox(height: 40),
+
+                  // Text section
+                  FadeTransition(
+                    opacity: _textFade,
+                    child: SlideTransition(
+                      position: _textSlide,
+                      child: Column(
+                        children: [
+                          const Text(
+                            AppStrings.appName,
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 6),
+                            decoration: BoxDecoration(
+                              color:
+                              const Color(0xFFFFD700).withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: const Color(0xFFFFD700)
+                                    .withOpacity(0.4),
+                              ),
+                            ),
+                            child: const Text(
+                              AppStrings.appTagline,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFFFFD700),
+                                letterSpacing: 0.3,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 80),
+
+                  // Elegant loading bar
+                  FadeTransition(
+                    opacity: _textFade,
+                    child: const _PulsingDots(),
+                  ),
+                ],
+              ),
+            ),
+
+            // Bottom tagline
+            Positioned(
+              bottom: 40,
+              left: 0,
+              right: 0,
+              child: FadeTransition(
+                opacity: _textFade,
+                child: const Column(
+                  children: [
+                    Text(
+                      'Made with ❤️ in Pakistan',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white38,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                 ),
-              );
-            },
-          ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
-}
-class _LoadingDots extends StatefulWidget {
-  @override
-  State<_LoadingDots> createState() => _LoadingDotsState();
+
+  List<Widget> _buildBackgroundCircles() {
+    return [
+      Positioned(
+        top: -60,
+        right: -60,
+        child: AnimatedBuilder(
+          animation: _ringController,
+          builder: (_, __) => Transform.rotate(
+            angle: _ringRotation.value * 0.3,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.05),
+                  width: 1,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      Positioned(
+        top: -30,
+        right: -30,
+        child: Container(
+          width: 120,
+          height: 120,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withOpacity(0.04),
+          ),
+        ),
+      ),
+      Positioned(
+        bottom: -80,
+        left: -80,
+        child: Container(
+          width: 280,
+          height: 280,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withOpacity(0.03),
+          ),
+        ),
+      ),
+      Positioned(
+        bottom: 100,
+        left: -40,
+        child: Container(
+          width: 120,
+          height: 120,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: const Color(0xFFFFD700).withOpacity(0.1),
+              width: 1,
+            ),
+          ),
+        ),
+      ),
+    ];
+  }
 }
 
-class _LoadingDotsState extends State<_LoadingDots>
+class _RingPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2
+      ..shader = SweepGradient(
+        colors: [
+          const Color(0xFFFFD700).withOpacity(0.0),
+          const Color(0xFFFFD700).withOpacity(0.8),
+          const Color(0xFFFFD700).withOpacity(0.0),
+        ],
+      ).createShader(Rect.fromCircle(center: center, radius: radius));
+
+    canvas.drawCircle(center, radius - 2, paint);
+
+    // Small dots along ring
+    final dotPaint = Paint()
+      ..color = const Color(0xFFFFD700).withOpacity(0.6)
+      ..style = PaintingStyle.fill;
+
+    for (int i = 0; i < 8; i++) {
+      final angle = (i / 8) * 2 * math.pi;
+      final dx = center.dx + (radius - 2) * math.cos(angle);
+      final dy = center.dy + (radius - 2) * math.sin(angle);
+      canvas.drawCircle(Offset(dx, dy), 2.5, dotPaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_) => false;
+}
+
+class _PulsingDots extends StatefulWidget {
+  const _PulsingDots();
+
+  @override
+  State<_PulsingDots> createState() => _PulsingDotsState();
+}
+
+class _PulsingDotsState extends State<_PulsingDots>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
@@ -233,7 +444,7 @@ class _LoadingDotsState extends State<_LoadingDots>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 1200),
     )..repeat();
   }
 
@@ -252,16 +463,16 @@ class _LoadingDotsState extends State<_LoadingDots>
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(3, (index) {
             final delay = index / 3;
-            final value = (_controller.value - delay).clamp(0.0, 1.0);
-            final opacity = (value < 0.5
-                ? value * 2
-                : (1 - value) * 2).clamp(0.3, 1.0);
+            final t = ((_controller.value - delay) % 1.0).clamp(0.0, 1.0);
+            final scale = (math.sin(t * math.pi)).clamp(0.0, 1.0);
+            final opacity = (0.3 + 0.7 * scale).clamp(0.3, 1.0);
+
             return Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              width: 8,
-              height: 8,
+              margin: const EdgeInsets.symmetric(horizontal: 5),
+              width: 8 + (4 * scale),
+              height: 8 + (4 * scale),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(opacity),
+                color: const Color(0xFFFFD700).withOpacity(opacity),
                 shape: BoxShape.circle,
               ),
             );
