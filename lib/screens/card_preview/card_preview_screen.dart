@@ -23,6 +23,11 @@ import '../../templates/modern/template_4_modern.dart';
 import '../../templates/simple/template_5_simple.dart';
 import '../home/widgets/template_card.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../templates/urdu/template_6_urdu.dart';
+import '../../templates/two_column/template_7_two_column.dart';
+import '../../templates/dark/template_8_dark.dart';
+import '../../templates/mughal/template_9_mughal.dart';
+import '../../templates/photo/template_10_photo.dart';
 import 'widgets/action_bar.dart';
 
 class CardPreviewScreen extends ConsumerStatefulWidget {
@@ -99,6 +104,11 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
       case 3: return Template3Royal(biodata: biodata);
       case 4: return Template4Modern(biodata: biodata);
       case 5: return Template5Simple(biodata: biodata);
+      case 6: return Template6Urdu(biodata: biodata);
+      case 7: return Template7TwoColumn(biodata: biodata);
+      case 8: return Template8Dark(biodata: biodata);
+      case 9: return Template9Mughal(biodata: biodata);
+      case 10: return Template10Photo(biodata: biodata);
       default: return Template1Islamic(biodata: biodata);
     }
   }

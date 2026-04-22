@@ -54,6 +54,11 @@ class AppTemplates {
       description: 'Professional clean white card',
       color: Color(0xFF424242),
     ),
+    TemplateInfo(id: 6, name: 'Urdu Calligraphy', description: 'Classical Urdu style with ornate borders', color: Color(0xFF6A0DAD)),
+    TemplateInfo(id: 7, name: 'Two Column', description: 'Compact two-column teal layout', color: Color(0xFF00695C)),
+    TemplateInfo(id: 8, name: 'Minimalist Dark', description: 'Sleek dark mode with orange accents', color: Color(0xFF1C1C1E)),
+    TemplateInfo(id: 9, name: 'Mughal Royal', description: 'Ornate Mughal-inspired gold & burgundy', color: Color(0xFF4A0828)),
+    TemplateInfo(id: 10, name: 'Photo Focused', description: 'Large photo hero with indigo theme', color: Color(0xFF283593)),
   ];
 }
 
