@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
+import 'package:in_app_review/in_app_review.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_sizes.dart';
 import '../../core/constants/app_strings.dart';
@@ -21,6 +22,7 @@ import '../../templates/royal/template_3_royal.dart';
 import '../../templates/modern/template_4_modern.dart';
 import '../../templates/simple/template_5_simple.dart';
 import '../home/widgets/template_card.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'widgets/action_bar.dart';
 
 class CardPreviewScreen extends ConsumerStatefulWidget {
@@ -331,12 +333,54 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
         onDownload: _handleDownload,
         onEdit: () => context.pop(),
         onShare: _handleShare,
+        onWhatsApp: _handleWhatsAppShare,
         onPdf: _handlePdfExport,
       ),
     );
   }
 
+
+
   // ── Action handlers ────────────────────────────────────────────────────────
+
+  Future<void> _handleWhatsAppShare() async {
+    if (_isExporting) return;
+
+    if (_isZoomed) {
+      _resetZoom();
+      await Future.delayed(const Duration(milliseconds: 150));
+    }
+
+    setState(() => _isExporting = true);
+    try {
+      await Future.delayed(const Duration(milliseconds: 80));
+      final Uint8List? imageBytes = await ExportService().captureAsImage(_repaintKey);
+      if (imageBytes == null) {
+        _showSnackBar('❌ Failed to capture card.', isError: true);
+        return;
+      }
+
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/biodata_whatsapp_${DateTime.now().millisecondsSinceEpoch}.png');
+      await file.writeAsBytes(imageBytes);
+
+      // Try WhatsApp direct, fall back to normal share
+      final whatsappUri = Uri.parse('whatsapp://send');
+      if (await canLaunchUrl(whatsappUri)) {
+        await ShareService().shareImage(file.path);
+      } else {
+        _showSnackBar('WhatsApp not installed.', isError: true);
+      }
+
+      Future.delayed(const Duration(minutes: 2), () {
+        if (file.existsSync()) file.deleteSync();
+      });
+    } catch (e) {
+      _showSnackBar('❌ Something went wrong.', isError: true);
+    } finally {
+      if (mounted) setState(() => _isExporting = false);
+    }
+  }
 
   Future<void> _handleDownload() async {
     final adReady   = ref.read(rewardedAdReadyProvider);
@@ -382,6 +426,7 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
           setState(() => _designSaved = true);
         }
         _showSnackBar('✅ Saved to gallery!');
+        _requestReview();
         _checkAnimController.forward(from: 0);
       } else {
         _showSnackBar('❌ Failed to save. Check storage permission.', isError: true);
@@ -391,6 +436,13 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
       debugPrint('Download error: $e');
     } finally {
       if (mounted) setState(() => _isExporting = false);
+    }
+  }
+
+  Future<void> _requestReview() async {
+    final inAppReview = InAppReview.instance;
+    if (await inAppReview.isAvailable()) {
+      inAppReview.requestReview();
     }
   }
 

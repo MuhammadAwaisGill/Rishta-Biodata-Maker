@@ -9,6 +9,7 @@ class DesignListItem extends StatelessWidget {
   final int index;
   final VoidCallback onTap;
   final VoidCallback onDelete;
+  final VoidCallback onDuplicate;
 
   const DesignListItem({
     super.key,
@@ -16,6 +17,7 @@ class DesignListItem extends StatelessWidget {
     required this.index,
     required this.onTap,
     required this.onDelete,
+    required this.onDuplicate,
   });
 
   static const _templateColors = {
@@ -151,6 +153,11 @@ class DesignListItem extends StatelessWidget {
                   onPressed: onTap,
                   icon: Icon(Icons.visibility_rounded, color: color, size: 20),
                   tooltip: 'View',
+                ),
+                IconButton(
+                  onPressed: onDuplicate,
+                  icon: Icon(Icons.copy_rounded, color: AppColors.primary, size: 20),
+                  tooltip: 'Duplicate',
                 ),
                 IconButton(
                   onPressed: onDelete,

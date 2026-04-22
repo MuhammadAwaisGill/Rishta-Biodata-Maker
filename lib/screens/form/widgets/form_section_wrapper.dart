@@ -31,8 +31,12 @@ class _FormSectionWrapperState extends State<FormSectionWrapper> {
 
   @override
   Widget build(BuildContext context) {
+    // Note: No Riverpod needed here!
+    // This widget just displays whatever children are passed to it.
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
+      margin: const EdgeInsets.only(bottom: AppSizes.md), // Added margin for spacing between cards
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppSizes.radiusMd),
@@ -95,6 +99,8 @@ class _FormSectionWrapperState extends State<FormSectionWrapper> {
             AppSizes.md,
             AppSizes.md,
           ),
+          // When a child is hidden in the parent, widget.children
+          // length changes, and ExpansionTile handles it automatically.
           children: widget.children,
         ),
       ),

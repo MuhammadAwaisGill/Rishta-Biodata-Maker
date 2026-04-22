@@ -12,6 +12,7 @@ import 'widgets/personal_section.dart';
 import 'widgets/education_section.dart';
 import 'widgets/family_section.dart';
 import 'widgets/religious_section.dart';
+import 'widgets/field_visibility_sheet.dart';
 import 'widgets/preferences_section.dart';
 import 'widgets/photo_picker_widget.dart';
 
@@ -74,6 +75,7 @@ class _FormScreenState extends ConsumerState<FormScreen> {
   Widget build(BuildContext context) {
     final selectedTemplate = ref.watch(selectedTemplateProvider);
     final biodataId        = ref.watch(biodataProvider.select((b) => b.id));
+    final completion = ref.watch(biodataProvider.select((b) => b.completionPercent));
     final currentTemplate  = _templates.firstWhere(
           (t) => t.id == selectedTemplate,
       orElse: () => _templates.first,
@@ -98,6 +100,18 @@ class _FormScreenState extends ConsumerState<FormScreen> {
                 onPressed: _showResetDialog,
                 icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 16),
                 label: const Text('Reset', style: TextStyle(color: Colors.white70, fontSize: 13)),
+              ),
+              IconButton(
+                onPressed: () => showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  ),
+                  builder: (_) => const FieldVisibilitySheet(),
+                ),
+                icon: const Icon(Icons.tune_rounded, color: Colors.white70, size: 20),
+                tooltip: 'Customize Fields',
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
@@ -195,6 +209,59 @@ class _FormScreenState extends ConsumerState<FormScreen> {
 
                     const SizedBox(height: AppSizes.md),
 
+                    // Progress bar
+                    Container(
+                      padding: const EdgeInsets.all(AppSizes.md),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Profile Completion',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textDark,
+                                ),
+                              ),
+                              Text(
+                                '${(completion * 100).toInt()}%',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: currentTemplate.color,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: completion,
+                              minHeight: 6,
+                              backgroundColor: AppColors.textMuted.withOpacity(0.15),
+                              valueColor: AlwaysStoppedAnimation<Color>(currentTemplate.color),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: AppSizes.md),
                     // Tip banner
                     Container(
                       padding: const EdgeInsets.all(AppSizes.md),

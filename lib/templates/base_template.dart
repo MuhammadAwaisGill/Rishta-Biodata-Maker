@@ -152,4 +152,19 @@ abstract class BaseTemplate extends StatelessWidget {
       ],
     );
   }
+  Widget buildWatermark() {
+    return Positioned(
+      bottom: 6,
+      right: 8,
+      child: Text(
+        'RishtaBiodata.app',
+        style: TextStyle(
+          fontSize: 7.5,
+          color: Colors.black.withOpacity(0.18),
+          letterSpacing: 0.3,
+          fontWeight: FontWeight.w400,
+        ),
+      ),
+    );
+  }
 }

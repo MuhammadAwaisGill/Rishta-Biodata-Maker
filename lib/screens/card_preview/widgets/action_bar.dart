@@ -8,6 +8,7 @@ class ActionBar extends StatelessWidget {
   final VoidCallback onDownload;
   final VoidCallback onEdit;
   final VoidCallback onShare;
+  final VoidCallback onWhatsApp;
   final VoidCallback onPdf;
 
   const ActionBar({
@@ -16,6 +17,7 @@ class ActionBar extends StatelessWidget {
     required this.onDownload,
     required this.onEdit,
     required this.onShare,
+    required this.onWhatsApp,
     required this.onPdf,
   });
 
@@ -96,6 +98,15 @@ class ActionBar extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _secondaryButton(
+                  icon: Icons.chat_rounded,
+                  label: 'WhatsApp',
+                  color: const Color(0xFF25D366),
+                  onTap: onWhatsApp,
+                ),
+              ),
               // PDF
               Expanded(
                 child: _secondaryButton(

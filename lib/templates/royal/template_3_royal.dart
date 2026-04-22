@@ -11,7 +11,9 @@ class Template3Royal extends BaseTemplate {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Stack(
+      children: [
+      Container(
       width: double.infinity,
       decoration: BoxDecoration(
         color: const Color(0xFFFFF8F0),
@@ -114,6 +116,9 @@ class Template3Royal extends BaseTemplate {
           ),
         ],
       ),
+    ),
+        buildWatermark(),
+      ],
     );
   }
 }

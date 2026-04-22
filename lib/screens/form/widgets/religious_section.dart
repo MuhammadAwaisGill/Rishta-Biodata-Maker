@@ -4,6 +4,8 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../providers/biodata_provider.dart';
+// ADD THIS IMPORT
+import '../../../providers/field_visibility_provider.dart';
 import 'form_section_wrapper.dart';
 
 class ReligiousSection extends ConsumerWidget {
@@ -22,26 +24,35 @@ class ReligiousSection extends ConsumerWidget {
     final biodata = ref.watch(biodataProvider);
     final notifier = ref.read(biodataProvider.notifier);
 
+    // WATCH THE VISIBILITY STATE
+    final visibility = ref.watch(fieldVisibilityProvider);
+
     return FormSectionWrapper(
       title: AppStrings.sectionReligious,
       icon: Icons.mosque_rounded,
       children: [
-        _buildDropdown(
-          label: 'Sect',
-          value: biodata.sect.isEmpty ? null : biodata.sect,
-          items: _sects,
-          onChanged: (v) => notifier.updateSect(v ?? ''),
-        ),
-        _buildDropdown(
-          label: 'Religiousness',
-          value: biodata.religiousness.isEmpty ? null : biodata.religiousness,
-          items: _religiousness,
-          onChanged: (v) => notifier.updateReligiousness(v ?? ''),
-        ),
+        // WRAPPED SECT FIELD
+        if (visibility['sect'] ?? true)
+          _buildDropdown(
+            label: 'Sect',
+            value: biodata.sect.isEmpty ? null : biodata.sect,
+            items: _sects,
+            onChanged: (v) => notifier.updateSect(v ?? ''),
+          ),
+
+        // WRAPPED RELIGIOUSNESS FIELD
+        if (visibility['religiousness'] ?? true)
+          _buildDropdown(
+            label: 'Religiousness',
+            value: biodata.religiousness.isEmpty ? null : biodata.religiousness,
+            items: _religiousness,
+            onChanged: (v) => notifier.updateReligiousness(v ?? ''),
+          ),
       ],
     );
   }
 
+  // ... (Keep _buildDropdown and _inputDecoration exactly as they were)
   Widget _buildDropdown({
     required String label,
     required String? value,

@@ -4,6 +4,8 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../providers/biodata_provider.dart';
+// ADD THIS IMPORT
+import '../../../providers/field_visibility_provider.dart';
 import 'form_section_wrapper.dart';
 
 class PreferencesSection extends ConsumerWidget {
@@ -14,43 +16,50 @@ class PreferencesSection extends ConsumerWidget {
     final biodata  = ref.watch(biodataProvider);
     final notifier = ref.read(biodataProvider.notifier);
 
+    // WATCH THE VISIBILITY STATE
+    final visibility = ref.watch(fieldVisibilityProvider);
+
     return FormSectionWrapper(
       title: AppStrings.sectionPreference,
       icon: Icons.tune_rounded,
       children: [
-        _buildTextField(
-          label: 'Additional Notes / Preferences',
-          initialValue: biodata.notes,
-          onChanged: notifier.updateNotes,
-          maxLines: 3,
-          hint: 'Any special preferences or additional info...',
-        ),
+        // WRAPPED NOTES FIELD
+        if (visibility['notes'] ?? true)
+          _buildTextField(
+            label: 'Additional Notes / Preferences',
+            initialValue: biodata.notes,
+            onChanged: notifier.updateNotes,
+            maxLines: 3,
+            hint: 'Any special preferences or additional info...',
+          ),
 
-        // WhatsApp number for QR code
-        Padding(
-          padding: const EdgeInsets.only(bottom: AppSizes.md),
-          child: TextFormField(
-            initialValue: biodata.whatsappNumber,
-            onChanged: notifier.updateWhatsappNumber,
-            keyboardType: TextInputType.phone,
-            decoration: _inputDecoration('WhatsApp Number (optional)').copyWith(
-              prefixIcon: const Padding(
-                padding: EdgeInsets.all(12),
-                child: Icon(Icons.qr_code_rounded,
-                    color: AppColors.primary, size: 22),
-              ),
-              helperText: 'Adds a QR code to your card. e.g. 03001234567',
-              helperStyle: const TextStyle(
-                fontSize: 11,
-                color: AppColors.textMuted,
+        // WRAPPED WHATSAPP FIELD
+        if (visibility['whatsappNumber'] ?? true)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSizes.md),
+            child: TextFormField(
+              initialValue: biodata.whatsappNumber,
+              onChanged: notifier.updateWhatsappNumber,
+              keyboardType: TextInputType.phone,
+              decoration: _inputDecoration('WhatsApp Number (optional)').copyWith(
+                prefixIcon: const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Icon(Icons.qr_code_rounded,
+                      color: AppColors.primary, size: 22),
+                ),
+                helperText: 'Adds a QR code to your card. e.g. 03001234567',
+                helperStyle: const TextStyle(
+                  fontSize: 11,
+                  color: AppColors.textMuted,
+                ),
               ),
             ),
           ),
-        ),
       ],
     );
   }
 
+  // ... (Keep _buildTextField and _inputDecoration exactly as they were)
   Widget _buildTextField({
     required String label,
     required String initialValue,

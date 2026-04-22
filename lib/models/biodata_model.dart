@@ -134,4 +134,64 @@ class Biodata extends HiveObject {
     final filled = fields.where((f) => f.trim().isNotEmpty).length;
     return filled / fields.length;
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'age': age,
+    'height': height,
+    'city': city,
+    'education': education,
+    'profession': profession,
+    'fatherName': fatherName,
+    'motherName': motherName,
+    'brothers': brothers,
+    'sisters': sisters,
+    'familyType': familyType,
+    'sect': sect,
+    'religiousness': religiousness,
+    'photoPath': photoPath,
+    'templateId': templateId,
+    'notes': notes,
+    'createdAt': createdAt.toIso8601String(),
+    'complexion': complexion,
+    'motherTongue': motherTongue,
+    'salary': salary,
+    'whatsappNumber': whatsappNumber,
+    'institute': institute,
+    'fatherProfession': fatherProfession,
+    'caste': caste,
+    'maritalStatus': maritalStatus,
+  };
+
+  factory Biodata.fromJson(Map<String, dynamic> json) {
+    final b = Biodata.empty();
+    b.id               = json['id'] ?? b.id;
+    b.name             = json['name'] ?? '';
+    b.age              = json['age'] ?? '';
+    b.height           = json['height'] ?? '';
+    b.city             = json['city'] ?? '';
+    b.education        = json['education'] ?? '';
+    b.profession       = json['profession'] ?? '';
+    b.fatherName       = json['fatherName'] ?? '';
+    b.motherName       = json['motherName'] ?? '';
+    b.brothers         = json['brothers'] ?? '';
+    b.sisters          = json['sisters'] ?? '';
+    b.familyType       = json['familyType'] ?? '';
+    b.sect             = json['sect'] ?? '';
+    b.religiousness    = json['religiousness'] ?? '';
+    b.photoPath        = json['photoPath'] ?? '';
+    b.templateId       = json['templateId'] ?? 1;
+    b.notes            = json['notes'] ?? '';
+    b.createdAt        = DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now();
+    b.complexion       = json['complexion'] ?? '';
+    b.motherTongue     = json['motherTongue'] ?? '';
+    b.salary           = json['salary'] ?? '';
+    b.whatsappNumber   = json['whatsappNumber'] ?? '';
+    b.institute        = json['institute'] ?? '';
+    b.fatherProfession = json['fatherProfession'] ?? '';
+    b.caste            = json['caste'] ?? '';
+    b.maritalStatus    = json['maritalStatus'] ?? '';
+    return b;
+  }
 }

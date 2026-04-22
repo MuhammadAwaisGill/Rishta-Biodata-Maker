@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../providers/biodata_provider.dart';
+// ADD THIS IMPORT
+import '../../../providers/field_visibility_provider.dart';
 import '../../../services/image_service.dart';
 
 class PhotoPickerWidget extends ConsumerWidget {
@@ -12,6 +14,13 @@ class PhotoPickerWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final photoPath = ref.watch(biodataProvider).photoPath;
+
+    // WATCH THE VISIBILITY STATE
+    // Note: If you haven't added 'photo' to allFields in FieldVisibilityService,
+    // this will default to 'true' (visible).
+    final isVisible = ref.watch(fieldVisibilityProvider)['photo'] ?? true;
+
+    if (!isVisible) return const SizedBox.shrink();
 
     return Center(
       child: Column(
@@ -53,11 +62,14 @@ class PhotoPickerWidget extends ConsumerWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
+          // Adding a small spacer if visible to separate from fields below
+          const SizedBox(height: AppSizes.md),
         ],
       ),
     );
   }
 
+  // ... (Keep _showPickerOptions exactly as it was)
   void _showPickerOptions(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(
       context: context,

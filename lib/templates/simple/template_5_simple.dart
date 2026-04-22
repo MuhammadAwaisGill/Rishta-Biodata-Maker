@@ -11,7 +11,9 @@ class Template5Simple extends BaseTemplate {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Stack(
+      children: [
+      Container(
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -110,6 +112,9 @@ class Template5Simple extends BaseTemplate {
           ),
         ],
       ),
+    ),
+        buildWatermark(),
+      ],
     );
   }
 }

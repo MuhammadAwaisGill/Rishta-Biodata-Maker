@@ -4,6 +4,8 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../providers/biodata_provider.dart';
+// ADD THIS IMPORT
+import '../../../providers/field_visibility_provider.dart';
 import 'form_section_wrapper.dart';
 
 class EducationSection extends ConsumerWidget {
@@ -29,6 +31,9 @@ class EducationSection extends ConsumerWidget {
     final biodata  = ref.watch(biodataProvider);
     final notifier = ref.read(biodataProvider.notifier);
 
+    // WATCH THE VISIBILITY STATE
+    final visibility = ref.watch(fieldVisibilityProvider);
+
     return FormSectionWrapper(
       title: AppStrings.sectionEducation,
       icon: Icons.school_rounded,
@@ -39,28 +44,36 @@ class EducationSection extends ConsumerWidget {
           items: _qualifications,
           onChanged: (v) => notifier.updateEducation(v ?? ''),
         ),
-        _buildTextField(
-          label: 'Institute / University',
-          initialValue: biodata.institute,
-          onChanged: notifier.updateInstitute,
-          hint: 'e.g. University of Punjab',
-        ),
+
+        // WRAPPED INSTITUTE FIELD
+        if (visibility['institute'] ?? true)
+          _buildTextField(
+            label: 'Institute / University',
+            initialValue: biodata.institute,
+            onChanged: notifier.updateInstitute,
+            hint: 'e.g. University of Punjab',
+          ),
+
         _buildTextField(
           label: 'Profession / Job',
           initialValue: biodata.profession,
           onChanged: notifier.updateProfession,
           hint: 'e.g. Software Engineer',
         ),
-        _buildDropdown(
-          label: 'Monthly Salary (optional)',
-          value: biodata.salary.isEmpty ? null : biodata.salary,
-          items: _salaryRanges,
-          onChanged: (v) => notifier.updateSalary(v ?? ''),
-        ),
+
+        // WRAPPED SALARY FIELD
+        if (visibility['salary'] ?? true)
+          _buildDropdown(
+            label: 'Monthly Salary (optional)',
+            value: biodata.salary.isEmpty ? null : biodata.salary,
+            items: _salaryRanges,
+            onChanged: (v) => notifier.updateSalary(v ?? ''),
+          ),
       ],
     );
   }
 
+  // ... (Keep _buildTextField, _buildDropdown, and _inputDecoration exactly as they were)
   Widget _buildTextField({
     required String label,
     required String initialValue,

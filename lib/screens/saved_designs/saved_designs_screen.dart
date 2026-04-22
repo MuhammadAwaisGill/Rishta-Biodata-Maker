@@ -160,8 +160,13 @@ class SavedDesignsScreen extends ConsumerWidget {
                           context.push(AppRoutes.cardPreview);
                         },
                         onDelete: () => _showDeleteDialog(context, ref, design.id),
-                      ),
-                    );
+                        onDuplicate: () {
+                          final duplicate = design.copyWith(name: design.name);
+                          duplicate.id = DateTime.now().millisecondsSinceEpoch.toString();
+                          duplicate.createdAt = DateTime.now();
+                          ref.read(savedDesignsProvider.notifier).save(duplicate);
+                        },
+                      ),                    );
                   },
                   childCount: designs.length,
                 ),

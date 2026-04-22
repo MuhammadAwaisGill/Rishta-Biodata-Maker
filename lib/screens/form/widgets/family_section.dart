@@ -4,6 +4,8 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../providers/biodata_provider.dart';
+// ADD THIS IMPORT
+import '../../../providers/field_visibility_provider.dart';
 import 'form_section_wrapper.dart';
 
 class FamilySection extends ConsumerWidget {
@@ -20,6 +22,9 @@ class FamilySection extends ConsumerWidget {
     final biodata  = ref.watch(biodataProvider);
     final notifier = ref.read(biodataProvider.notifier);
 
+    // WATCH THE VISIBILITY STATE
+    final visibility = ref.watch(fieldVisibilityProvider);
+
     return FormSectionWrapper(
       title: AppStrings.sectionFamily,
       icon: Icons.family_restroom_rounded,
@@ -29,45 +34,64 @@ class FamilySection extends ConsumerWidget {
           initialValue: biodata.fatherName,
           onChanged: notifier.updateFatherName,
         ),
-        _buildTextField(
-          label: "Father's Profession",
-          initialValue: biodata.fatherProfession,
-          onChanged: notifier.updateFatherProfession,
-          hint: 'e.g. Business, Teacher',
-        ),
-        _buildTextField(
-          label: "Mother's Name",
-          initialValue: biodata.motherName,
-          onChanged: notifier.updateMotherName,
-        ),
-        _buildDropdown(
-          label: 'Number of Brothers',
-          value: biodata.brothers.isEmpty ? null : biodata.brothers,
-          items: _countOptions,
-          onChanged: (v) => notifier.updateBrothers(v ?? ''),
-        ),
-        _buildDropdown(
-          label: 'Number of Sisters',
-          value: biodata.sisters.isEmpty ? null : biodata.sisters,
-          items: _countOptions,
-          onChanged: (v) => notifier.updateSisters(v ?? ''),
-        ),
-        _buildDropdown(
-          label: 'Family Type',
-          value: biodata.familyType.isEmpty ? null : biodata.familyType,
-          items: _familyTypes,
-          onChanged: (v) => notifier.updateFamilyType(v ?? ''),
-        ),
-        _buildTextField(
-          label: 'Caste / Biradari (optional)',
-          initialValue: biodata.caste,
-          onChanged: notifier.updateCaste,
-          hint: 'e.g. Rajput, Ansari, Arain',
-        ),
+
+        // WRAPPED FATHER'S PROFESSION
+        if (visibility['fatherProfession'] ?? true)
+          _buildTextField(
+            label: "Father's Profession",
+            initialValue: biodata.fatherProfession,
+            onChanged: notifier.updateFatherProfession,
+            hint: 'e.g. Business, Teacher',
+          ),
+
+        // WRAPPED MOTHER'S NAME
+        if (visibility['motherName'] ?? true)
+          _buildTextField(
+            label: "Mother's Name",
+            initialValue: biodata.motherName,
+            onChanged: notifier.updateMotherName,
+          ),
+
+        // WRAPPED BROTHERS
+        if (visibility['brothers'] ?? true)
+          _buildDropdown(
+            label: 'Number of Brothers',
+            value: biodata.brothers.isEmpty ? null : biodata.brothers,
+            items: _countOptions,
+            onChanged: (v) => notifier.updateBrothers(v ?? ''),
+          ),
+
+        // WRAPPED SISTERS
+        if (visibility['sisters'] ?? true)
+          _buildDropdown(
+            label: 'Number of Sisters',
+            value: biodata.sisters.isEmpty ? null : biodata.sisters,
+            items: _countOptions,
+            onChanged: (v) => notifier.updateSisters(v ?? ''),
+          ),
+
+        // WRAPPED FAMILY TYPE
+        if (visibility['familyType'] ?? true)
+          _buildDropdown(
+            label: 'Family Type',
+            value: biodata.familyType.isEmpty ? null : biodata.familyType,
+            items: _familyTypes,
+            onChanged: (v) => notifier.updateFamilyType(v ?? ''),
+          ),
+
+        // WRAPPED CASTE
+        if (visibility['caste'] ?? true)
+          _buildTextField(
+            label: 'Caste / Biradari (optional)',
+            initialValue: biodata.caste,
+            onChanged: notifier.updateCaste,
+            hint: 'e.g. Rajput, Ansari, Arain',
+          ),
       ],
     );
   }
 
+  // ... (Keep _buildTextField, _buildDropdown, and _inputDecoration exactly as they were)
   Widget _buildTextField({
     required String label,
     required String initialValue,

@@ -1,19 +1,19 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/app_routes.dart';
-import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
+import '../../providers/biodata_provider.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
-
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashScreenState extends ConsumerState<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -50,9 +50,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _navigate() async {
-    // Wait for splash to be visible
     await Future.delayed(const Duration(milliseconds: 2500));
-
     if (!mounted) return;
 
     final prefs = await SharedPreferences.getInstance();
@@ -60,11 +58,69 @@ class _SplashScreenState extends State<SplashScreen>
 
     if (!mounted) return;
 
-    if (onboardingDone) {
-      context.go(AppRoutes.home);
-    } else {
+    if (!onboardingDone) {
       context.go(AppRoutes.onboarding);
+      return;
     }
+
+    // Check for saved draft
+    final notifier = ProviderScope.containerOf(context).read(biodataProvider.notifier);
+    final hasDraft = await notifier.hasDraft();
+
+    if (!mounted) return;
+
+    if (hasDraft) {
+      await notifier.loadDraft();
+      if (!mounted) return;
+      _showDraftDialog();
+    } else {
+      context.go(AppRoutes.home);
+    }
+  }
+
+  void _showDraftDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.edit_note_rounded, color: Color(0xFF1B5E20)),
+            SizedBox(width: 8),
+            Text('Resume Draft?'),
+          ],
+        ),
+        content: const Text(
+          'You have an unfinished biodata. Would you like to continue where you left off?',
+          style: TextStyle(fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              ProviderScope.containerOf(context)
+                  .read(biodataProvider.notifier)
+                  .resetForm();
+              Navigator.pop(context);
+              context.go(AppRoutes.home);
+            },
+            child: const Text('Start Fresh', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.go(AppRoutes.form);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1B5E20),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Resume'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

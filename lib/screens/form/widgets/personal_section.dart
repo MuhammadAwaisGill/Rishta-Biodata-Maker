@@ -5,6 +5,8 @@ import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/utils/validators.dart';
 import '../../../providers/biodata_provider.dart';
+// ADD THIS IMPORT
+import '../../../providers/field_visibility_provider.dart';
 import 'form_section_wrapper.dart';
 
 class PersonalSection extends ConsumerWidget {
@@ -26,11 +28,15 @@ class PersonalSection extends ConsumerWidget {
     final biodata  = ref.watch(biodataProvider);
     final notifier = ref.read(biodataProvider.notifier);
 
+    // WATCH THE VISIBILITY STATE
+    final visibility = ref.watch(fieldVisibilityProvider);
+
     return FormSectionWrapper(
       title: AppStrings.sectionPersonal,
       icon: Icons.person_rounded,
       initiallyExpanded: true,
       children: [
+        // Name & Age are required - No if statement here
         _buildTextField(
           label: 'Full Name *',
           initialValue: biodata.name,
@@ -46,24 +52,34 @@ class PersonalSection extends ConsumerWidget {
           onChanged: notifier.updateAge,
           keyboardType: TextInputType.number,
         ),
-        _buildDropdown(
-          label: 'Height',
-          value: biodata.height.isEmpty ? null : biodata.height,
-          items: _heightOptions(),
-          onChanged: (v) => notifier.updateHeight(v ?? ''),
-        ),
-        _buildDropdown(
-          label: 'Marital Status',
-          value: biodata.maritalStatus.isEmpty ? null : biodata.maritalStatus,
-          items: _maritalStatuses,
-          onChanged: (v) => notifier.updateMaritalStatus(v ?? ''),
-        ),
-        _buildDropdown(
-          label: 'Complexion',
-          value: biodata.complexion.isEmpty ? null : biodata.complexion,
-          items: _complexions,
-          onChanged: (v) => notifier.updateComplexion(v ?? ''),
-        ),
+
+        // WRAPPED HEIGHT
+        if (visibility['height'] ?? true)
+          _buildDropdown(
+            label: 'Height',
+            value: biodata.height.isEmpty ? null : biodata.height,
+            items: _heightOptions(),
+            onChanged: (v) => notifier.updateHeight(v ?? ''),
+          ),
+
+        // WRAPPED MARITAL STATUS
+        if (visibility['maritalStatus'] ?? true)
+          _buildDropdown(
+            label: 'Marital Status',
+            value: biodata.maritalStatus.isEmpty ? null : biodata.maritalStatus,
+            items: _maritalStatuses,
+            onChanged: (v) => notifier.updateMaritalStatus(v ?? ''),
+          ),
+
+        // WRAPPED COMPLEXION
+        if (visibility['complexion'] ?? true)
+          _buildDropdown(
+            label: 'Complexion',
+            value: biodata.complexion.isEmpty ? null : biodata.complexion,
+            items: _complexions,
+            onChanged: (v) => notifier.updateComplexion(v ?? ''),
+          ),
+
         _buildTextField(
           label: 'City / Location',
           initialValue: biodata.city,
@@ -71,16 +87,20 @@ class PersonalSection extends ConsumerWidget {
           keyboardType: TextInputType.text,
           hint: 'e.g. Lahore, Karachi',
         ),
-        _buildDropdown(
-          label: 'Mother Tongue',
-          value: biodata.motherTongue.isEmpty ? null : biodata.motherTongue,
-          items: _motherTongues,
-          onChanged: (v) => notifier.updateMotherTongue(v ?? ''),
-        ),
+
+        // WRAPPED MOTHER TONGUE
+        if (visibility['motherTongue'] ?? true)
+          _buildDropdown(
+            label: 'Mother Tongue',
+            value: biodata.motherTongue.isEmpty ? null : biodata.motherTongue,
+            items: _motherTongues,
+            onChanged: (v) => notifier.updateMotherTongue(v ?? ''),
+          ),
       ],
     );
   }
 
+  // ... (Keep _heightOptions, _buildTextField, _buildDropdown, and _inputDecoration exactly as they were)
   List<String> _heightOptions() {
     final List<String> heights = [];
     for (int feet = 4; feet <= 6; feet++) {
