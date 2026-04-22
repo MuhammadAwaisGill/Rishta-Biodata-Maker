@@ -13,7 +13,7 @@ class Biodata extends HiveObject {
   @HiveField(5)  late String   education;
   @HiveField(6)  late String   profession;
   @HiveField(7)  late String   fatherName;
-  @HiveField(8)  late String   motherName;
+  @HiveField(8)  late String   motherName;   // kept for compatibility but hidden from form
   @HiveField(9)  late String   brothers;
   @HiveField(10) late String   sisters;
   @HiveField(11) late String   familyType;
@@ -31,6 +31,13 @@ class Biodata extends HiveObject {
   @HiveField(23) late String   fatherProfession;
   @HiveField(24) late String   caste;
   @HiveField(25) late String   maritalStatus;
+  // New fields
+  @HiveField(26) late String   brothersMarried;   // e.g. "1 married, 1 unmarried"
+  @HiveField(27) late String   sistersMarried;    // e.g. "2 married"
+  @HiveField(28) late String   personalNotes;     // extra notes for personal section
+  @HiveField(29) late String   educationNotes;    // extra notes for education section
+  @HiveField(30) late String   familyNotes;       // extra notes for family section
+  @HiveField(31) late String   religiousNotes;    // extra notes for religious section
 
   Biodata();
 
@@ -61,6 +68,12 @@ class Biodata extends HiveObject {
     fatherProfession = '';
     caste            = '';
     maritalStatus    = '';
+    brothersMarried  = '';
+    sistersMarried   = '';
+    personalNotes    = '';
+    educationNotes   = '';
+    familyNotes      = '';
+    religiousNotes   = '';
   }
 
   Biodata copyWith({
@@ -88,6 +101,12 @@ class Biodata extends HiveObject {
     String?   fatherProfession,
     String?   caste,
     String?   maritalStatus,
+    String?   brothersMarried,
+    String?   sistersMarried,
+    String?   personalNotes,
+    String?   educationNotes,
+    String?   familyNotes,
+    String?   religiousNotes,
   }) {
     final b              = Biodata.empty();
     b.id                 = id;
@@ -116,20 +135,22 @@ class Biodata extends HiveObject {
     b.fatherProfession   = fatherProfession ?? this.fatherProfession;
     b.caste              = caste           ?? this.caste;
     b.maritalStatus      = maritalStatus   ?? this.maritalStatus;
+    b.brothersMarried    = brothersMarried ?? this.brothersMarried;
+    b.sistersMarried     = sistersMarried  ?? this.sistersMarried;
+    b.personalNotes      = personalNotes   ?? this.personalNotes;
+    b.educationNotes     = educationNotes  ?? this.educationNotes;
+    b.familyNotes        = familyNotes     ?? this.familyNotes;
+    b.religiousNotes     = religiousNotes  ?? this.religiousNotes;
     return b;
   }
 
-  /// Returns true if at minimum name or age is filled (form is usable)
   bool get isValid => name.trim().isNotEmpty || age.trim().isNotEmpty;
-
-  /// Returns a display name — falls back to "Unnamed Biodata"
   String get displayName => name.trim().isEmpty ? 'Unnamed Biodata' : name.trim();
 
-  /// Completion percentage for progress indicator
   double get completionPercent {
     final fields = [
       name, age, height, city, education, profession,
-      fatherName, motherName, sect, religiousness,
+      fatherName, sect, religiousness,
     ];
     final filled = fields.where((f) => f.trim().isNotEmpty).length;
     return filled / fields.length;
@@ -162,6 +183,12 @@ class Biodata extends HiveObject {
     'fatherProfession': fatherProfession,
     'caste': caste,
     'maritalStatus': maritalStatus,
+    'brothersMarried': brothersMarried,
+    'sistersMarried': sistersMarried,
+    'personalNotes': personalNotes,
+    'educationNotes': educationNotes,
+    'familyNotes': familyNotes,
+    'religiousNotes': religiousNotes,
   };
 
   factory Biodata.fromJson(Map<String, dynamic> json) {
@@ -192,6 +219,12 @@ class Biodata extends HiveObject {
     b.fatherProfession = json['fatherProfession'] ?? '';
     b.caste            = json['caste'] ?? '';
     b.maritalStatus    = json['maritalStatus'] ?? '';
+    b.brothersMarried  = json['brothersMarried'] ?? '';
+    b.sistersMarried   = json['sistersMarried'] ?? '';
+    b.personalNotes    = json['personalNotes'] ?? '';
+    b.educationNotes   = json['educationNotes'] ?? '';
+    b.familyNotes      = json['familyNotes'] ?? '';
+    b.religiousNotes   = json['religiousNotes'] ?? '';
     return b;
   }
 }

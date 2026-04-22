@@ -65,12 +65,12 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: false
-  image_path: "assets/images/app_logo.png"
+  image_path: "assets/images/Logo.png"
 
 # ── Native Splash Screen ──────────────────────────────────────────────────────
 flutter_native_splash:
   color: "#1B5E20"
-  image: assets/images/app_logo.png
+  image: assets/images/Logo.png
   android: true
   ios: false
   fullscreen: false

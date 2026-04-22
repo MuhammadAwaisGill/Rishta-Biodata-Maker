@@ -11,7 +11,7 @@ abstract class BaseTemplate extends StatelessWidget {
   Widget buildPhoto({
     required String photoPath,
     required Color borderColor,
-    double size = 80,
+    double size = 72,
   }) {
     return Container(
       width: size,
@@ -36,21 +36,21 @@ abstract class BaseTemplate extends StatelessWidget {
   // ── Section title ─────────────────────────────────────────────────────────
   Widget buildSectionTitle({required String title, required Color color}) {
     return Padding(
-      padding: const EdgeInsets.only(top: 14, bottom: 6),
+      padding: const EdgeInsets.only(top: 10, bottom: 4),
       child: Row(
         children: [
-          Container(width: 3, height: 14, color: color),
-          const SizedBox(width: 6),
+          Container(width: 3, height: 12, color: color),
+          const SizedBox(width: 5),
           Text(
             title.toUpperCase(),
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 9,
               fontWeight: FontWeight.w700,
               color: color,
               letterSpacing: 1.2,
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
           Expanded(child: Divider(color: color.withOpacity(0.25), height: 1)),
         ],
       ),
@@ -66,26 +66,26 @@ abstract class BaseTemplate extends StatelessWidget {
   }) {
     if (value.isEmpty) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.only(bottom: 5),
+      padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 110,
+            width: 100,
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: labelColor,
               ),
             ),
           ),
-          const Text(': ', style: TextStyle(fontSize: 12)),
+          const Text(': ', style: TextStyle(fontSize: 11)),
           Expanded(
             child: Text(
               value,
-              style: TextStyle(fontSize: 12, color: valueColor),
+              style: TextStyle(fontSize: 11, color: valueColor),
             ),
           ),
         ],
@@ -93,21 +93,33 @@ abstract class BaseTemplate extends StatelessWidget {
     );
   }
 
+  // ── Siblings row (with married info) ─────────────────────────────────────
+  Widget buildSiblingsRow({
+    required String label,
+    required String count,
+    required String married,
+    required Color labelColor,
+    required Color valueColor,
+  }) {
+    if (count.isEmpty) return const SizedBox.shrink();
+    final display = married.isEmpty ? count : '$count ($married)';
+    return buildInfoRow(
+      label: label,
+      value: display,
+      labelColor: labelColor,
+      valueColor: valueColor,
+    );
+  }
+
   // ── QR code ───────────────────────────────────────────────────────────────
-  // Renders a QR code that opens WhatsApp when scanned.
-  // Only shown when the user has entered a WhatsApp number.
-  // The QR encodes a wa.me deep-link so scanning with any camera
-  // app opens WhatsApp directly.
   Widget buildQrCode({
     required Color foregroundColor,
     required Color backgroundColor,
-    double size = 72,
+    double size = 60,
   }) {
     if (biodata.whatsappNumber.isEmpty) return const SizedBox.shrink();
 
-    // Strip spaces/dashes and ensure country code prefix
     final raw = biodata.whatsappNumber.replaceAll(RegExp(r'[\s\-()]'), '');
-    // If user typed a Pakistani number like 03001234567, prepend +92
     final normalized = raw.startsWith('+')
         ? raw
         : raw.startsWith('0')
@@ -119,11 +131,11 @@ abstract class BaseTemplate extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: const EdgeInsets.all(6),
+          padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: foregroundColor.withOpacity(0.2)),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: foregroundColor.withOpacity(0.3)),
           ),
           child: QrImageView(
             data: waLink,
@@ -140,11 +152,11 @@ abstract class BaseTemplate extends StatelessWidget {
             backgroundColor: backgroundColor,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
-          'Scan to WhatsApp',
+          'WhatsApp',
           style: TextStyle(
-            fontSize: 9,
+            fontSize: 8,
             color: foregroundColor,
             fontWeight: FontWeight.w500,
           ),
@@ -152,6 +164,7 @@ abstract class BaseTemplate extends StatelessWidget {
       ],
     );
   }
+
   Widget buildWatermark() {
     return Positioned(
       bottom: 6,
@@ -159,10 +172,9 @@ abstract class BaseTemplate extends StatelessWidget {
       child: Text(
         'RishtaBiodata.app',
         style: TextStyle(
-          fontSize: 7.5,
-          color: Colors.black.withOpacity(0.18),
+          fontSize: 7,
+          color: Colors.black.withOpacity(0.15),
           letterSpacing: 0.3,
-          fontWeight: FontWeight.w400,
         ),
       ),
     );

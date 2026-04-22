@@ -4,7 +4,6 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../providers/biodata_provider.dart';
-// ADD THIS IMPORT
 import '../../../providers/field_visibility_provider.dart';
 import 'form_section_wrapper.dart';
 
@@ -21,17 +20,14 @@ class ReligiousSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final biodata = ref.watch(biodataProvider);
+    final biodata  = ref.watch(biodataProvider);
     final notifier = ref.read(biodataProvider.notifier);
-
-    // WATCH THE VISIBILITY STATE
     final visibility = ref.watch(fieldVisibilityProvider);
 
     return FormSectionWrapper(
       title: AppStrings.sectionReligious,
       icon: Icons.mosque_rounded,
       children: [
-        // WRAPPED SECT FIELD
         if (visibility['sect'] ?? true)
           _buildDropdown(
             label: 'Sect',
@@ -40,7 +36,6 @@ class ReligiousSection extends ConsumerWidget {
             onChanged: (v) => notifier.updateSect(v ?? ''),
           ),
 
-        // WRAPPED RELIGIOUSNESS FIELD
         if (visibility['religiousness'] ?? true)
           _buildDropdown(
             label: 'Religiousness',
@@ -48,11 +43,40 @@ class ReligiousSection extends ConsumerWidget {
             items: _religiousness,
             onChanged: (v) => notifier.updateReligiousness(v ?? ''),
           ),
+
+        // Section description
+        _buildTextField(
+          label: 'Additional Religious Info (optional)',
+          initialValue: biodata.religiousNotes,
+          onChanged: notifier.updateReligiousNotes,
+          maxLines: 2,
+          hint: 'e.g. prayer habits, Quran education, religious activities...',
+        ),
       ],
     );
   }
 
-  // ... (Keep _buildDropdown and _inputDecoration exactly as they were)
+  Widget _buildTextField({
+    required String label,
+    required String initialValue,
+    required Function(String) onChanged,
+    String? hint,
+    int maxLines = 1,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSizes.md),
+      child: TextFormField(
+        initialValue: initialValue,
+        onChanged: onChanged,
+        maxLines: maxLines,
+        decoration: _inputDecoration(label).copyWith(
+          hintText: hint,
+          hintStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+        ),
+      ),
+    );
+  }
+
   Widget _buildDropdown({
     required String label,
     required String? value,

@@ -8,7 +8,6 @@ const _draftKey = 'biodata_draft';
 class BiodataNotifier extends StateNotifier<Biodata> {
   BiodataNotifier() : super(Biodata.empty());
 
-  // ── Draft persistence ─────────────────────────────────────────────────────
   Future<void> saveDraft() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_draftKey, jsonEncode(state.toJson()));
@@ -21,7 +20,6 @@ class BiodataNotifier extends StateNotifier<Biodata> {
     try {
       final map = jsonDecode(raw) as Map<String, dynamic>;
       final b = Biodata.fromJson(map);
-      // Only count as a real draft if something meaningful was filled
       return b.name.isNotEmpty || b.age.isNotEmpty || b.profession.isNotEmpty;
     } catch (_) {
       return false;
@@ -43,13 +41,12 @@ class BiodataNotifier extends StateNotifier<Biodata> {
     await prefs.remove(_draftKey);
   }
 
-  // ── Internal helper — saves draft after every update ─────────────────────
   void _update(Biodata updated) {
     state = updated;
-    saveDraft(); // fire-and-forget, no await needed
+    saveDraft();
   }
 
-  // ── Personal ──────────────────────────────────────────────────────────────
+  // Personal
   void updateName(String v)             => _update(state.copyWith(name: v));
   void updateAge(String v)              => _update(state.copyWith(age: v));
   void updateHeight(String v)           => _update(state.copyWith(height: v));
@@ -57,14 +54,16 @@ class BiodataNotifier extends StateNotifier<Biodata> {
   void updateComplexion(String v)       => _update(state.copyWith(complexion: v));
   void updateMotherTongue(String v)     => _update(state.copyWith(motherTongue: v));
   void updateMaritalStatus(String v)    => _update(state.copyWith(maritalStatus: v));
+  void updatePersonalNotes(String v)    => _update(state.copyWith(personalNotes: v));
 
-  // ── Education ─────────────────────────────────────────────────────────────
+  // Education
   void updateEducation(String v)        => _update(state.copyWith(education: v));
   void updateInstitute(String v)        => _update(state.copyWith(institute: v));
   void updateProfession(String v)       => _update(state.copyWith(profession: v));
   void updateSalary(String v)           => _update(state.copyWith(salary: v));
+  void updateEducationNotes(String v)   => _update(state.copyWith(educationNotes: v));
 
-  // ── Family ────────────────────────────────────────────────────────────────
+  // Family
   void updateFatherName(String v)       => _update(state.copyWith(fatherName: v));
   void updateFatherProfession(String v) => _update(state.copyWith(fatherProfession: v));
   void updateMotherName(String v)       => _update(state.copyWith(motherName: v));
@@ -72,20 +71,23 @@ class BiodataNotifier extends StateNotifier<Biodata> {
   void updateSisters(String v)          => _update(state.copyWith(sisters: v));
   void updateFamilyType(String v)       => _update(state.copyWith(familyType: v));
   void updateCaste(String v)            => _update(state.copyWith(caste: v));
+  void updateBrothersMarried(String v)  => _update(state.copyWith(brothersMarried: v));
+  void updateSistersMarried(String v)   => _update(state.copyWith(sistersMarried: v));
+  void updateFamilyNotes(String v)      => _update(state.copyWith(familyNotes: v));
 
-  // ── Religious ─────────────────────────────────────────────────────────────
+  // Religious
   void updateSect(String v)             => _update(state.copyWith(sect: v));
   void updateReligiousness(String v)    => _update(state.copyWith(religiousness: v));
+  void updateReligiousNotes(String v)   => _update(state.copyWith(religiousNotes: v));
 
-  // ── Preferences ───────────────────────────────────────────────────────────
+  // Preferences
   void updateNotes(String v)            => _update(state.copyWith(notes: v));
   void updateWhatsappNumber(String v)   => _update(state.copyWith(whatsappNumber: v));
 
-  // ── Photo & Template ──────────────────────────────────────────────────────
+  // Photo & Template
   void updatePhotoPath(String v)        => _update(state.copyWith(photoPath: v));
   void updateTemplateId(int v)          => _update(state.copyWith(templateId: v));
 
-  // ── Lifecycle ─────────────────────────────────────────────────────────────
   void loadFromSaved(Biodata biodata)   { state = biodata; }
 
   Future<void> resetForm() async {

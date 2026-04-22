@@ -15,29 +15,18 @@ class ExportService {
   Future<Uint8List?> captureAsImage(GlobalKey key) async {
     try {
       final context = key.currentContext;
-      if (context == null) {
-        debugPrint('ExportService: GlobalKey context is null');
-        return null;
-      }
+      if (context == null) return null;
 
       final renderObject = context.findRenderObject();
-      if (renderObject == null) {
-        debugPrint('ExportService: RenderObject is null');
-        return null;
-      }
+      if (renderObject == null) return null;
+      if (renderObject is! RenderRepaintBoundary) return null;
 
-      if (renderObject is! RenderRepaintBoundary) {
-        debugPrint('ExportService: RenderObject is not RenderRepaintBoundary');
-        return null;
-      }
-
-      // Wait for any pending paint operations
       if (renderObject.debugNeedsPaint) {
         await Future.delayed(const Duration(milliseconds: 100));
       }
 
-      final image     = await renderObject.toImage(pixelRatio: 2.0);
-      final byteData  = await image.toByteData(format: ui.ImageByteFormat.png);
+      final image    = await renderObject.toImage(pixelRatio: 2.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       image.dispose();
 
       return byteData?.buffer.asUint8List();
@@ -53,12 +42,8 @@ class ExportService {
       final hasAccess = await Gal.hasAccess(toAlbum: false);
       if (!hasAccess) {
         final granted = await Gal.requestAccess(toAlbum: false);
-        if (!granted) {
-          debugPrint('ExportService: Gallery access denied');
-          return null;
-        }
+        if (!granted) return null;
       }
-
       final fileName = 'biodata_${DateTime.now().millisecondsSinceEpoch}';
       await Gal.putImageBytes(bytes, name: fileName);
       return 'saved';
@@ -68,87 +53,248 @@ class ExportService {
     }
   }
 
-  // ── Generate PDF ─────────────────────────────────────────────────────────
+  // ── Generate designed PDF ────────────────────────────────────────────────
   Future<Uint8List?> exportAsPdf(Biodata biodata) async {
     try {
-      final pdf   = pw.Document();
-      final color = _getTemplateColor(biodata.templateId);
+      final pdf    = pw.Document();
+      final colors = _getTemplateColors(biodata.templateId);
+      final primary   = colors[0];
+      final secondary = colors[1];
+
+      // Load photo bytes if available
+      pw.ImageProvider? photoImage;
+      if (biodata.photoPath.isNotEmpty) {
+        try {
+          final file = File(biodata.photoPath);
+          if (file.existsSync()) {
+            final bytes = file.readAsBytesSync();
+            photoImage = pw.MemoryImage(bytes);
+          }
+        } catch (_) {}
+      }
 
       pdf.addPage(
         pw.Page(
           pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.all(32),
-          build: (pw.Context context) => pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              // Header
-              pw.Container(
-                width: double.infinity,
-                padding: const pw.EdgeInsets.all(16),
-                decoration: pw.BoxDecoration(color: color),
-                child: pw.Column(
-                  children: [
-                    pw.Text(
-                      'RISHTA BIODATA',
-                      style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+          margin: pw.EdgeInsets.zero,
+          build: (pw.Context ctx) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                // ── Decorative top bar ─────────────────────────────────
+                pw.Container(
+                  height: 8,
+                  width: double.infinity,
+                  decoration: pw.BoxDecoration(
+                    gradient: pw.LinearGradient(
+                      colors: [secondary, primary, secondary],
                     ),
-                    pw.SizedBox(height: 4),
-                    pw.Text('Rishta Biodata Maker', style: const pw.TextStyle(fontSize: 11, color: PdfColors.white)),
-                  ],
+                  ),
                 ),
-              ),
-              pw.SizedBox(height: 16),
 
-              if (biodata.name.isNotEmpty)
-                pw.Text(biodata.name, style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold, color: color)),
-              pw.SizedBox(height: 12),
+                // ── Header block ───────────────────────────────────────
+                pw.Container(
+                  width: double.infinity,
+                  color: primary,
+                  padding: const pw.EdgeInsets.symmetric(
+                      vertical: 20, horizontal: 36),
+                  child: pw.Row(
+                    crossAxisAlignment: pw.CrossAxisAlignment.center,
+                    children: [
+                      // Photo circle
+                      if (photoImage != null)
+                        pw.Container(
+                          width: 80,
+                          height: 80,
+                          decoration: pw.BoxDecoration(
+                            shape: pw.BoxShape.circle,
+                            border: pw.Border.all(
+                                color: secondary, width: 2.5),
+                          ),
+                          child: pw.ClipOval(
+                            child: pw.Image(photoImage,
+                                width: 80, height: 80, fit: pw.BoxFit.cover),
+                          ),
+                        )
+                      else
+                        pw.Container(
+                          width: 80,
+                          height: 80,
+                          decoration: pw.BoxDecoration(
+                            shape: pw.BoxShape.circle,
+                            color: PdfColors.white,
+                            border: pw.Border.all(color: secondary, width: 2),
+                          ),
+                          child: pw.Center(
+                            child: pw.Text('👤',
+                                style: const pw.TextStyle(fontSize: 32)),
+                          ),
+                        ),
+                      pw.SizedBox(width: 20),
+                      pw.Expanded(
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            pw.Text(
+                              'RISHTA BIODATA',
+                              style: pw.TextStyle(
+                                fontSize: 9,
+                                color: secondary,
+                                letterSpacing: 3,
+                                fontWeight: pw.FontWeight.bold,
+                              ),
+                            ),
+                            pw.SizedBox(height: 4),
+                            if (biodata.name.isNotEmpty)
+                              pw.Text(
+                                biodata.name,
+                                style: pw.TextStyle(
+                                  fontSize: 22,
+                                  color: PdfColors.white,
+                                  fontWeight: pw.FontWeight.bold,
+                                ),
+                              ),
+                            pw.SizedBox(height: 6),
+                            // Quick info chips row
+                            pw.Wrap(
+                              spacing: 8,
+                              runSpacing: 4,
+                              children: [
+                                if (biodata.age.isNotEmpty)
+                                  _pdfChip('Age ${biodata.age}', secondary),
+                                if (biodata.city.isNotEmpty)
+                                  _pdfChip(biodata.city, secondary),
+                                if (biodata.maritalStatus.isNotEmpty)
+                                  _pdfChip(biodata.maritalStatus, secondary),
+                                if (biodata.profession.isNotEmpty)
+                                  _pdfChip(biodata.profession, secondary),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
-              _pdfSection('Personal Information', color, [
-                _pdfPair('Age',            biodata.age),
-                _pdfPair('Height',         biodata.height),
-                _pdfPair('City',           biodata.city),
-                _pdfPair('Complexion',     biodata.complexion),
-                _pdfPair('Mother Tongue',  biodata.motherTongue),
-                _pdfPair('Marital Status', biodata.maritalStatus),
-              ]),
+                // ── Gold divider ───────────────────────────────────────
+                pw.Container(
+                  height: 3,
+                  width: double.infinity,
+                  color: secondary,
+                ),
 
-              _pdfSection('Education & Career', color, [
-                _pdfPair('Education',  biodata.education),
-                _pdfPair('Institute',  biodata.institute),
-                _pdfPair('Profession', biodata.profession),
-                _pdfPair('Salary',     biodata.salary),
-              ]),
+                // ── Body in two columns ────────────────────────────────
+                pw.Expanded(
+                  child: pw.Container(
+                    color: const PdfColor.fromInt(0xFFFFF8F0),
+                    padding: const pw.EdgeInsets.all(28),
+                    child: pw.Row(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        // Left column
+                        pw.Expanded(
+                          child: pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              _pdfSection('Personal Information', primary, secondary, [
+                                _pdfPair('Full Name',      biodata.name,          primary),
+                                _pdfPair('Age',            biodata.age,           primary),
+                                _pdfPair('Height',         biodata.height,        primary),
+                                _pdfPair('Complexion',     biodata.complexion,    primary),
+                                _pdfPair('City',           biodata.city,          primary),
+                                _pdfPair('Mother Tongue',  biodata.motherTongue,  primary),
+                                _pdfPair('Marital Status', biodata.maritalStatus, primary),
+                                if (biodata.personalNotes.isNotEmpty)
+                                  _pdfPair('Notes', biodata.personalNotes, primary),
+                              ]),
+                              pw.SizedBox(height: 12),
+                              _pdfSection('Education & Career', primary, secondary, [
+                                _pdfPair('Education',  biodata.education,      primary),
+                                _pdfPair('Institute',  biodata.institute,      primary),
+                                _pdfPair('Profession', biodata.profession,     primary),
+                                _pdfPair('Salary',     biodata.salary,         primary),
+                                if (biodata.educationNotes.isNotEmpty)
+                                  _pdfPair('Notes', biodata.educationNotes, primary),
+                              ]),
+                            ],
+                          ),
+                        ),
 
-              _pdfSection('Family Information', color, [
-                _pdfPair("Father's Name", biodata.fatherName),
-                _pdfPair("Father's Job",  biodata.fatherProfession),
-                _pdfPair("Mother's Name", biodata.motherName),
-                _pdfPair('Brothers',      biodata.brothers),
-                _pdfPair('Sisters',       biodata.sisters),
-                _pdfPair('Family Type',   biodata.familyType),
-                _pdfPair('Caste',         biodata.caste),
-              ]),
+                        // Vertical separator
+                        pw.Container(
+                          width: 1,
+                          margin: const pw.EdgeInsets.symmetric(horizontal: 16),
+                          color: secondary,
+                        ),
 
-              _pdfSection('Religious Information', color, [
-                _pdfPair('Sect',          biodata.sect),
-                _pdfPair('Religiousness', biodata.religiousness),
-              ]),
+                        // Right column
+                        pw.Expanded(
+                          child: pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              _pdfSection('Family Information', primary, secondary, [
+                                _pdfPair("Father's Name", biodata.fatherName,       primary),
+                                _pdfPair("Father's Job",  biodata.fatherProfession, primary),
+                                _pdfPairSiblings('Brothers', biodata.brothers, biodata.brothersMarried, primary),
+                                _pdfPairSiblings('Sisters',  biodata.sisters,  biodata.sistersMarried,  primary),
+                                _pdfPair('Family Type',   biodata.familyType,       primary),
+                                _pdfPair('Caste',         biodata.caste,            primary),
+                                if (biodata.familyNotes.isNotEmpty)
+                                  _pdfPair('Notes', biodata.familyNotes, primary),
+                              ]),
+                              pw.SizedBox(height: 12),
+                              _pdfSection('Religious', primary, secondary, [
+                                _pdfPair('Sect',          biodata.sect,          primary),
+                                _pdfPair('Religiousness', biodata.religiousness, primary),
+                                if (biodata.religiousNotes.isNotEmpty)
+                                  _pdfPair('Notes', biodata.religiousNotes, primary),
+                              ]),
+                              if (biodata.notes.isNotEmpty) ...[
+                                pw.SizedBox(height: 12),
+                                _pdfSection('Additional Notes', primary, secondary, [
+                                  pw.Text(biodata.notes,
+                                      style: const pw.TextStyle(
+                                          fontSize: 10, color: PdfColors.black)),
+                                ]),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
 
-              if (biodata.notes.isNotEmpty) ...[
-                _pdfSectionTitle('Additional Notes', color),
-                pw.Text(biodata.notes, style: const pw.TextStyle(fontSize: 11)),
+                // ── Footer ─────────────────────────────────────────────
+                pw.Container(height: 3, color: secondary),
+                pw.Container(
+                  width: double.infinity,
+                  color: primary,
+                  padding: const pw.EdgeInsets.symmetric(vertical: 10),
+                  child: pw.Center(
+                    child: pw.Text(
+                      '✦  Made with Rishta Biodata Maker  ✦',
+                      style: pw.TextStyle(
+                          fontSize: 10,
+                          color: secondary,
+                          fontWeight: pw.FontWeight.bold),
+                    ),
+                  ),
+                ),
+                // Bottom decorative bar
+                pw.Container(
+                  height: 6,
+                  width: double.infinity,
+                  decoration: pw.BoxDecoration(
+                    gradient: pw.LinearGradient(
+                      colors: [secondary, primary, secondary],
+                    ),
+                  ),
+                ),
               ],
-
-              pw.Spacer(),
-              pw.Divider(),
-              pw.Center(
-                child: pw.Text(
-                  'Made with Rishta Biodata Maker',
-                  style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       );
 
@@ -175,36 +321,69 @@ class ExportService {
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
-  PdfColor _getTemplateColor(int templateId) {
+  List<PdfColor> _getTemplateColors(int templateId) {
     switch (templateId) {
-      case 2: return PdfColor.fromHex('AD1457');
-      case 3: return PdfColor.fromHex('6A1B1B');
-      case 4: return PdfColor.fromHex('0D47A1');
-      case 5: return PdfColor.fromHex('424242');
-      default: return PdfColor.fromHex('1B5E20');
+      case 2:  return [PdfColor.fromHex('AD1457'), PdfColor.fromHex('F8BBD0')];
+      case 3:  return [PdfColor.fromHex('4A0E0E'), PdfColor.fromHex('D4AF37')];
+      case 4:  return [PdfColor.fromHex('0D47A1'), PdfColor.fromHex('90CAF9')];
+      case 5:  return [PdfColor.fromHex('424242'), PdfColor.fromHex('BDBDBD')];
+      case 6:  return [PdfColor.fromHex('1A0A2E'), PdfColor.fromHex('D4AF37')];
+      case 7:  return [PdfColor.fromHex('00695C'), PdfColor.fromHex('80CBC4')];
+      case 8:  return [PdfColor.fromHex('1C1C1E'), PdfColor.fromHex('FF9500')];
+      case 9:  return [PdfColor.fromHex('4A0828'), PdfColor.fromHex('D4AF37')];
+      case 10: return [PdfColor.fromHex('283593'), PdfColor.fromHex('64B5F6')];
+      default: return [PdfColor.fromHex('6A1B1B'), PdfColor.fromHex('D4AF37')]; // maroon + gold
     }
   }
 
-  pw.Widget _pdfSection(String title, PdfColor color, List<pw.Widget> rows) {
-    final nonEmpty = rows.whereType<pw.Widget>().toList();
+  pw.Widget _pdfChip(String text, PdfColor color) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: pw.BoxDecoration(
+        color: PdfColors.white,
+        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(10)),
+      ),
+      child: pw.Text(text,
+          style: pw.TextStyle(fontSize: 8, color: color,
+              fontWeight: pw.FontWeight.bold)),
+    );
+  }
+
+  pw.Widget _pdfSection(String title, PdfColor primary, PdfColor secondary,
+      List<pw.Widget> rows) {
+    final nonEmpty = rows.where((w) => w is! pw.SizedBox).toList();
     if (nonEmpty.isEmpty) return pw.SizedBox();
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [_pdfSectionTitle(title, color), ...rows],
+      children: [
+        // Section header
+        pw.Row(
+          children: [
+            pw.Container(width: 3, height: 12, color: secondary),
+            pw.SizedBox(width: 6),
+            pw.Text(
+              title.toUpperCase(),
+              style: pw.TextStyle(
+                fontSize: 8,
+                color: primary,
+                fontWeight: pw.FontWeight.bold,
+                letterSpacing: 1.2,
+              ),
+            ),
+            pw.SizedBox(width: 6),
+            pw.Expanded(
+              child: pw.Divider(
+                  color: secondary, thickness: 0.8),
+            ),
+          ],
+        ),
+        pw.SizedBox(height: 6),
+        ...rows,
+      ],
     );
   }
 
-  pw.Widget _pdfSectionTitle(String title, PdfColor color) {
-    return pw.Padding(
-      padding: const pw.EdgeInsets.only(top: 12, bottom: 4),
-      child: pw.Text(
-        title.toUpperCase(),
-        style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold, color: color),
-      ),
-    );
-  }
-
-  pw.Widget _pdfPair(String label, String value) {
+  pw.Widget _pdfPair(String label, String value, PdfColor labelColor) {
     if (value.trim().isEmpty) return pw.SizedBox();
     return pw.Padding(
       padding: const pw.EdgeInsets.only(bottom: 4),
@@ -212,15 +391,29 @@ class ExportService {
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.SizedBox(
-            width: 130,
-            child: pw.Text(label, style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
+            width: 90,
+            child: pw.Text(label,
+                style: pw.TextStyle(
+                    fontSize: 9,
+                    fontWeight: pw.FontWeight.bold,
+                    color: labelColor)),
           ),
-          pw.Text(': ', style: const pw.TextStyle(fontSize: 11)),
+          pw.Text(': ',
+              style: const pw.TextStyle(fontSize: 9)),
           pw.Expanded(
-            child: pw.Text(value, style: const pw.TextStyle(fontSize: 11)),
+            child: pw.Text(value,
+                style: pw.TextStyle(
+                    fontSize: 9, color: PdfColors.black)),
           ),
         ],
       ),
     );
+  }
+
+  pw.Widget _pdfPairSiblings(String label, String count, String married,
+      PdfColor labelColor) {
+    if (count.isEmpty) return pw.SizedBox();
+    final display = married.isEmpty ? count : '$count ($married)';
+    return _pdfPair(label, display, labelColor);
   }
 }

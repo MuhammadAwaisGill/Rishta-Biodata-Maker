@@ -4,7 +4,6 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../providers/biodata_provider.dart';
-// ADD THIS IMPORT
 import '../../../providers/field_visibility_provider.dart';
 import 'form_section_wrapper.dart';
 
@@ -18,20 +17,18 @@ class EducationSection extends ConsumerWidget {
 
   static const _salaryRanges = [
     'Prefer not to say',
-    'Below 30,000 PKR',
-    '30,000 - 50,000 PKR',
-    '50,000 - 80,000 PKR',
-    '80,000 - 1,20,000 PKR',
-    '1,20,000 - 2,00,000 PKR',
-    'Above 2,00,000 PKR',
+    'Below 50,000 PKR',
+    '50,000 - 70,000 PKR',
+    '70,000 - 100,000 PKR',
+    '100,000 - 150,000 PKR',
+    '150,000 - 250,000 PKR',
+    '250,000+ PKR',
   ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final biodata  = ref.watch(biodataProvider);
     final notifier = ref.read(biodataProvider.notifier);
-
-    // WATCH THE VISIBILITY STATE
     final visibility = ref.watch(fieldVisibilityProvider);
 
     return FormSectionWrapper(
@@ -45,7 +42,6 @@ class EducationSection extends ConsumerWidget {
           onChanged: (v) => notifier.updateEducation(v ?? ''),
         ),
 
-        // WRAPPED INSTITUTE FIELD
         if (visibility['institute'] ?? true)
           _buildTextField(
             label: 'Institute / University',
@@ -61,7 +57,6 @@ class EducationSection extends ConsumerWidget {
           hint: 'e.g. Software Engineer',
         ),
 
-        // WRAPPED SALARY FIELD
         if (visibility['salary'] ?? true)
           _buildDropdown(
             label: 'Monthly Salary (optional)',
@@ -69,22 +64,32 @@ class EducationSection extends ConsumerWidget {
             items: _salaryRanges,
             onChanged: (v) => notifier.updateSalary(v ?? ''),
           ),
+
+        // Section description
+        _buildTextField(
+          label: 'Additional Education/Career Info (optional)',
+          initialValue: biodata.educationNotes,
+          onChanged: notifier.updateEducationNotes,
+          maxLines: 2,
+          hint: 'Any other details about your education or career...',
+        ),
       ],
     );
   }
 
-  // ... (Keep _buildTextField, _buildDropdown, and _inputDecoration exactly as they were)
   Widget _buildTextField({
     required String label,
     required String initialValue,
     required Function(String) onChanged,
     String? hint,
+    int maxLines = 1,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSizes.md),
       child: TextFormField(
         initialValue: initialValue,
         onChanged: onChanged,
+        maxLines: maxLines,
         decoration: _inputDecoration(label).copyWith(
           hintText: hint,
           hintStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
