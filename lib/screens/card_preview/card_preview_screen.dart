@@ -54,7 +54,7 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
   late Animation<double> _checkScaleAnim;
 
   static const List<TemplateInfo> _templates = [
-    TemplateInfo(id: 1, name: 'Islamic Green',  description: '', color: Color(0xFF1B5E20)),
+    TemplateInfo(id: 1, name: 'Islamic Green',  description: '', color: Color(0xFF6A1B1B)),
     TemplateInfo(id: 2, name: 'Floral Pink',    description: '', color: Color(0xFFAD1457)),
     TemplateInfo(id: 3, name: 'Royal Maroon',   description: '', color: Color(0xFF6A1B1B)),
     TemplateInfo(id: 4, name: 'Modern Navy',    description: '', color: Color(0xFF0D47A1)),

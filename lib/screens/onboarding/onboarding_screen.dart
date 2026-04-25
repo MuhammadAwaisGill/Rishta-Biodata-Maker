@@ -26,7 +26,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       title: 'Beautiful Biodata\nCards',
       subtitle:
       'Choose from 10 elegant templates crafted for Pakistani & Indian families.',
-      gradient: [Color(0xFF0A3D0A), Color(0xFF1B5E20)],
+      gradient: [Color(0xFF3B0A0A), Color(0xFF6A1B1B)],
       accentColor: Color(0xFFFFD700),
       features: ['10 Elegant Templates', 'Islamic & Modern Styles', 'Professional Design'],
       icon: Icons.auto_awesome_rounded,

@@ -21,7 +21,7 @@ class DesignListItem extends StatelessWidget {
   });
 
   static const _templateColors = {
-    1: Color(0xFF1B5E20),
+    1: Color(0xFF6A1B1B),
     2: Color(0xFFAD1457),
     3: Color(0xFF6A1B1B),
     4: Color(0xFF0D47A1),

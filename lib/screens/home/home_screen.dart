@@ -46,9 +46,9 @@ class HomeScreen extends ConsumerWidget {
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Color(0xFF0A3D0A),
-                      Color(0xFF1B5E20),
-                      Color(0xFF2E7D32)
+                      Color(0xFF3B0A0A),
+                      Color(0xFF6A1B1B),
+                      Color(0xFF8B2020)
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,

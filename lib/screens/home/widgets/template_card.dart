@@ -24,7 +24,7 @@ class AppTemplates {
   AppTemplates._();
 
   static const List<TemplateInfo> all = [
-    TemplateInfo(id: 1, name: 'Islamic Green', description: 'Classic green & gold Islamic border', color: Color(0xFF1B5E20)),
+    TemplateInfo(id: 1, name: 'Islamic Green', description: 'Classic green & gold Islamic border', color: Color(0xFF6A1B1B)),
     TemplateInfo(id: 2, name: 'Floral Pink',   description: 'Soft pink floral design for girls',  color: Color(0xFFAD1457)),
     TemplateInfo(id: 3, name: 'Royal Maroon',  description: 'Deep maroon mughal pattern',         color: Color(0xFF6A1B1B)),
     TemplateInfo(id: 4, name: 'Modern Navy',   description: 'Clean minimal navy design',          color: Color(0xFF0D47A1)),

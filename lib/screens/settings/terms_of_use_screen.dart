@@ -25,7 +25,7 @@ class TermsOfUseScreen extends StatelessWidget {
               background: Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFF1B5E20), Color(0xFF2E7D32)],
+                    colors: [Color(0xFF6A1B1B), Color(0xFF8B2020)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),

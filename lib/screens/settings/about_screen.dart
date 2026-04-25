@@ -27,7 +27,7 @@ class AboutScreen extends StatelessWidget {
               background: Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFF1B5E20), Color(0xFF2E7D32), Color(0xFF388E3C)],
+                    colors: [Color(0xFF6A1B1B), Color(0xFF8B2020), Color(0xFFA02525)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -172,7 +172,7 @@ class AboutScreen extends StatelessWidget {
                         emoji: '☪️',
                         title: '5 Templates',
                         subtitle: 'Islamic to modern',
-                        color: Color(0xFF1B5E20),
+                        color: Color(0xFF6A1B1B),
                       ),
                       _FeatureCard(
                         emoji: '📸',
@@ -196,7 +196,7 @@ class AboutScreen extends StatelessWidget {
                         emoji: '📤',
                         title: 'Share',
                         subtitle: 'WhatsApp & more',
-                        color: Color(0xFF1B5E20),
+                        color: Color(0xFF6A1B1B),
                       ),
                       _FeatureCard(
                         emoji: '💾',

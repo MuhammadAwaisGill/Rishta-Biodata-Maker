@@ -111,7 +111,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
         RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
-            Icon(Icons.edit_note_rounded, color: Color(0xFF1B5E20)),
+            Icon(Icons.edit_note_rounded, color: Color(0xFF6A1B1B)),
             SizedBox(width: 8),
             Text('Resume Draft?'),
           ],
@@ -138,7 +138,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
               context.go(AppRoutes.form);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1B5E20),
+              backgroundColor: const Color(0xFF6A1B1B),
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
@@ -164,7 +164,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF0A3D0A), Color(0xFF1B5E20), Color(0xFF2E7D32)],
+            colors: [Color(0xFF3B0A0A), Color(0xFF6A1B1B), Color(0xFF8B2020)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
