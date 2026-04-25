@@ -12,10 +12,8 @@ import 'services/ad_service.dart';
 import 'screens/splash/splash_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/home/home_screen.dart';
-import 'screens/template_preview/template_preview_screen.dart';
 import 'screens/form/form_screen.dart';
 import 'screens/card_preview/card_preview_screen.dart';
-import 'screens/saved_designs/saved_designs_screen.dart';
 import 'screens/settings/settings_screen.dart';
 import 'screens/settings/privacy_policy_screen.dart';
 import 'screens/settings/terms_of_use_screen.dart';
@@ -24,13 +22,11 @@ import 'screens/settings/about_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Lock orientation to portrait — biodata cards are portrait-only
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  // Status bar style
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -46,63 +42,50 @@ void main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
+// Defined at top level — never recreated on rebuild
 final _router = GoRouter(
   initialLocation: AppRoutes.splash,
   routes: [
-    // ── Standalone screens (no bottom nav) ───────────────────────────────
     GoRoute(
       path: AppRoutes.splash,
-      builder: (context, state) => const SplashScreen(),
+      builder: (_, __) => const SplashScreen(),
     ),
     GoRoute(
       path: AppRoutes.onboarding,
-      builder: (context, state) => const OnboardingScreen(),
-    ),
-    GoRoute(
-      path: AppRoutes.templatePreview,
-      builder: (context, state) {
-        final templateId = state.extra as int? ?? 1;
-        return TemplatePreviewScreen(templateId: templateId);
-      },
+      builder: (_, __) => const OnboardingScreen(),
     ),
     GoRoute(
       path: AppRoutes.form,
-      builder: (context, state) => const FormScreen(),
+      builder: (_, __) => const FormScreen(),
     ),
     GoRoute(
       path: AppRoutes.cardPreview,
-      builder: (context, state) => const CardPreviewScreen(),
+      builder: (_, __) => const CardPreviewScreen(),
     ),
-    // Legal & info screens — outside ShellRoute so Navigator.pop() works
-    // and no bottom nav is shown
     GoRoute(
       path: AppRoutes.privacyPolicy,
-      builder: (context, state) => const PrivacyPolicyScreen(),
+      builder: (_, __) => const PrivacyPolicyScreen(),
     ),
     GoRoute(
       path: AppRoutes.termsOfUse,
-      builder: (context, state) => const TermsOfUseScreen(),
+      builder: (_, __) => const TermsOfUseScreen(),
     ),
     GoRoute(
       path: AppRoutes.about,
-      builder: (context, state) => const AboutScreen(),
+      builder: (_, __) => const AboutScreen(),
     ),
 
-    // ── Shell with persistent bottom nav ─────────────────────────────────
+    // Shell — 2-tab bottom nav
     ShellRoute(
-      builder: (context, state, child) => _ScaffoldWithNav(child: child),
+      builder: (context, state, child) => _ShellScaffold(child: child),
       routes: [
         GoRoute(
           path: AppRoutes.home,
-          builder: (context, state) => const HomeScreen(),
-        ),
-        GoRoute(
-          path: AppRoutes.savedDesigns,
-          builder: (context, state) => const SavedDesignsScreen(),
+          builder: (_, __) => const HomeScreen(),
         ),
         GoRoute(
           path: AppRoutes.settings,
-          builder: (context, state) => const SettingsScreen(),
+          builder: (_, __) => const SettingsScreen(),
         ),
       ],
     ),
@@ -123,78 +106,50 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// ── Persistent shell with bottom navigation ───────────────────────────────────
-
-class _ScaffoldWithNav extends StatelessWidget {
+// 2-tab shell
+class _ShellScaffold extends StatelessWidget {
   final Widget child;
-  const _ScaffoldWithNav({required this.child});
+  const _ShellScaffold({required this.child});
 
-  int _selectedIndex(BuildContext context) {
-    final location = GoRouterState.of(context).uri.toString();
-    if (location.startsWith(AppRoutes.savedDesigns)) return 1;
-    if (location.startsWith(AppRoutes.settings)) return 2;
+  int _index(BuildContext context) {
+    final loc = GoRouterState.of(context).uri.toString();
+    if (loc.startsWith(AppRoutes.settings)) return 1;
     return 0;
   }
 
   @override
   Widget build(BuildContext context) {
-    final index = _selectedIndex(context);
-
+    final index = _index(context);
     return Scaffold(
       body: child,
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 12,
-              offset: const Offset(0, -3),
-            ),
-          ],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: index,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textMuted,
+        backgroundColor: AppColors.surface,
+        type: BottomNavigationBarType.fixed,
+        elevation: 8,
+        selectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
         ),
-        child: BottomNavigationBar(
-          currentIndex: index,
-          selectedItemColor: AppColors.primary,
-          unselectedItemColor: AppColors.textMuted,
-          backgroundColor: AppColors.surface,
-          type: BottomNavigationBarType.fixed,
-          elevation: 0,
-          selectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 12,
+        unselectedLabelStyle: const TextStyle(fontSize: 12),
+        onTap: (i) {
+          if (i == 0) context.go(AppRoutes.home);
+          if (i == 1) context.go(AppRoutes.settings);
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.article_outlined),
+            activeIcon: Icon(Icons.article_rounded),
+            label: 'My Biodatas',
           ),
-          unselectedLabelStyle: const TextStyle(fontSize: 12),
-          onTap: (i) {
-            switch (i) {
-              case 0:
-                context.go(AppRoutes.home);
-                break;
-              case 1:
-                context.go(AppRoutes.savedDesigns);
-                break;
-              case 2:
-                context.go(AppRoutes.settings);
-                break;
-            }
-          },
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home_rounded),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.bookmark_outline_rounded),
-              activeIcon: Icon(Icons.bookmark_rounded),
-              label: 'My Designs',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings_outlined),
-              activeIcon: Icon(Icons.settings_rounded),
-              label: 'Settings',
-            ),
-          ],
-        ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings_outlined),
+            activeIcon: Icon(Icons.settings_rounded),
+            label: 'Settings',
+          ),
+        ],
       ),
     );
   }

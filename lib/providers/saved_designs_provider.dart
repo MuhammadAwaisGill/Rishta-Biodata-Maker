@@ -30,7 +30,6 @@ class SavedDesignsNotifier extends StateNotifier<List<Biodata>> {
     load();
   }
 
-  /// Deletes all saved designs in one operation — avoids multiple rebuilds
   void deleteAll() {
     _hive.deleteAll();
     state = [];

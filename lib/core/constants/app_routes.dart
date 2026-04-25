@@ -7,9 +7,8 @@ class AppRoutes {
   static const templatePreview = '/template-preview';
   static const form            = '/form';
   static const cardPreview     = '/card-preview';
-  static const savedDesigns    = '/saved-designs';
   static const settings        = '/settings';
-  static const privacyPolicy = '/privacy-policy';
-  static const termsOfUse   = '/terms-of-use';
-  static const about        = '/about';
+  static const privacyPolicy   = '/privacy-policy';
+  static const termsOfUse      = '/terms-of-use';
+  static const about           = '/about';
 }

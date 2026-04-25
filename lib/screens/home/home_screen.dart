@@ -4,353 +4,272 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_routes.dart';
 import '../../core/constants/app_sizes.dart';
+import '../../models/biodata_model.dart';
+import '../../providers/biodata_provider.dart';
+import '../../providers/saved_designs_provider.dart';
 import '../../providers/template_provider.dart';
-import 'widgets/template_card.dart';
+import 'widgets/design_card.dart';
+import 'widgets/template_picker_sheet.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
-  // Use AppTemplates.all for all 10 templates
-  static final List<TemplateInfo> _templates = AppTemplates.all;
-
-  static const Map<int, String> _templateEmojis = {
-    1: '☪️',
-    2: '🌸',
-    3: '👑',
-    4: '💼',
-    5: '📄',
-    6: '🕌',
-    7: '📊',
-    8: '🌙',
-    9: '⚜️',
-    10: '📸',
-  };
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedTemplate = ref.watch(selectedTemplateProvider);
+    final designs = ref.watch(savedDesignsProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: CustomScrollView(
-        slivers: [
-          // Enhanced SliverAppBar
-          SliverAppBar(
-            expandedHeight: 190,
-            floating: false,
-            pinned: true,
-            backgroundColor: AppColors.primary,
-            elevation: 0,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(0xFF3B0A0A),
-                      Color(0xFF6A1B1B),
-                      Color(0xFF8B2020)
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    // Decorative circles
-                    Positioned(
-                      top: -20,
-                      right: -20,
-                      child: Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.05),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 30,
-                      right: 60,
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.06),
-                        ),
-                      ),
-                    ),
-                    SafeArea(
-                      child: Padding(
-                        padding:
-                        const EdgeInsets.fromLTRB(20, 12, 20, 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Top row
-                            Row(
-                              mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 38,
-                                      height: 38,
-                                      decoration: BoxDecoration(
-                                        color:
-                                        Colors.white.withOpacity(0.15),
-                                        borderRadius:
-                                        BorderRadius.circular(11),
-                                        border: Border.all(
-                                          color:
-                                          Colors.white.withOpacity(0.2),
-                                        ),
-                                      ),
-                                      child: const Icon(
-                                        Icons.favorite_rounded,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    const Text(
-                                      'Rishta Biodata Maker',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFD700)
-                                        .withOpacity(0.2),
-                                    borderRadius:
-                                    BorderRadius.circular(20),
-                                    border: Border.all(
-                                      color: const Color(0xFFFFD700)
-                                          .withOpacity(0.5),
-                                    ),
-                                  ),
-                                  child: const Row(
-                                    children: [
-                                      Icon(Icons.star_rounded,
-                                          color: Color(0xFFFFD700),
-                                          size: 14),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        'Free',
-                                        style: TextStyle(
-                                          color: Color(0xFFFFD700),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const Spacer(),
-
-                            const Text(
-                              'Assalam o Alaikum! 👋',
-                              style: TextStyle(
-                                  color: Colors.white70, fontSize: 13),
-                            ),
-                            const SizedBox(height: 4),
-                            const Text(
-                              'Choose a Template',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            const Text(
-                              'Create your perfect rishta biodata in minutes',
-                              style: TextStyle(
-                                  color: Colors.white60, fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+      appBar: AppBar(
+        backgroundColor: AppColors.primary,
+        elevation: 0,
+        centerTitle: false,
+        title: const Text(
+          'Rishta Biodata',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
-
-          // Stats row
-          SliverToBoxAdapter(
-            child: Container(
-              margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              padding:
-              const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius:
-                BorderRadius.circular(AppSizes.radiusMd),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  _statItem(Icons.article_rounded, '10', 'Templates',
-                      AppColors.primary),
-                  _divider(),
-                  _statItem(Icons.download_rounded, 'Free', 'Download',
-                      const Color(0xFF0D47A1)),
-                  _divider(),
-                  _statItem(Icons.picture_as_pdf_rounded, 'PDF',
-                      'Export', AppColors.error),
-                  _divider(),
-                  _statItem(Icons.qr_code_rounded, 'QR', 'Code',
-                      const Color(0xFF6A0DAD)),
-                ],
-              ),
+        ),
+        actions: [
+          if (designs.isNotEmpty)
+            IconButton(
+              onPressed: () => _showClearAllDialog(context, ref),
+              icon: const Icon(Icons.delete_sweep_rounded,
+                  color: Colors.white70, size: 22),
+              tooltip: 'Clear All',
             ),
+        ],
+      ),
+      body: designs.isEmpty
+          ? _EmptyState(onCreate: () => _showTemplatePicker(context, ref))
+          : _DesignsList(
+        designs: designs,
+        onCreate: () => _showTemplatePicker(context, ref),
+        ref: ref,
+      ),
+      floatingActionButton: designs.isNotEmpty
+          ? FloatingActionButton.extended(
+        onPressed: () => _showTemplatePicker(context, ref),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        elevation: 3,
+        icon: const Icon(Icons.add_rounded),
+        label: const Text(
+          'Create Biodata',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+      )
+          : null,
+    );
+  }
+
+  void _showTemplatePicker(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => TemplatePickerSheet(
+        onSelect: (templateId) {
+          Navigator.pop(context);
+          ref.read(biodataProvider.notifier).resetForm();
+          ref.read(selectedTemplateProvider.notifier).state = templateId;
+          context.push(AppRoutes.form);
+        },
+      ),
+    );
+  }
+
+  void _showClearAllDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSizes.radiusMd)),
+        title: const Row(
+          children: [
+            Icon(Icons.delete_sweep_rounded, color: AppColors.error),
+            SizedBox(width: 8),
+            Text('Clear All'),
+          ],
+        ),
+        content: const Text(
+            'This will delete ALL saved biodatas. This cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
           ),
-
-          // Section label
-          SliverToBoxAdapter(
-            child: Padding(
-              padding:
-              const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: Row(
-                children: [
-                  Container(
-                    width: 4,
-                    height: 18,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Available Templates',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textDark,
-                    ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      '${_templates.length} designs',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+          ElevatedButton(
+            onPressed: () {
+              ref.read(savedDesignsProvider.notifier).deleteAll();
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppSizes.radiusSm)),
             ),
-          ),
-
-          // Template grid — ALL 10 templates
-          SliverPadding(
-            padding:
-            const EdgeInsets.fromLTRB(16, 4, 16, 24),
-            sliver: SliverGrid(
-              delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                  final template = _templates[index];
-                  final isSelected = selectedTemplate == template.id;
-                  final emoji = _templateEmojis[template.id] ?? '📄';
-                  return TemplateCard(
-                    templateInfo: template,
-                    isSelected: isSelected,
-                    emoji: emoji,
-                    onTap: () {
-                      ref
-                          .read(selectedTemplateProvider.notifier)
-                          .state = template.id;
-                      context.push(AppRoutes.templatePreview,
-                          extra: template.id);
-                    },
-                  );
-                },
-                childCount: _templates.length,
-              ),
-              gridDelegate:
-              const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: AppSizes.md,
-                mainAxisSpacing: AppSizes.md,
-                childAspectRatio: 0.72,
-              ),
-            ),
+            child: const Text('Clear All'),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _statItem(
-      IconData icon, String value, String label, Color color) {
-    return Expanded(
-      child: Column(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: color, size: 18),
+// ── Designs list ──────────────────────────────────────────────────────────────
+
+class _DesignsList extends StatelessWidget {
+  final List<Biodata> designs;
+  final VoidCallback onCreate;
+  final WidgetRef ref;
+
+  const _DesignsList({
+    required this.designs,
+    required this.onCreate,
+    required this.ref,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
+      itemCount: designs.length,
+      separatorBuilder: (_, __) => const SizedBox(height: AppSizes.sm),
+      itemBuilder: (context, index) {
+        final design = designs[index];
+        return DesignCard(
+          biodata: design,
+          index: index,
+          onTap: () {
+            ref.read(biodataProvider.notifier).loadFromSaved(design);
+            ref.read(selectedTemplateProvider.notifier).state =
+                design.templateId;
+            context.push(AppRoutes.cardPreview);
+          },
+          onEdit: () {
+            ref.read(biodataProvider.notifier).loadFromSaved(design);
+            ref.read(selectedTemplateProvider.notifier).state =
+                design.templateId;
+            context.push(AppRoutes.form);
+          },
+          onDelete: () => _showDeleteDialog(context, design.id),
+          onDuplicate: () {
+            final dup = design.copyWith();
+            dup.id = DateTime.now().millisecondsSinceEpoch.toString();
+            dup.createdAt = DateTime.now();
+            ref.read(savedDesignsProvider.notifier).save(dup);
+          },
+        );
+      },
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context, String id) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSizes.radiusMd)),
+        title: const Row(
+          children: [
+            Icon(Icons.delete_outline_rounded, color: AppColors.error),
+            SizedBox(width: 8),
+            Text('Delete Biodata'),
+          ],
+        ),
+        content: const Text('Are you sure you want to delete this biodata?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
           ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: color,
+          ElevatedButton(
+            onPressed: () {
+              ref.read(savedDesignsProvider.notifier).delete(id);
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppSizes.radiusSm)),
             ),
-          ),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 10,
-              color: AppColors.textMuted,
-            ),
+            child: const Text('Delete'),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _divider() {
-    return Container(
-      width: 1,
-      height: 40,
-      color: AppColors.textMuted.withOpacity(0.15),
+// ── Empty state ───────────────────────────────────────────────────────────────
+
+class _EmptyState extends StatelessWidget {
+  final VoidCallback onCreate;
+  const _EmptyState({required this.onCreate});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSizes.xl),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: const BoxDecoration(
+                color: Color(0x146A1B1B), // primary @ 8% opacity — static
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.article_outlined,
+                size: 48,
+                color: AppColors.primary,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'No Biodatas Yet',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textDark,
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Create your first biodata and share it instantly.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.textMuted,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: onCreate,
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('Create Biodata'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 28, vertical: 14),
+                shape: RoundedRectangleBorder(
+                    borderRadius:
+                    BorderRadius.circular(AppSizes.radiusMd)),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

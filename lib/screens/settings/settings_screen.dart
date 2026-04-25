@@ -10,448 +10,314 @@ import '../../core/constants/app_strings.dart';
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
+  // ── Static data — never rebuilt ───────────────────────────────────────────
+  static const _storeUrl =
+      'https://play.google.com/store/apps/details?id=com.gillzlabs.rishta_biodata_maker';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 210,
-            pinned: true,
-            automaticallyImplyLeading: false,
-            backgroundColor: AppColors.primary,
-            elevation: 0,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF3B0A0A), Color(0xFF6A1B1B), Color(0xFF8B2020)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      top: -30,
-                      right: -30,
-                      child: Container(
-                        width: 140,
-                        height: 140,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.05),
-                        ),
-                      ),
-                    ),
-                    SafeArea(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 8),
-                          Container(
-                            width: 76,
-                            height: 76,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 6),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(Icons.favorite_rounded,
-                                color: AppColors.primary, size: 36),
-                          ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            AppStrings.appName,
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 19,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            AppStrings.appTagline,
-                            style: TextStyle(
-                                color: Color(0xFFFFD700),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500),
-                          ),
-                          const SizedBox(height: 10),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.12),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                  color: Colors.white.withOpacity(0.25)),
-                            ),
-                            child: const Text(
-                              'Version 1.0.0',
-                              style:
-                              TextStyle(color: Colors.white, fontSize: 12),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+      appBar: AppBar(
+        backgroundColor: AppColors.primary,
+        elevation: 0,
+        centerTitle: false,
+        automaticallyImplyLeading: false,
+        title: const Text(
+          'Settings',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
-
-          SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: AppSizes.md),
-
-                // Quick actions row
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      _quickAction(
-                        icon: Icons.star_rounded,
-                        label: 'Rate App',
-                        color: const Color(0xFFFFC107),
-                        onTap: () => _launchUrl(
-                            'https://play.google.com/store/apps/details?id=com.gillzlabs.rishta_biodata_maker'),
-                      ),
-                      const SizedBox(width: 10),
-                      _quickAction(
-                        icon: Icons.share_rounded,
-                        label: 'Share App',
-                        color: AppColors.primary,
-                        onTap: _shareApp,
-                      ),
-                      const SizedBox(width: 10),
-                      _quickAction(
-                        icon: Icons.bug_report_rounded,
-                        label: 'Report Bug',
-                        color: AppColors.error,
-                        onTap: () => _launchUrl(
-                            'mailto:support@rishatabiodata.com?subject=Bug Report'),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: AppSizes.lg),
-
-                _sectionHeader('Support'),
-                _tile(
-                  icon: Icons.star_rounded,
-                  iconColor: const Color(0xFFFFC107),
-                  iconBg: const Color(0xFFFFF8E1),
-                  title: 'Rate the App',
-                  subtitle: 'Love the app? Give us 5 stars! ⭐',
-                  trailing: _goldBadge('⭐ Rate'),
-                  onTap: () => _launchUrl(
-                      'https://play.google.com/store/apps/details?id=com.gillzlabs.rishta_biodata_maker'),
-                ),
-                _tile(
-                  icon: Icons.share_rounded,
-                  iconColor: AppColors.primary,
-                  iconBg: const Color(0xFFE8F5E9),
-                  title: 'Share the App',
-                  subtitle: 'Share with friends & family',
-                  onTap: _shareApp,
-                ),
-                _tile(
-                  icon: Icons.bug_report_rounded,
-                  iconColor: AppColors.error,
-                  iconBg: const Color(0xFFFFEBEE),
-                  title: 'Report a Problem',
-                  subtitle: 'Help us improve the app',
-                  onTap: () => _launchUrl(
-                      'mailto:support@rishatabiodata.com?subject=Bug Report'),
-                ),
-
-                const SizedBox(height: AppSizes.md),
-
-                _sectionHeader('Legal'),
-                _tile(
-                  icon: Icons.privacy_tip_rounded,
-                  iconColor: AppColors.primary,
-                  iconBg: const Color(0xFFE8F5E9),
-                  title: 'Privacy Policy',
-                  subtitle: 'How we handle your data',
-                  onTap: () => context.push(AppRoutes.privacyPolicy),
-                ),
-                _tile(
-                  icon: Icons.description_rounded,
-                  iconColor: AppColors.primary,
-                  iconBg: const Color(0xFFE8F5E9),
-                  title: 'Terms of Use',
-                  subtitle: 'Terms and conditions',
-                  onTap: () => context.push(AppRoutes.termsOfUse),
-                ),
-
-                const SizedBox(height: AppSizes.md),
-
-                _sectionHeader('About'),
-                _tile(
-                  icon: Icons.info_rounded,
-                  iconColor: AppColors.primary,
-                  iconBg: const Color(0xFFE8F5E9),
-                  title: 'About App',
-                  subtitle: AppStrings.appTagline,
-                  onTap: () => context.push(AppRoutes.about),
-                ),
-
-                const SizedBox(height: AppSizes.lg),
-
-                // Features banner — updated to 10 templates
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.primary.withOpacity(0.08),
-                          AppColors.primary.withOpacity(0.04),
-                        ],
-                      ),
-                      borderRadius:
-                      BorderRadius.circular(AppSizes.radiusMd),
-                      border: Border.all(
-                        color: AppColors.primary.withOpacity(0.15),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Row(
-                          children: [
-                            Icon(Icons.rocket_launch_rounded,
-                                color: AppColors.primary, size: 18),
-                            SizedBox(width: 8),
-                            Text(
-                              'What\'s in this app?',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        _featureRow('🎨', '10 beautiful biodata templates'),
-                        _featureRow('📸', 'Add your photo to the card'),
-                        _featureRow('📥', 'Download card to gallery'),
-                        _featureRow('📄', 'Export as PDF'),
-                        _featureRow('📤', 'Share on WhatsApp instantly'),
-                        _featureRow('🔗', 'QR code for WhatsApp contact'),
-                        _featureRow('💾', 'Save multiple designs'),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: AppSizes.xl),
-
-                // Footer
-                Center(
-                  child: Column(
-                    children: [
-                      const Text(
-                        'Made with ❤️ for Pakistani & Indian families',
-                        style: TextStyle(
-                            fontSize: 12, color: AppColors.textMuted),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '© 2025 Rishta Biodata Maker',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppColors.textMuted.withOpacity(0.6),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: AppSizes.xl),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
-    );
-  }
-
-  Widget _sectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-      child: Row(
+      body: ListView(
+        padding: const EdgeInsets.symmetric(vertical: AppSizes.md),
         children: [
-          Container(
-            width: 3,
-            height: 14,
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(2),
+          // ── App info card ──────────────────────────────────────────────
+          const _AppInfoCard(),
+
+          const SizedBox(height: AppSizes.md),
+
+          // ── Support section ────────────────────────────────────────────
+          const _SectionLabel('Support'),
+          _SettingsTile(
+            icon: Icons.star_rounded,
+            iconColor: const Color(0xFFFFC107),
+            title: 'Rate the App',
+            subtitle: 'Love the app? Give us 5 stars ⭐',
+            onTap: () => _launch(_storeUrl),
+          ),
+          _SettingsTile(
+            icon: Icons.share_rounded,
+            iconColor: AppColors.primary,
+            title: 'Share the App',
+            subtitle: 'Share with friends & family',
+            onTap: _shareApp,
+          ),
+          _SettingsTile(
+            icon: Icons.bug_report_rounded,
+            iconColor: AppColors.error,
+            title: 'Report a Problem',
+            subtitle: 'Help us improve',
+            onTap: () => _launch(
+                'mailto:support@rishatabiodata.com?subject=Bug Report'),
+          ),
+
+          const SizedBox(height: AppSizes.sm),
+
+          // ── Legal section ──────────────────────────────────────────────
+          const _SectionLabel('Legal'),
+          _SettingsTile(
+            icon: Icons.privacy_tip_rounded,
+            iconColor: AppColors.primary,
+            title: 'Privacy Policy',
+            onTap: () => context.push(AppRoutes.privacyPolicy),
+          ),
+          _SettingsTile(
+            icon: Icons.description_rounded,
+            iconColor: AppColors.primary,
+            title: 'Terms of Use',
+            onTap: () => context.push(AppRoutes.termsOfUse),
+          ),
+
+          const SizedBox(height: AppSizes.sm),
+
+          // ── About section ──────────────────────────────────────────────
+          const _SectionLabel('About'),
+          _SettingsTile(
+            icon: Icons.info_rounded,
+            iconColor: AppColors.primary,
+            title: 'About App',
+            onTap: () => context.push(AppRoutes.about),
+          ),
+
+          const SizedBox(height: AppSizes.xl),
+
+          // ── Footer ────────────────────────────────────────────────────
+          const Center(
+            child: Text(
+              '© 2025 Rishta Biodata Maker',
+              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
             ),
           ),
-          const SizedBox(width: 8),
-          Text(
-            title.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textMuted,
-              letterSpacing: 1.2,
-            ),
-          ),
+          const SizedBox(height: AppSizes.md),
         ],
       ),
     );
   }
 
-  Widget _tile({
-    required IconData icon,
-    required Color iconColor,
-    required Color iconBg,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-    Widget? trailing,
-  }) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ListTile(
-        onTap: onTap,
-        leading: Container(
-          width: 42,
-          height: 42,
-          decoration: BoxDecoration(
-            color: iconBg,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: iconColor, size: 22),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textDark),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
-        ),
-        trailing: trailing ??
-            const Icon(Icons.chevron_right_rounded,
-                color: AppColors.textMuted),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-        ),
-      ),
-    );
-  }
-
-  Widget _quickAction({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.08),
-            borderRadius:
-            BorderRadius.circular(AppSizes.radiusMd),
-            border: Border.all(color: color.withOpacity(0.2)),
-          ),
-          child: Column(
-            children: [
-              Icon(icon, color: color, size: 24),
-              const SizedBox(height: 6),
-              Text(
-                label,
-                style: TextStyle(
-                    fontSize: 11,
-                    color: color,
-                    fontWeight: FontWeight.w600),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _featureRow(String emoji, String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          Text(emoji, style: const TextStyle(fontSize: 16)),
-          const SizedBox(width: 10),
-          Text(text,
-              style: const TextStyle(
-                  fontSize: 13, color: AppColors.textDark)),
-        ],
-      ),
-    );
-  }
-
-  Widget _goldBadge(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF8E1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-            color: const Color(0xFFFFD700).withOpacity(0.5)),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(
-            fontSize: 11,
-            color: Color(0xFFE65100),
-            fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-
-  Future<void> _launchUrl(String url) async {
+  static Future<void> _launch(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
 
-  Future<void> _shareApp() async {
+  static Future<void> _shareApp() async {
     await Share.share(
-      'Create beautiful rishta biodata cards!\nDownload: https://play.google.com/store/apps/details?id=com.gillzlabs.rishta_biodata_maker',
+      'Create beautiful rishta biodata cards!\n'
+          'Download: $_storeUrl',
+    );
+  }
+}
+
+// ── App info card ─────────────────────────────────────────────────────────────
+
+class _AppInfoCard extends StatelessWidget {
+  const _AppInfoCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: AppSizes.md),
+      padding: const EdgeInsets.all(AppSizes.md),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 6,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // App icon placeholder
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(
+              Icons.favorite_rounded,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
+          const SizedBox(width: 14),
+          const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                AppStrings.appName,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textDark,
+                ),
+              ),
+              SizedBox(height: 2),
+              Text(
+                'Version 1.0.0',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textMuted,
+                ),
+              ),
+              SizedBox(height: 2),
+              Text(
+                AppStrings.appTagline,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Section label ─────────────────────────────────────────────────────────────
+
+class _SectionLabel extends StatelessWidget {
+  final String text;
+  const _SectionLabel(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 6),
+      child: Text(
+        text.toUpperCase(),
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textMuted,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+}
+
+// ── Settings tile ─────────────────────────────────────────────────────────────
+
+class _SettingsTile extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String? subtitle;
+  final VoidCallback onTap;
+
+  const _SettingsTile({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.onTap,
+    this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(
+          AppSizes.md, 0, AppSizes.md, AppSizes.sm),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 4,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSizes.md, vertical: 14),
+            child: Row(
+              children: [
+                // Icon container
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: Color.fromRGBO(
+                      iconColor.red,
+                      iconColor.green,
+                      iconColor.blue,
+                      0.1,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icon, color: iconColor, size: 20),
+                ),
+                const SizedBox(width: 14),
+
+                // Text
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textDark,
+                        ),
+                      ),
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle!,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppColors.textMuted,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

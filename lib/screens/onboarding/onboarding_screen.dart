@@ -2,17 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_routes.dart';
 import '../../core/constants/app_sizes.dart';
 
-// ── Static data — defined once outside the widget tree ───────────────────────
+// ── Page data ─────────────────────────────────────────────────────────────────
+
 const List<_OnboardingData> _kPages = [
   _OnboardingData(
     emoji: '💍',
     title: 'Beautiful Biodata\nCards',
-    subtitle:
-    'Choose from 10 elegant templates crafted for Pakistani & Indian families.',
+    subtitle: 'Choose from 10 elegant templates crafted for Pakistani & Indian families.',
     gradientStart: Color(0xFF2A0606),
     gradientEnd: Color(0xFF6A1B1B),
     accentColor: Color(0xFFD4AF37),
@@ -21,8 +20,7 @@ const List<_OnboardingData> _kPages = [
   _OnboardingData(
     emoji: '✍️',
     title: 'Fill Your Details\nEasily',
-    subtitle:
-    'Smart form with all rishta biodata sections. Toggle fields on/off as needed.',
+    subtitle: 'Smart form with all rishta biodata sections. Toggle fields on/off as needed.',
     gradientStart: Color(0xFF0D2B6B),
     gradientEnd: Color(0xFF1565C0),
     accentColor: Color(0xFF90CAF9),
@@ -31,14 +29,15 @@ const List<_OnboardingData> _kPages = [
   _OnboardingData(
     emoji: '🚀',
     title: 'Download & Share\nInstantly',
-    subtitle:
-    'Export as image or PDF. Share on WhatsApp with a single tap.',
+    subtitle: 'Export as image or PDF. Share on WhatsApp with a single tap.',
     gradientStart: Color(0xFF5A006A),
     gradientEnd: Color(0xFFAD1457),
     accentColor: Color(0xFFF48FB1),
     features: ['Save to Gallery', 'Export as PDF', 'QR Code & WhatsApp'],
   ),
 ];
+
+// ── Screen ────────────────────────────────────────────────────────────────────
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -48,34 +47,28 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final PageController _pageController = PageController();
+  int _currentPage = 0;
 
-  // Single lightweight controller for page content fade+slide
+  // Single controller drives content fade+slide on each page turn
   late final AnimationController _contentAnim;
   late final Animation<double> _fadeAnim;
   late final Animation<Offset> _slideAnim;
-
-  int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
     _contentAnim = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 380),
+      duration: const Duration(milliseconds: 300),
     );
-    _fadeAnim = CurvedAnimation(
-      parent: _contentAnim,
-      curve: Curves.easeOut,
-    );
+    _fadeAnim = CurvedAnimation(parent: _contentAnim, curve: Curves.easeOut);
     _slideAnim = Tween<Offset>(
-      begin: const Offset(0, 0.06),
+      begin: const Offset(0, 0.05),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _contentAnim,
-      curve: Curves.easeOutCubic,
-    ));
+    ).animate(CurvedAnimation(parent: _contentAnim, curve: Curves.easeOutCubic));
+
     _contentAnim.forward();
   }
 
@@ -88,12 +81,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   void _onPageChanged(int index) {
     setState(() => _currentPage = index);
-    // Restart content animation for new page
     _contentAnim.forward(from: 0);
   }
 
-  Future<void> _finishOnboarding() async {
-    // Haptic feedback for satisfying tap
+  Future<void> _finish() async {
     HapticFeedback.lightImpact();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_done', true);
@@ -101,15 +92,15 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     context.go(AppRoutes.home);
   }
 
-  void _nextPage() {
-    HapticFeedback.lightImpact();
+  void _next() {
+    HapticFeedback.selectionClick();
     if (_currentPage < _kPages.length - 1) {
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 350),
+        duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOutCubic,
       );
     } else {
-      _finishOnboarding();
+      _finish();
     }
   }
 
@@ -118,35 +109,43 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     final page = _kPages[_currentPage];
 
     return Scaffold(
-      // No AnimatedContainer on Scaffold — huge perf win
       body: Stack(
         children: [
-          // ── Background gradient — animated via TweenAnimationBuilder ──
-          _AnimatedBackground(page: page),
+          // ── Animated gradient background ─────────────────────────────
+          // AnimatedContainer is cheaper than TweenAnimationBuilder for colors
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 450),
+            curve: Curves.easeInOut,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [page.gradientStart, page.gradientEnd],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          ),
 
-          // ── Static decorative circles — never rebuild ──────────────────
+          // ── Static decor — never rebuilds ────────────────────────────
           const _BackgroundDecor(),
 
-          // ── Main layout ───────────────────────────────────────────────
+          // ── Content ──────────────────────────────────────────────────
           SafeArea(
             child: Column(
               children: [
-                // Top bar
                 _TopBar(
                   currentPage: _currentPage,
                   total: _kPages.length,
-                  onSkip: _finishOnboarding,
+                  onSkip: _finish,
                 ),
-
-                // Page content
                 Expanded(
                   child: PageView.builder(
                     controller: _pageController,
                     itemCount: _kPages.length,
                     onPageChanged: _onPageChanged,
+                    // BouncingScrollPhysics feels natural and is GPU-friendly
                     physics: const BouncingScrollPhysics(),
                     itemBuilder: (context, index) {
-                      // Only animate the CURRENT page — others stay static
+                      // Only animate the visible page
                       if (index == _currentPage) {
                         return FadeTransition(
                           opacity: _fadeAnim,
@@ -160,13 +159,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     },
                   ),
                 ),
-
-                // Bottom controls
                 _BottomControls(
                   currentPage: _currentPage,
                   total: _kPages.length,
                   page: page,
-                  onNext: _nextPage,
+                  onNext: _next,
                 ),
               ],
             ),
@@ -177,36 +174,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   }
 }
 
-// ── Animated background — uses TweenAnimationBuilder for smooth color lerp ───
-class _AnimatedBackground extends StatelessWidget {
-  final _OnboardingData page;
-  const _AnimatedBackground({required this.page});
+// ── Static decor — extracted so it's never rebuilt ────────────────────────────
 
-  @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<Color?>(
-      tween: ColorTween(
-        begin: page.gradientStart,
-        end: page.gradientEnd,
-      ),
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-      builder: (context, color, _) {
-        return Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [page.gradientStart, page.gradientEnd],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-// ── Static background decoration — const, never rebuilds ─────────────────────
 class _BackgroundDecor extends StatelessWidget {
   const _BackgroundDecor();
 
@@ -215,11 +184,9 @@ class _BackgroundDecor extends StatelessWidget {
     return Stack(
       children: [
         Positioned(
-          top: -50,
-          right: -50,
+          top: -50, right: -50,
           child: Container(
-            width: 200,
-            height: 200,
+            width: 200, height: 200,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white.withOpacity(0.05),
@@ -227,27 +194,12 @@ class _BackgroundDecor extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: 80,
-          left: -60,
+          bottom: 80, left: -60,
           child: Container(
-            width: 180,
-            height: 180,
+            width: 180, height: 180,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white.withOpacity(0.04),
-            ),
-          ),
-        ),
-        Positioned(
-          top: 120,
-          left: -30,
-          child: Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                  color: Colors.white.withOpacity(0.08), width: 1),
             ),
           ),
         ),
@@ -257,16 +209,12 @@ class _BackgroundDecor extends StatelessWidget {
 }
 
 // ── Top bar ───────────────────────────────────────────────────────────────────
+
 class _TopBar extends StatelessWidget {
   final int currentPage;
   final int total;
   final VoidCallback onSkip;
-
-  const _TopBar({
-    required this.currentPage,
-    required this.total,
-    required this.onSkip,
-  });
+  const _TopBar({required this.currentPage, required this.total, required this.onSkip});
 
   @override
   Widget build(BuildContext context) {
@@ -275,7 +223,6 @@ class _TopBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Page counter
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
@@ -287,21 +234,14 @@ class _TopBar extends StatelessWidget {
               style: const TextStyle(color: Colors.white70, fontSize: 13),
             ),
           ),
-          // Skip button
           TextButton(
             onPressed: onSkip,
             style: TextButton.styleFrom(
               backgroundColor: Colors.white.withOpacity(0.12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              padding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
-            child: const Text(
-              'Skip',
-              style: TextStyle(color: Colors.white70, fontSize: 13),
-            ),
+            child: const Text('Skip', style: TextStyle(color: Colors.white70, fontSize: 13)),
           ),
         ],
       ),
@@ -309,7 +249,8 @@ class _TopBar extends StatelessWidget {
   }
 }
 
-// ── Page content — extracted widget with const constructor ────────────────────
+// ── Page content — const-safe, no animation state here ───────────────────────
+
 class _PageContent extends StatelessWidget {
   final _OnboardingData data;
   const _PageContent({required this.data});
@@ -321,17 +262,13 @@ class _PageContent extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Hero emoji
+          // Hero emoji circle
           Container(
-            width: 140,
-            height: 140,
+            width: 140, height: 140,
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.12),
               shape: BoxShape.circle,
-              border: Border.all(
-                color: data.accentColor.withOpacity(0.4),
-                width: 2,
-              ),
+              border: Border.all(color: data.accentColor.withOpacity(0.4), width: 2),
               boxShadow: [
                 BoxShadow(
                   color: data.accentColor.withOpacity(0.2),
@@ -341,16 +278,12 @@ class _PageContent extends StatelessWidget {
               ],
             ),
             child: Center(
-              child: Text(
-                data.emoji,
-                style: const TextStyle(fontSize: 64),
-              ),
+              child: Text(data.emoji, style: const TextStyle(fontSize: 64)),
             ),
           ),
 
           const SizedBox(height: 36),
 
-          // Title
           Text(
             data.title,
             textAlign: TextAlign.center,
@@ -364,7 +297,6 @@ class _PageContent extends StatelessWidget {
 
           const SizedBox(height: 14),
 
-          // Subtitle
           Text(
             data.subtitle,
             textAlign: TextAlign.center,
@@ -377,30 +309,23 @@ class _PageContent extends StatelessWidget {
 
           const SizedBox(height: 32),
 
-          // Feature pills
+          // Feature pills — Wrap is fine at small counts (3 items)
           Wrap(
             spacing: 10,
             runSpacing: 10,
             alignment: WrapAlignment.center,
             children: data.features.map((f) {
               return Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.22),
-                  ),
+                  border: Border.all(color: Colors.white.withOpacity(0.22)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.check_circle_rounded,
-                      size: 14,
-                      color: data.accentColor,
-                    ),
+                    Icon(Icons.check_circle_rounded, size: 14, color: data.accentColor),
                     const SizedBox(width: 6),
                     Text(
                       f,
@@ -421,7 +346,8 @@ class _PageContent extends StatelessWidget {
   }
 }
 
-// ── Bottom controls — dots + button ──────────────────────────────────────────
+// ── Bottom controls ───────────────────────────────────────────────────────────
+
 class _BottomControls extends StatelessWidget {
   final int currentPage;
   final int total;
@@ -441,13 +367,13 @@ class _BottomControls extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 36),
       child: Column(
         children: [
-          // Animated dots
+          // Dots
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(total, (index) {
               return AnimatedContainer(
-                duration: const Duration(milliseconds: 280),
-                curve: Curves.easeInOutCubic,
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOut,
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 width: currentPage == index ? 28 : 8,
                 height: 8,
@@ -463,7 +389,7 @@ class _BottomControls extends StatelessWidget {
 
           const SizedBox(height: 28),
 
-          // Next / Get Started button
+          // CTA button
           SizedBox(
             width: double.infinity,
             height: 56,
@@ -473,8 +399,7 @@ class _BottomControls extends StatelessWidget {
                 backgroundColor: Colors.white,
                 foregroundColor: page.gradientStart,
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                  BorderRadius.circular(AppSizes.radiusMd),
+                  borderRadius: BorderRadius.circular(AppSizes.radiusMd),
                 ),
                 elevation: 4,
                 shadowColor: Colors.black26,
@@ -484,10 +409,7 @@ class _BottomControls extends StatelessWidget {
                 children: [
                   Text(
                     currentPage == total - 1 ? 'Get Started' : 'Continue',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(width: 8),
                   Icon(
@@ -506,7 +428,8 @@ class _BottomControls extends StatelessWidget {
   }
 }
 
-// ── Data class — immutable, const-constructible ───────────────────────────────
+// ── Data ──────────────────────────────────────────────────────────────────────
+
 class _OnboardingData {
   final String emoji;
   final String title;

@@ -8,7 +8,6 @@ import 'package:printing/printing.dart';
 import 'package:in_app_review/in_app_review.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_sizes.dart';
-import '../../core/constants/app_strings.dart';
 import '../../models/biodata_model.dart';
 import '../../providers/biodata_provider.dart';
 import '../../providers/template_provider.dart';
@@ -21,14 +20,11 @@ import '../../templates/floral/template_2_floral.dart';
 import '../../templates/royal/template_3_royal.dart';
 import '../../templates/modern/template_4_modern.dart';
 import '../../templates/simple/template_5_simple.dart';
-import '../home/widgets/template_card.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../templates/urdu/template_6_urdu.dart';
 import '../../templates/two_column/template_7_two_column.dart';
 import '../../templates/dark/template_8_dark.dart';
 import '../../templates/mughal/template_9_mughal.dart';
 import '../../templates/photo/template_10_photo.dart';
-import 'widgets/action_bar.dart';
 
 class CardPreviewScreen extends ConsumerStatefulWidget {
   const CardPreviewScreen({super.key});
@@ -37,45 +33,14 @@ class CardPreviewScreen extends ConsumerStatefulWidget {
   ConsumerState<CardPreviewScreen> createState() => _CardPreviewScreenState();
 }
 
-class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
-    with TickerProviderStateMixin {
-  final GlobalKey _repaintKey = GlobalKey();
-
+class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
+  final _repaintKey = GlobalKey();
   bool _isExporting = false;
   bool _designSaved = false;
-
-  final TransformationController _transformController =
-  TransformationController();
-  bool _isZoomed = false;
-
-  late AnimationController _checkAnimController;
-  late Animation<double> _checkScaleAnim;
-
-  // ── ALL 10 templates mapped ──────────────────────────────────────────────
-  static const List<TemplateInfo> _templates = [
-    TemplateInfo(id: 1,  name: 'Islamic Green',    description: '', color: Color(0xFF6A1B1B)),
-    TemplateInfo(id: 2,  name: 'Floral Pink',      description: '', color: Color(0xFFAD1457)),
-    TemplateInfo(id: 3,  name: 'Royal Maroon',     description: '', color: Color(0xFF6A1B1B)),
-    TemplateInfo(id: 4,  name: 'Modern Navy',      description: '', color: Color(0xFF0D47A1)),
-    TemplateInfo(id: 5,  name: 'Simple White',     description: '', color: Color(0xFF424242)),
-    TemplateInfo(id: 6,  name: 'Urdu Calligraphy', description: '', color: Color(0xFF6A0DAD)),
-    TemplateInfo(id: 7,  name: 'Two Column',       description: '', color: Color(0xFF00695C)),
-    TemplateInfo(id: 8,  name: 'Minimalist Dark',  description: '', color: Color(0xFF1C1C1E)),
-    TemplateInfo(id: 9,  name: 'Mughal Royal',     description: '', color: Color(0xFF4A0828)),
-    TemplateInfo(id: 10, name: 'Photo Focused',    description: '', color: Color(0xFF283593)),
-  ];
 
   @override
   void initState() {
     super.initState();
-    _checkAnimController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
-    _checkScaleAnim = CurvedAnimation(
-      parent: _checkAnimController,
-      curve: Curves.elasticOut,
-    );
     WidgetsBinding.instance.addPostFrameCallback((_) => _preloadAd());
   }
 
@@ -88,325 +53,88 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
     });
   }
 
-  @override
-  void dispose() {
-    _transformController.dispose();
-    _checkAnimController.dispose();
-    super.dispose();
-  }
-
-  void _resetZoom() {
-    _transformController.value = Matrix4.identity();
-    setState(() => _isZoomed = false);
-  }
-
-  Widget _buildTemplate(int templateId, Biodata biodata) {
-    switch (templateId) {
-      case 1:  return Template1Islamic(biodata: biodata);
-      case 2:  return Template2Floral(biodata: biodata);
-      case 3:  return Template3Royal(biodata: biodata);
-      case 4:  return Template4Modern(biodata: biodata);
-      case 5:  return Template5Simple(biodata: biodata);
-      case 6:  return Template6Urdu(biodata: biodata);
-      case 7:  return Template7TwoColumn(biodata: biodata);
-      case 8:  return Template8Dark(biodata: biodata);
-      case 9:  return Template9Mughal(biodata: biodata);
-      case 10: return Template10Photo(biodata: biodata);
-      default: return Template1Islamic(biodata: biodata);
+  Widget _buildTemplate(int id, Biodata b) {
+    switch (id) {
+      case 1:  return Template1Islamic(biodata: b);
+      case 2:  return Template2Floral(biodata: b);
+      case 3:  return Template3Royal(biodata: b);
+      case 4:  return Template4Modern(biodata: b);
+      case 5:  return Template5Simple(biodata: b);
+      case 6:  return Template6Urdu(biodata: b);
+      case 7:  return Template7TwoColumn(biodata: b);
+      case 8:  return Template8Dark(biodata: b);
+      case 9:  return Template9Mughal(biodata: b);
+      case 10: return Template10Photo(biodata: b);
+      default: return Template1Islamic(biodata: b);
     }
-  }
-
-  TemplateInfo _getTemplate(int id) {
-    return _templates.firstWhere(
-          (t) => t.id == id,
-      orElse: () => _templates.first,
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final biodata          = ref.watch(biodataProvider);
-    final selectedTemplate = ref.watch(selectedTemplateProvider);
-    final currentTemplate  = _getTemplate(selectedTemplate);
+    final biodata   = ref.watch(biodataProvider);
+    final templateId= ref.watch(selectedTemplateProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F0F0),
-      body: CustomScrollView(
-        physics: _isZoomed
-            ? const NeverScrollableScrollPhysics()
-            : const ClampingScrollPhysics(),
-        slivers: [
-          // ── AppBar ──────────────────────────────────────────────────────
-          SliverAppBar(
-            expandedHeight: 0,
-            pinned: true,
-            backgroundColor: currentTemplate.color,
-            elevation: 0,
-            leading: IconButton(
-              onPressed: () => context.pop(),
-              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-            ),
-            title: const Text(
-              'Your Biodata Card',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            actions: [
-              if (_isZoomed)
-                IconButton(
-                  onPressed: _resetZoom,
-                  icon: const Icon(Icons.zoom_out_map_rounded,
-                      color: Colors.white),
-                  tooltip: 'Reset zoom',
-                ),
-              _designSaved
-                  ? const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                child: Icon(Icons.bookmark_rounded,
-                    color: Colors.white70),
-              )
-                  : IconButton(
-                onPressed: _isExporting ? null : _saveDesignManually,
-                icon: const Icon(Icons.bookmark_add_rounded,
-                    color: Colors.white),
-                tooltip: 'Save Design',
-              ),
-            ],
+      backgroundColor: const Color(0xFFEEEEEE),
+      appBar: AppBar(
+        backgroundColor: AppColors.primary,
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => context.pop(),
+          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+        ),
+        title: const Text(
+          'Your Biodata Card',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
           ),
-
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                // ── Info banner ──────────────────────────────────────────
-                Container(
-                  color: currentTemplate.color,
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.pinch_rounded,
-                            color: Colors.white, size: 16),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _isZoomed
-                                ? 'Tap 🔍 to reset zoom'
-                                : AppStrings.adWatchMsg,
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 12),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Curved transition
-                Container(
-                  height: 20,
-                  decoration: BoxDecoration(
-                    color: currentTemplate.color,
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(24),
-                      bottomRight: Radius.circular(24),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // ── Template label row ───────────────────────────────────
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 4,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: currentTemplate.color,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${currentTemplate.name} Template',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: currentTemplate.color,
-                        ),
-                      ),
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: () => context.pop(),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color:
-                            currentTemplate.color.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                                color:
-                                currentTemplate.color.withOpacity(0.2)),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.swap_horiz_rounded,
-                                  size: 14, color: currentTemplate.color),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Change',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: currentTemplate.color,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                // ── Zoomable card ────────────────────────────────────────
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: InteractiveViewer(
-                      transformationController: _transformController,
-                      minScale: 0.8,
-                      maxScale: 4.0,
-                      clipBehavior: Clip.none,
-                      onInteractionEnd: (details) {
-                        final scale =
-                        _transformController.value.getMaxScaleOnAxis();
-                        setState(() => _isZoomed = scale > 1.05);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color:
-                              currentTemplate.color.withOpacity(0.2),
-                              blurRadius: 24,
-                              offset: const Offset(0, 8),
-                            ),
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: RepaintBoundary(
-                          key: _repaintKey,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child:
-                            _buildTemplate(selectedTemplate, biodata),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-
-                if (!_isZoomed) ...[
-                  const SizedBox(height: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.06),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.pinch_rounded,
-                            size: 14, color: AppColors.textMuted),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Pinch to zoom',
-                          style: TextStyle(
-                              fontSize: 11, color: AppColors.textMuted),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-
-                const SizedBox(height: 140),
-              ],
+        ),
+        actions: [
+          // Save icon — manual save
+          IconButton(
+            onPressed: _isExporting ? null : _saveDesignManually,
+            icon: Icon(
+              _designSaved
+                  ? Icons.bookmark_rounded
+                  : Icons.bookmark_add_outlined,
+              color: Colors.white,
             ),
+            tooltip: _designSaved ? 'Saved' : 'Save Design',
           ),
         ],
       ),
+      body: Column(
+        children: [
+          // ── Card preview — scrollable ─────────────────────────────────
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSizes.md),
+              child: RepaintBoundary(
+                key: _repaintKey,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: _buildTemplate(templateId, biodata),
+                ),
+              ),
+            ),
+          ),
 
-      bottomSheet: ActionBar(
-        isExporting: _isExporting,
-        onDownload: _handleDownload,
-        onEdit: () => context.pop(),
-        onShare: _handleShare,
-        onWhatsApp: _handleWhatsAppShare,
-        onPdf: _handlePdfExport,
+          // ── Action bar ────────────────────────────────────────────────
+          _ActionBar(
+            isExporting: _isExporting,
+            onDownload: _handleDownload,
+            onShare: _handleShare,
+            onPdf: _handlePdf,
+            onEdit: () => context.pop(),
+          ),
+        ],
       ),
     );
   }
 
-  // ── Action handlers ────────────────────────────────────────────────────────
-
-  Future<void> _handleWhatsAppShare() async {
-    if (_isExporting) return;
-    if (_isZoomed) {
-      _resetZoom();
-      await Future.delayed(const Duration(milliseconds: 150));
-    }
-    setState(() => _isExporting = true);
-    try {
-      await Future.delayed(const Duration(milliseconds: 80));
-      final Uint8List? imageBytes =
-      await ExportService().captureAsImage(_repaintKey);
-      if (imageBytes == null) {
-        _showSnackBar('❌ Failed to capture card.', isError: true);
-        return;
-      }
-      final dir = await getTemporaryDirectory();
-      final file = File(
-          '${dir.path}/biodata_whatsapp_${DateTime.now().millisecondsSinceEpoch}.png');
-      await file.writeAsBytes(imageBytes);
-      final whatsappUri = Uri.parse('whatsapp://send');
-      if (await canLaunchUrl(whatsappUri)) {
-        await ShareService().shareImage(file.path);
-      } else {
-        _showSnackBar('WhatsApp not installed.', isError: true);
-      }
-      Future.delayed(const Duration(minutes: 2), () {
-        if (file.existsSync()) file.deleteSync();
-      });
-    } catch (e) {
-      _showSnackBar('❌ Something went wrong.', isError: true);
-    } finally {
-      if (mounted) setState(() => _isExporting = false);
-    }
-  }
+  // ── Handlers ──────────────────────────────────────────────────────────────
 
   Future<void> _handleDownload() async {
     final adReady   = ref.read(rewardedAdReadyProvider);
@@ -423,100 +151,72 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
 
   Future<void> _captureAndSave() async {
     if (_isExporting) return;
-    if (_isZoomed) {
-      _resetZoom();
-      await Future.delayed(const Duration(milliseconds: 150));
-    }
     setState(() => _isExporting = true);
     try {
-      await Future.delayed(const Duration(milliseconds: 80));
-      final Uint8List? imageBytes =
-      await ExportService().captureAsImage(_repaintKey);
-      if (imageBytes == null) {
-        _showSnackBar('❌ Failed to capture card. Please try again.',
-            isError: true);
+      final bytes = await ExportService().captureAsImage(_repaintKey);
+      if (bytes == null) {
+        _snack('Failed to capture card. Please try again.', error: true);
         return;
       }
-      final String? result =
-      await ExportService().saveToGallery(imageBytes);
+      final result = await ExportService().saveToGallery(bytes);
       if (result != null) {
         if (!_designSaved) {
           _saveDesign();
           setState(() => _designSaved = true);
         }
-        _showSnackBar('✅ Saved to gallery!');
+        _snack('✅ Saved to gallery!');
         _requestReview();
-        _checkAnimController.forward(from: 0);
       } else {
-        _showSnackBar('❌ Failed to save. Check storage permission.',
-            isError: true);
+        _snack('Failed to save. Check storage permission.', error: true);
       }
     } catch (e) {
-      _showSnackBar('❌ Something went wrong. Please try again.',
-          isError: true);
-      debugPrint('Download error: $e');
+      _snack('Something went wrong.', error: true);
     } finally {
       if (mounted) setState(() => _isExporting = false);
-    }
-  }
-
-  Future<void> _requestReview() async {
-    final inAppReview = InAppReview.instance;
-    if (await inAppReview.isAvailable()) {
-      inAppReview.requestReview();
     }
   }
 
   Future<void> _handleShare() async {
     if (_isExporting) return;
-    if (_isZoomed) {
-      _resetZoom();
-      await Future.delayed(const Duration(milliseconds: 150));
-    }
     setState(() => _isExporting = true);
     try {
-      await Future.delayed(const Duration(milliseconds: 80));
-      final Uint8List? imageBytes =
-      await ExportService().captureAsImage(_repaintKey);
-      if (imageBytes == null) {
-        _showSnackBar('❌ Failed to capture card.', isError: true);
+      final bytes = await ExportService().captureAsImage(_repaintKey);
+      if (bytes == null) {
+        _snack('Failed to capture card.', error: true);
         return;
       }
       final dir  = await getTemporaryDirectory();
       final file = File(
-          '${dir.path}/biodata_share_${DateTime.now().millisecondsSinceEpoch}.png');
-      await file.writeAsBytes(imageBytes);
+          '${dir.path}/biodata_${DateTime.now().millisecondsSinceEpoch}.png');
+      await file.writeAsBytes(bytes);
       await ShareService().shareImage(file.path);
+      // Clean up temp file after 2 min
       Future.delayed(const Duration(minutes: 2), () {
         if (file.existsSync()) file.deleteSync();
       });
     } catch (e) {
-      _showSnackBar('❌ Something went wrong.', isError: true);
-      debugPrint('Share error: $e');
+      _snack('Something went wrong.', error: true);
     } finally {
       if (mounted) setState(() => _isExporting = false);
     }
   }
 
-  Future<void> _handlePdfExport() async {
+  Future<void> _handlePdf() async {
     if (_isExporting) return;
     setState(() => _isExporting = true);
     try {
-      final biodata    = ref.read(biodataProvider);
-      final Uint8List? pdfBytes = await ExportService().exportAsPdf(biodata);
+      final biodata  = ref.read(biodataProvider);
+      final pdfBytes = await ExportService().exportAsPdf(biodata);
       if (pdfBytes == null) {
-        _showSnackBar('❌ Failed to generate PDF.', isError: true);
+        _snack('Failed to generate PDF.', error: true);
         return;
       }
       await Printing.sharePdf(
         bytes: pdfBytes,
-        filename:
-        '${biodata.displayName.replaceAll(' ', '_')}_biodata.pdf',
+        filename: '${biodata.displayName.replaceAll(' ', '_')}_biodata.pdf',
       );
-      _showSnackBar('📄 PDF ready!');
     } catch (e) {
-      _showSnackBar('❌ Something went wrong.', isError: true);
-      debugPrint('PDF error: $e');
+      _snack('Something went wrong.', error: true);
     } finally {
       if (mounted) setState(() => _isExporting = false);
     }
@@ -528,29 +228,188 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
   }
 
   void _saveDesignManually() {
+    if (_designSaved) return;
     _saveDesign();
     setState(() => _designSaved = true);
-    _showSnackBar('💾 Design saved!');
+    _snack('💾 Design saved!');
   }
 
-  void _showSnackBar(String message, {bool isError = false}) {
+  Future<void> _requestReview() async {
+    try {
+      final r = InAppReview.instance;
+      if (await r.isAvailable()) r.requestReview();
+    } catch (_) {}
+  }
+
+  void _snack(String msg, {bool error = false}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor:
-          isError ? AppColors.error : AppColors.primary,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 3),
-          margin:
-          const EdgeInsets.fromLTRB(16, 0, 16, 110),
-          shape: RoundedRectangleBorder(
-            borderRadius:
-            BorderRadius.circular(AppSizes.radiusSm),
+      ..showSnackBar(SnackBar(
+        content: Text(msg),
+        backgroundColor: error ? AppColors.error : AppColors.primary,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 90),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSizes.radiusSm)),
+      ));
+  }
+}
+
+// ── Action bar ────────────────────────────────────────────────────────────────
+
+class _ActionBar extends StatelessWidget {
+  final bool isExporting;
+  final VoidCallback onDownload;
+  final VoidCallback onShare;
+  final VoidCallback onPdf;
+  final VoidCallback onEdit;
+
+  const _ActionBar({
+    required this.isExporting,
+    required this.onDownload,
+    required this.onShare,
+    required this.onPdf,
+    required this.onEdit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x18000000),
+            blurRadius: 12,
+            offset: Offset(0, -3),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Primary — Download
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton.icon(
+                onPressed: isExporting ? null : onDownload,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: const Color(0x996A1B1B),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                  ),
+                ),
+                icon: isExporting
+                    ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+                    : const Icon(Icons.download_rounded, size: 20),
+                label: Text(
+                  isExporting ? 'Saving...' : 'Download to Gallery',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            // Secondary row — 3 buttons
+            Row(
+              children: [
+                Expanded(
+                  child: _SecondaryBtn(
+                    icon: Icons.edit_rounded,
+                    label: 'Edit',
+                    color: AppColors.primary,
+                    onTap: onEdit,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _SecondaryBtn(
+                    icon: Icons.picture_as_pdf_rounded,
+                    label: 'PDF',
+                    color: AppColors.error,
+                    onTap: isExporting ? null : onPdf,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _SecondaryBtn(
+                    icon: Icons.share_rounded,
+                    label: 'Share',
+                    color: const Color(0xFF0D47A1),
+                    onTap: isExporting ? null : onShare,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SecondaryBtn extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback? onTap;
+
+  const _SecondaryBtn({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: Color.fromRGBO(color.red, color.green, color.blue, 0.08),
+          borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+          border: Border.all(
+            color: Color.fromRGBO(color.red, color.green, color.blue, 0.25),
           ),
         ),
-      );
+        child: Column(
+          children: [
+            Icon(icon, color: onTap == null ? AppColors.textMuted : color,
+                size: 20),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: onTap == null ? AppColors.textMuted : color,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
