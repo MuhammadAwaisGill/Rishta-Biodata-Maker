@@ -164,7 +164,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF3B0A0A), Color(0xFF6A1B1B), Color(0xFF8B2020)],
+            colors: [Color(0xFF2A0606), Color(0xFF6A1B1B), Color(0xFF8B2020)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -189,35 +189,49 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                         child: ScaleTransition(
                           scale: _logoScale,
                           child: SizedBox(
-                            width: 160,
-                            height: 160,
+                            width: 180,
+                            height: 180,
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
+                                // Outer glow ring
+                                Container(
+                                  width: 175,
+                                  height: 175,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFFD4AF37)
+                                            .withOpacity(0.25),
+                                        blurRadius: 30,
+                                        spreadRadius: 8,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                                 // Rotating ring
                                 Transform.rotate(
                                   angle: _ringRotation.value,
                                   child: CustomPaint(
-                                    size: const Size(155, 155),
+                                    size: const Size(170, 170),
                                     painter: _RingPainter(),
                                   ),
                                 ),
-                                // Logo card
+                                // Logo image — uses logo.png
                                 Container(
-                                  width: 110,
-                                  height: 110,
+                                  width: 130,
+                                  height: 130,
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(28),
+                                    borderRadius: BorderRadius.circular(32),
                                     boxShadow: [
                                       BoxShadow(
-                                        color:
-                                        Colors.black.withOpacity(0.25),
+                                        color: Colors.black.withOpacity(0.4),
                                         blurRadius: 30,
                                         offset: const Offset(0, 12),
                                       ),
                                       BoxShadow(
-                                        color: const Color(0xFFFFD700)
+                                        color: const Color(0xFFD4AF37)
                                             .withOpacity(0.3),
                                         blurRadius: 20,
                                         offset: const Offset(0, 4),
@@ -225,11 +239,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                                     ],
                                   ),
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(28),
+                                    borderRadius: BorderRadius.circular(32),
                                     child: Image.asset(
-                                      'assets/images/app_logo.png',
-                                      width: 110,
-                                      height: 110,
+                                      'assets/images/logo.png',
+                                      width: 130,
+                                      height: 130,
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -242,7 +256,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     },
                   ),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 44),
 
                   // Text section
                   FadeTransition(
@@ -260,25 +274,24 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                               letterSpacing: 0.5,
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 10),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 6),
+                                horizontal: 16, vertical: 7),
                             decoration: BoxDecoration(
-                              color:
-                              const Color(0xFFFFD700).withOpacity(0.15),
+                              color: const Color(0xFFD4AF37).withOpacity(0.15),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: const Color(0xFFFFD700)
-                                    .withOpacity(0.4),
+                                color:
+                                const Color(0xFFD4AF37).withOpacity(0.45),
                               ),
                             ),
                             child: const Text(
                               AppStrings.appTagline,
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Color(0xFFFFD700),
-                                letterSpacing: 0.3,
+                                color: Color(0xFFD4AF37),
+                                letterSpacing: 0.5,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -290,7 +303,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
                   const SizedBox(height: 80),
 
-                  // Elegant loading bar
+                  // Pulsing dots
                   FadeTransition(
                     opacity: _textFade,
                     child: const _PulsingDots(),
@@ -382,7 +395,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: const Color(0xFFFFD700).withOpacity(0.1),
+              color: const Color(0xFFD4AF37).withOpacity(0.1),
               width: 1,
             ),
           ),
@@ -403,9 +416,9 @@ class _RingPainter extends CustomPainter {
       ..strokeWidth = 2
       ..shader = SweepGradient(
         colors: [
-          const Color(0xFFFFD700).withOpacity(0.0),
-          const Color(0xFFFFD700).withOpacity(0.8),
-          const Color(0xFFFFD700).withOpacity(0.0),
+          const Color(0xFFD4AF37).withOpacity(0.0),
+          const Color(0xFFD4AF37).withOpacity(0.9),
+          const Color(0xFFD4AF37).withOpacity(0.0),
         ],
       ).createShader(Rect.fromCircle(center: center, radius: radius));
 
@@ -413,7 +426,7 @@ class _RingPainter extends CustomPainter {
 
     // Small dots along ring
     final dotPaint = Paint()
-      ..color = const Color(0xFFFFD700).withOpacity(0.6)
+      ..color = const Color(0xFFD4AF37).withOpacity(0.7)
       ..style = PaintingStyle.fill;
 
     for (int i = 0; i < 8; i++) {
@@ -472,7 +485,7 @@ class _PulsingDotsState extends State<_PulsingDots>
               width: 8 + (4 * scale),
               height: 8 + (4 * scale),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFD700).withOpacity(opacity),
+                color: const Color(0xFFD4AF37).withOpacity(opacity),
                 shape: BoxShape.circle,
               ),
             );

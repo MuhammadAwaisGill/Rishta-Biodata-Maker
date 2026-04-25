@@ -39,26 +39,30 @@ class CardPreviewScreen extends ConsumerStatefulWidget {
 
 class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
     with TickerProviderStateMixin {
-  // RepaintBoundary key — must be stable across rebuilds (not in build())
   final GlobalKey _repaintKey = GlobalKey();
 
   bool _isExporting = false;
   bool _designSaved = false;
 
-  // Zoom state
-  final TransformationController _transformController = TransformationController();
+  final TransformationController _transformController =
+  TransformationController();
   bool _isZoomed = false;
 
-  // Animation for the success checkmark
   late AnimationController _checkAnimController;
   late Animation<double> _checkScaleAnim;
 
+  // ── ALL 10 templates mapped ──────────────────────────────────────────────
   static const List<TemplateInfo> _templates = [
-    TemplateInfo(id: 1, name: 'Islamic Green',  description: '', color: Color(0xFF6A1B1B)),
-    TemplateInfo(id: 2, name: 'Floral Pink',    description: '', color: Color(0xFFAD1457)),
-    TemplateInfo(id: 3, name: 'Royal Maroon',   description: '', color: Color(0xFF6A1B1B)),
-    TemplateInfo(id: 4, name: 'Modern Navy',    description: '', color: Color(0xFF0D47A1)),
-    TemplateInfo(id: 5, name: 'Simple White',   description: '', color: Color(0xFF424242)),
+    TemplateInfo(id: 1,  name: 'Islamic Green',    description: '', color: Color(0xFF6A1B1B)),
+    TemplateInfo(id: 2,  name: 'Floral Pink',      description: '', color: Color(0xFFAD1457)),
+    TemplateInfo(id: 3,  name: 'Royal Maroon',     description: '', color: Color(0xFF6A1B1B)),
+    TemplateInfo(id: 4,  name: 'Modern Navy',      description: '', color: Color(0xFF0D47A1)),
+    TemplateInfo(id: 5,  name: 'Simple White',     description: '', color: Color(0xFF424242)),
+    TemplateInfo(id: 6,  name: 'Urdu Calligraphy', description: '', color: Color(0xFF6A0DAD)),
+    TemplateInfo(id: 7,  name: 'Two Column',       description: '', color: Color(0xFF00695C)),
+    TemplateInfo(id: 8,  name: 'Minimalist Dark',  description: '', color: Color(0xFF1C1C1E)),
+    TemplateInfo(id: 9,  name: 'Mughal Royal',     description: '', color: Color(0xFF4A0828)),
+    TemplateInfo(id: 10, name: 'Photo Focused',    description: '', color: Color(0xFF283593)),
   ];
 
   @override
@@ -72,7 +76,6 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
       parent: _checkAnimController,
       curve: Curves.elasticOut,
     );
-    // Pre-load rewarded ad
     WidgetsBinding.instance.addPostFrameCallback((_) => _preloadAd());
   }
 
@@ -99,33 +102,36 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
 
   Widget _buildTemplate(int templateId, Biodata biodata) {
     switch (templateId) {
-      case 1: return Template1Islamic(biodata: biodata);
-      case 2: return Template2Floral(biodata: biodata);
-      case 3: return Template3Royal(biodata: biodata);
-      case 4: return Template4Modern(biodata: biodata);
-      case 5: return Template5Simple(biodata: biodata);
-      case 6: return Template6Urdu(biodata: biodata);
-      case 7: return Template7TwoColumn(biodata: biodata);
-      case 8: return Template8Dark(biodata: biodata);
-      case 9: return Template9Mughal(biodata: biodata);
+      case 1:  return Template1Islamic(biodata: biodata);
+      case 2:  return Template2Floral(biodata: biodata);
+      case 3:  return Template3Royal(biodata: biodata);
+      case 4:  return Template4Modern(biodata: biodata);
+      case 5:  return Template5Simple(biodata: biodata);
+      case 6:  return Template6Urdu(biodata: biodata);
+      case 7:  return Template7TwoColumn(biodata: biodata);
+      case 8:  return Template8Dark(biodata: biodata);
+      case 9:  return Template9Mughal(biodata: biodata);
       case 10: return Template10Photo(biodata: biodata);
       default: return Template1Islamic(biodata: biodata);
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final biodata         = ref.watch(biodataProvider);
-    final selectedTemplate = ref.watch(selectedTemplateProvider);
-    final currentTemplate = _templates.firstWhere(
-          (t) => t.id == selectedTemplate,
+  TemplateInfo _getTemplate(int id) {
+    return _templates.firstWhere(
+          (t) => t.id == id,
       orElse: () => _templates.first,
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final biodata          = ref.watch(biodataProvider);
+    final selectedTemplate = ref.watch(selectedTemplateProvider);
+    final currentTemplate  = _getTemplate(selectedTemplate);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF0F0F0),
       body: CustomScrollView(
-        // Disable scroll when zoomed so pan gesture works correctly
         physics: _isZoomed
             ? const NeverScrollableScrollPhysics()
             : const ClampingScrollPhysics(),
@@ -152,17 +158,20 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
               if (_isZoomed)
                 IconButton(
                   onPressed: _resetZoom,
-                  icon: const Icon(Icons.zoom_out_map_rounded, color: Colors.white),
+                  icon: const Icon(Icons.zoom_out_map_rounded,
+                      color: Colors.white),
                   tooltip: 'Reset zoom',
                 ),
               _designSaved
                   ? const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12),
-                child: Icon(Icons.bookmark_rounded, color: Colors.white70),
+                child: Icon(Icons.bookmark_rounded,
+                    color: Colors.white70),
               )
                   : IconButton(
                 onPressed: _isExporting ? null : _saveDesignManually,
-                icon: const Icon(Icons.bookmark_add_rounded, color: Colors.white),
+                icon: const Icon(Icons.bookmark_add_rounded,
+                    color: Colors.white),
                 tooltip: 'Save Design',
               ),
             ],
@@ -171,26 +180,29 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
           SliverToBoxAdapter(
             child: Column(
               children: [
-                // ── Info banner ────────────────────────────────────────────
+                // ── Info banner ──────────────────────────────────────────
                 Container(
                   color: currentTemplate.color,
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.pinch_rounded, color: Colors.white, size: 16),
+                        const Icon(Icons.pinch_rounded,
+                            color: Colors.white, size: 16),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             _isZoomed
                                 ? 'Tap 🔍 to reset zoom'
                                 : AppStrings.adWatchMsg,
-                            style: const TextStyle(color: Colors.white, fontSize: 12),
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 12),
                           ),
                         ),
                       ],
@@ -212,13 +224,14 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
 
                 const SizedBox(height: 16),
 
-                // ── Template label row ─────────────────────────────────────
+                // ── Template label row ───────────────────────────────────
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
                       Container(
-                        width: 4, height: 16,
+                        width: 4,
+                        height: 16,
                         decoration: BoxDecoration(
                           color: currentTemplate.color,
                           borderRadius: BorderRadius.circular(2),
@@ -237,15 +250,20 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
                       GestureDetector(
                         onTap: () => context.pop(),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: currentTemplate.color.withOpacity(0.08),
+                            color:
+                            currentTemplate.color.withOpacity(0.08),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: currentTemplate.color.withOpacity(0.2)),
+                            border: Border.all(
+                                color:
+                                currentTemplate.color.withOpacity(0.2)),
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.swap_horiz_rounded, size: 14, color: currentTemplate.color),
+                              Icon(Icons.swap_horiz_rounded,
+                                  size: 14, color: currentTemplate.color),
                               const SizedBox(width: 4),
                               Text(
                                 'Change',
@@ -265,7 +283,7 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
 
                 const SizedBox(height: 12),
 
-                // ── Zoomable card ──────────────────────────────────────────
+                // ── Zoomable card ────────────────────────────────────────
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: ClipRRect(
@@ -276,7 +294,8 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
                       maxScale: 4.0,
                       clipBehavior: Clip.none,
                       onInteractionEnd: (details) {
-                        final scale = _transformController.value.getMaxScaleOnAxis();
+                        final scale =
+                        _transformController.value.getMaxScaleOnAxis();
                         setState(() => _isZoomed = scale > 1.05);
                       },
                       child: Container(
@@ -284,7 +303,8 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: currentTemplate.color.withOpacity(0.2),
+                              color:
+                              currentTemplate.color.withOpacity(0.2),
                               blurRadius: 24,
                               offset: const Offset(0, 8),
                             ),
@@ -295,12 +315,12 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
                             ),
                           ],
                         ),
-                        // RepaintBoundary must wrap the exact widget to capture
                         child: RepaintBoundary(
                           key: _repaintKey,
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: _buildTemplate(selectedTemplate, biodata),
+                            child:
+                            _buildTemplate(selectedTemplate, biodata),
                           ),
                         ),
                       ),
@@ -311,7 +331,8 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
                 if (!_isZoomed) ...[
                   const SizedBox(height: 10),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.06),
                       borderRadius: BorderRadius.circular(20),
@@ -319,18 +340,19 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.pinch_rounded, size: 14, color: AppColors.textMuted),
+                        Icon(Icons.pinch_rounded,
+                            size: 14, color: AppColors.textMuted),
                         const SizedBox(width: 6),
                         Text(
                           'Pinch to zoom',
-                          style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                          style: TextStyle(
+                              fontSize: 11, color: AppColors.textMuted),
                         ),
                       ],
                     ),
                   ),
                 ],
 
-                // Extra space for bottom sheet
                 const SizedBox(height: 140),
               ],
             ),
@@ -349,39 +371,33 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
     );
   }
 
-
-
   // ── Action handlers ────────────────────────────────────────────────────────
 
   Future<void> _handleWhatsAppShare() async {
     if (_isExporting) return;
-
     if (_isZoomed) {
       _resetZoom();
       await Future.delayed(const Duration(milliseconds: 150));
     }
-
     setState(() => _isExporting = true);
     try {
       await Future.delayed(const Duration(milliseconds: 80));
-      final Uint8List? imageBytes = await ExportService().captureAsImage(_repaintKey);
+      final Uint8List? imageBytes =
+      await ExportService().captureAsImage(_repaintKey);
       if (imageBytes == null) {
         _showSnackBar('❌ Failed to capture card.', isError: true);
         return;
       }
-
       final dir = await getTemporaryDirectory();
-      final file = File('${dir.path}/biodata_whatsapp_${DateTime.now().millisecondsSinceEpoch}.png');
+      final file = File(
+          '${dir.path}/biodata_whatsapp_${DateTime.now().millisecondsSinceEpoch}.png');
       await file.writeAsBytes(imageBytes);
-
-      // Try WhatsApp direct, fall back to normal share
       final whatsappUri = Uri.parse('whatsapp://send');
       if (await canLaunchUrl(whatsappUri)) {
         await ShareService().shareImage(file.path);
       } else {
         _showSnackBar('WhatsApp not installed.', isError: true);
       }
-
       Future.delayed(const Duration(minutes: 2), () {
         if (file.existsSync()) file.deleteSync();
       });
@@ -395,7 +411,6 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
   Future<void> _handleDownload() async {
     final adReady   = ref.read(rewardedAdReadyProvider);
     final adService = ref.read(adServiceProvider);
-
     if (adReady) {
       adService.showRewardedAd(onRewarded: () async {
         ref.read(rewardedAdReadyProvider.notifier).state = false;
@@ -408,28 +423,22 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
 
   Future<void> _captureAndSave() async {
     if (_isExporting) return;
-
-    // Reset zoom first so the full card is visible for capture
     if (_isZoomed) {
       _resetZoom();
-      // Wait for zoom animation to complete
       await Future.delayed(const Duration(milliseconds: 150));
     }
-
     setState(() => _isExporting = true);
     try {
-      // Extra frame to ensure RepaintBoundary is fully painted
       await Future.delayed(const Duration(milliseconds: 80));
-
-      final Uint8List? imageBytes = await ExportService().captureAsImage(_repaintKey);
-
+      final Uint8List? imageBytes =
+      await ExportService().captureAsImage(_repaintKey);
       if (imageBytes == null) {
-        _showSnackBar('❌ Failed to capture card. Please try again.', isError: true);
+        _showSnackBar('❌ Failed to capture card. Please try again.',
+            isError: true);
         return;
       }
-
-      final String? result = await ExportService().saveToGallery(imageBytes);
-
+      final String? result =
+      await ExportService().saveToGallery(imageBytes);
       if (result != null) {
         if (!_designSaved) {
           _saveDesign();
@@ -439,10 +448,12 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
         _requestReview();
         _checkAnimController.forward(from: 0);
       } else {
-        _showSnackBar('❌ Failed to save. Check storage permission.', isError: true);
+        _showSnackBar('❌ Failed to save. Check storage permission.',
+            isError: true);
       }
     } catch (e) {
-      _showSnackBar('❌ Something went wrong. Please try again.', isError: true);
+      _showSnackBar('❌ Something went wrong. Please try again.',
+          isError: true);
       debugPrint('Download error: $e');
     } finally {
       if (mounted) setState(() => _isExporting = false);
@@ -458,28 +469,24 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
 
   Future<void> _handleShare() async {
     if (_isExporting) return;
-
     if (_isZoomed) {
       _resetZoom();
       await Future.delayed(const Duration(milliseconds: 150));
     }
-
     setState(() => _isExporting = true);
     try {
       await Future.delayed(const Duration(milliseconds: 80));
-
-      final Uint8List? imageBytes = await ExportService().captureAsImage(_repaintKey);
+      final Uint8List? imageBytes =
+      await ExportService().captureAsImage(_repaintKey);
       if (imageBytes == null) {
         _showSnackBar('❌ Failed to capture card.', isError: true);
         return;
       }
-
       final dir  = await getTemporaryDirectory();
-      final file = File('${dir.path}/biodata_share_${DateTime.now().millisecondsSinceEpoch}.png');
+      final file = File(
+          '${dir.path}/biodata_share_${DateTime.now().millisecondsSinceEpoch}.png');
       await file.writeAsBytes(imageBytes);
       await ShareService().shareImage(file.path);
-
-      // Clean up temp file after a delay
       Future.delayed(const Duration(minutes: 2), () {
         if (file.existsSync()) file.deleteSync();
       });
@@ -493,20 +500,18 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
 
   Future<void> _handlePdfExport() async {
     if (_isExporting) return;
-
     setState(() => _isExporting = true);
     try {
       final biodata    = ref.read(biodataProvider);
       final Uint8List? pdfBytes = await ExportService().exportAsPdf(biodata);
-
       if (pdfBytes == null) {
         _showSnackBar('❌ Failed to generate PDF.', isError: true);
         return;
       }
-
       await Printing.sharePdf(
         bytes: pdfBytes,
-        filename: '${biodata.displayName.replaceAll(' ', '_')}_biodata.pdf',
+        filename:
+        '${biodata.displayName.replaceAll(' ', '_')}_biodata.pdf',
       );
       _showSnackBar('📄 PDF ready!');
     } catch (e) {
@@ -535,12 +540,15 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen>
       ..showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor: isError ? AppColors.error : AppColors.primary,
+          backgroundColor:
+          isError ? AppColors.error : AppColors.primary,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 3),
-          margin: const EdgeInsets.fromLTRB(16, 0, 16, 110),
+          margin:
+          const EdgeInsets.fromLTRB(16, 0, 16, 110),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+            borderRadius:
+            BorderRadius.circular(AppSizes.radiusSm),
           ),
         ),
       );

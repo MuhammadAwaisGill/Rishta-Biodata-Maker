@@ -29,8 +29,8 @@ class ActionBar extends StatelessWidget {
         color: AppColors.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 16,
+            color: Colors.black.withOpacity(0.10),
+            blurRadius: 20,
             offset: const Offset(0, -4),
           ),
         ],
@@ -42,22 +42,23 @@ class ActionBar extends StatelessWidget {
           Container(
             width: 36,
             height: 4,
-            margin: const EdgeInsets.only(bottom: 12),
+            margin: const EdgeInsets.only(bottom: 14),
             decoration: BoxDecoration(
               color: AppColors.textMuted.withOpacity(0.2),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
 
-          // Download button (primary, full width)
+          // ── Download button (primary, full width) ──────────────────────
           SizedBox(
             width: double.infinity,
-            height: 50,
+            height: 52,
             child: ElevatedButton.icon(
               onPressed: isExporting ? null : onDownload,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
+                disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppSizes.radiusMd),
                 ),
@@ -74,7 +75,9 @@ class ActionBar extends StatelessWidget {
               )
                   : const Icon(Icons.download_rounded, size: 20),
               label: Text(
-                isExporting ? 'Saving...' : '${AppStrings.btnDownload} to Gallery',
+                isExporting
+                    ? 'Saving...'
+                    : '${AppStrings.btnDownload} to Gallery',
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
@@ -85,10 +88,9 @@ class ActionBar extends StatelessWidget {
 
           const SizedBox(height: 10),
 
-          // Second row — Edit, PDF, Share
+          // ── Second row — 4 actions evenly spaced ──────────────────────
           Row(
             children: [
-              // Edit
               Expanded(
                 child: _secondaryButton(
                   icon: Icons.edit_rounded,
@@ -97,8 +99,7 @@ class ActionBar extends StatelessWidget {
                   onTap: onEdit,
                 ),
               ),
-              const SizedBox(width: 10),
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
               Expanded(
                 child: _secondaryButton(
                   icon: Icons.chat_rounded,
@@ -107,7 +108,7 @@ class ActionBar extends StatelessWidget {
                   onTap: onWhatsApp,
                 ),
               ),
-              // PDF
+              const SizedBox(width: 8),
               Expanded(
                 child: _secondaryButton(
                   icon: Icons.picture_as_pdf_rounded,
@@ -116,8 +117,7 @@ class ActionBar extends StatelessWidget {
                   onTap: isExporting ? () {} : onPdf,
                 ),
               ),
-              const SizedBox(width: 10),
-              // Share
+              const SizedBox(width: 8),
               Expanded(
                 child: _secondaryButton(
                   icon: Icons.share_rounded,
@@ -155,10 +155,12 @@ class ActionBar extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 10,
                 color: color,
                 fontWeight: FontWeight.w600,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

@@ -20,35 +20,51 @@ class DesignListItem extends StatelessWidget {
     required this.onDuplicate,
   });
 
+  // ── All 10 templates mapped ──────────────────────────────────────────────
   static const _templateColors = {
-    1: Color(0xFF6A1B1B),
-    2: Color(0xFFAD1457),
-    3: Color(0xFF6A1B1B),
-    4: Color(0xFF0D47A1),
-    5: Color(0xFF424242),
+    1:  Color(0xFF6A1B1B),
+    2:  Color(0xFFAD1457),
+    3:  Color(0xFF6A1B1B),
+    4:  Color(0xFF0D47A1),
+    5:  Color(0xFF424242),
+    6:  Color(0xFF6A0DAD),
+    7:  Color(0xFF00695C),
+    8:  Color(0xFF1C1C1E),
+    9:  Color(0xFF4A0828),
+    10: Color(0xFF283593),
   };
 
   static const _templateNames = {
-    1: 'Islamic Green',
-    2: 'Floral Pink',
-    3: 'Royal Maroon',
-    4: 'Modern Navy',
-    5: 'Simple White',
+    1:  'Islamic Green',
+    2:  'Floral Pink',
+    3:  'Royal Maroon',
+    4:  'Modern Navy',
+    5:  'Simple White',
+    6:  'Urdu Calligraphy',
+    7:  'Two Column',
+    8:  'Minimalist Dark',
+    9:  'Mughal Royal',
+    10: 'Photo Focused',
   };
 
   static const _templateEmojis = {
-    1: '☪️',
-    2: '🌸',
-    3: '👑',
-    4: '💼',
-    5: '📄',
+    1:  '☪️',
+    2:  '🌸',
+    3:  '👑',
+    4:  '💼',
+    5:  '📄',
+    6:  '🕌',
+    7:  '📊',
+    8:  '🌙',
+    9:  '⚜️',
+    10: '📸',
   };
 
   @override
   Widget build(BuildContext context) {
-    final color = _templateColors[biodata.templateId] ?? AppColors.primary;
-    final templateName = _templateNames[biodata.templateId] ?? 'Template';
-    final emoji = _templateEmojis[biodata.templateId] ?? '📄';
+    final color        = _templateColors[biodata.templateId] ?? AppColors.primary;
+    final templateName = _templateNames[biodata.templateId] ?? 'Template ${biodata.templateId}';
+    final emoji        = _templateEmojis[biodata.templateId] ?? '📄';
 
     return GestureDetector(
       onTap: onTap,
@@ -66,15 +82,25 @@ class DesignListItem extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Colored left accent + emoji
+            // ── Colored left panel ───────────────────────────────────────
             Container(
               width: 72,
               height: 90,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                gradient: LinearGradient(
+                  colors: [
+                    color.withOpacity(0.15),
+                    color.withOpacity(0.08),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(AppSizes.radiusMd),
                   bottomLeft: Radius.circular(AppSizes.radiusMd),
+                ),
+                border: Border(
+                  left: BorderSide(color: color, width: 3),
                 ),
               ),
               child: Column(
@@ -83,9 +109,11 @@ class DesignListItem extends StatelessWidget {
                   biodata.photoPath.isNotEmpty
                       ? CircleAvatar(
                     radius: 22,
-                    backgroundImage: FileImage(File(biodata.photoPath)),
+                    backgroundImage:
+                    FileImage(File(biodata.photoPath)),
                   )
-                      : Text(emoji, style: const TextStyle(fontSize: 28)),
+                      : Text(emoji,
+                      style: const TextStyle(fontSize: 26)),
                   const SizedBox(height: 4),
                   Text(
                     '#${index + 1}',
@@ -101,7 +129,7 @@ class DesignListItem extends StatelessWidget {
 
             const SizedBox(width: 12),
 
-            // Info
+            // ── Info ─────────────────────────────────────────────────────
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -131,6 +159,8 @@ class DesignListItem extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: color.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(6),
+                        border:
+                        Border.all(color: color.withOpacity(0.2)),
                       ),
                       child: Text(
                         templateName,
@@ -146,7 +176,7 @@ class DesignListItem extends StatelessWidget {
               ),
             ),
 
-            // Actions
+            // ── Actions ──────────────────────────────────────────────────
             Column(
               children: [
                 IconButton(
@@ -156,7 +186,8 @@ class DesignListItem extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: onDuplicate,
-                  icon: Icon(Icons.copy_rounded, color: AppColors.primary, size: 20),
+                  icon: const Icon(Icons.copy_rounded,
+                      color: AppColors.primary, size: 20),
                   tooltip: 'Duplicate',
                 ),
                 IconButton(

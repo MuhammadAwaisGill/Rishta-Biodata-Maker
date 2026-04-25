@@ -65,12 +65,12 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: false
-  image_path: "assets/images/Logo.png"
+  image_path: "assets/images/logo.png"
 
 # ── Native Splash Screen ──────────────────────────────────────────────────────
 flutter_native_splash:
   color: "#6A1B1B"
-  image: assets/images/Logo.png
+  image: assets/images/logo.png
   android: true
   ios: false
   fullscreen: false
@@ -81,10 +81,3 @@ flutter:
 
   assets:
     - assets/images/
-  #   - assets/templates/
-  #   - assets/fonts/
-
-  # fonts:
-  #   - family: JameelNoori
-  #     fonts:
-  #       - asset: assets/fonts/JameelNooriNastaleeq.ttf
