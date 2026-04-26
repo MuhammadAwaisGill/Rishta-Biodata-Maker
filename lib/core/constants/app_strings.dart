@@ -3,7 +3,7 @@ class AppStrings {
 
   // App
   static const appName      = 'Rishta Biodata Maker';
-  static const appTagline   = 'Apna Rishta, Apni Pehchaan';
+  static const appTagline   = 'Create a rishta biodata in just a minute.';
 
   // Onboarding
   static const onboardTitle1 = 'Beautiful Biodata Cards';

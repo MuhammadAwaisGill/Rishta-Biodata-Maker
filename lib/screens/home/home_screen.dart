@@ -26,7 +26,7 @@ class HomeScreen extends ConsumerWidget {
         elevation: 0,
         centerTitle: false,
         title: const Text(
-          'Rishta Biodata',
+          'Rishta Biodata Maker',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,

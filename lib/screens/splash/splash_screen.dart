@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/app_routes.dart';
 import '../../core/constants/app_strings.dart';
 import '../../providers/biodata_provider.dart';
@@ -15,7 +14,7 @@ class SplashScreen extends ConsumerStatefulWidget {
 
 class _SplashScreenState extends ConsumerState<SplashScreen>
     with SingleTickerProviderStateMixin {
-  // ONE controller — no ring, no multi-anim overhead
+
   late final AnimationController _ctrl;
   late final Animation<double> _scale;
   late final Animation<double> _fade;
@@ -195,17 +194,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     ),
                   ],
                 ),
-              ),
-            ),
-
-            const Positioned(
-              bottom: 36,
-              left: 0,
-              right: 0,
-              child: Text(
-                'Made with ❤️ in Pakistan',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white30, fontSize: 12),
               ),
             ),
           ],
