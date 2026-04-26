@@ -36,15 +36,15 @@ abstract class BaseTemplate extends StatelessWidget {
   // ── Section title ─────────────────────────────────────────────────────────
   Widget buildSectionTitle({required String title, required Color color}) {
     return Padding(
-      padding: const EdgeInsets.only(top: 10, bottom: 4),
+      padding: const EdgeInsets.only(top: 8, bottom: 3),
       child: Row(
         children: [
-          Container(width: 3, height: 12, color: color),
+          Container(width: 3, height: 11, color: color),
           const SizedBox(width: 5),
           Text(
             title.toUpperCase(),
             style: TextStyle(
-              fontSize: 9,
+              fontSize: 8,
               fontWeight: FontWeight.w700,
               color: color,
               letterSpacing: 1.2,
@@ -57,35 +57,39 @@ abstract class BaseTemplate extends StatelessWidget {
     );
   }
 
-  // ── Info row ──────────────────────────────────────────────────────────────
+  // ── Info row — single line, truncates to keep card compact ────────────────
   Widget buildInfoRow({
     required String label,
     required String value,
     required Color labelColor,
     required Color valueColor,
   }) {
-    if (value.isEmpty) return const SizedBox.shrink();
+    if (value.trim().isEmpty) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: 3),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 100,
+            width: 95,
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: FontWeight.w600,
                 color: labelColor,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          const Text(': ', style: TextStyle(fontSize: 11)),
+          const Text(': ', style: TextStyle(fontSize: 10)),
           Expanded(
             child: Text(
               value,
-              style: TextStyle(fontSize: 11, color: valueColor),
+              style: TextStyle(fontSize: 10, color: valueColor),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -93,7 +97,7 @@ abstract class BaseTemplate extends StatelessWidget {
     );
   }
 
-  // ── Siblings row (with married info) ─────────────────────────────────────
+  // ── Siblings row — combines count + married info ───────────────────────────
   Widget buildSiblingsRow({
     required String label,
     required String count,
@@ -101,8 +105,8 @@ abstract class BaseTemplate extends StatelessWidget {
     required Color labelColor,
     required Color valueColor,
   }) {
-    if (count.isEmpty) return const SizedBox.shrink();
-    final display = married.isEmpty ? count : '$count ($married)';
+    if (count.trim().isEmpty) return const SizedBox.shrink();
+    final display = married.trim().isEmpty ? count : '$count ($married)';
     return buildInfoRow(
       label: label,
       value: display,
@@ -111,13 +115,50 @@ abstract class BaseTemplate extends StatelessWidget {
     );
   }
 
+  // ── Notes row — max 2 lines ───────────────────────────────────────────────
+  Widget buildNotesRow({
+    required String value,
+    required Color labelColor,
+    required Color valueColor,
+  }) {
+    if (value.trim().isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 3),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 95,
+            child: Text(
+              'Notes',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: labelColor,
+              ),
+            ),
+          ),
+          const Text(': ', style: TextStyle(fontSize: 10)),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(fontSize: 10, color: valueColor),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ── QR code ───────────────────────────────────────────────────────────────
   Widget buildQrCode({
     required Color foregroundColor,
     required Color backgroundColor,
-    double size = 60,
+    double size = 55,
   }) {
-    if (biodata.whatsappNumber.isEmpty) return const SizedBox.shrink();
+    if (biodata.whatsappNumber.trim().isEmpty) return const SizedBox.shrink();
 
     final raw = biodata.whatsappNumber.replaceAll(RegExp(r'[\s\-()]'), '');
     final normalized = raw.startsWith('+')
@@ -131,10 +172,10 @@ abstract class BaseTemplate extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: const EdgeInsets.all(4),
+          padding: const EdgeInsets.all(3),
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(5),
             border: Border.all(color: foregroundColor.withOpacity(0.3)),
           ),
           child: QrImageView(
@@ -156,7 +197,7 @@ abstract class BaseTemplate extends StatelessWidget {
         Text(
           'WhatsApp',
           style: TextStyle(
-            fontSize: 8,
+            fontSize: 7,
             color: foregroundColor,
             fontWeight: FontWeight.w500,
           ),
@@ -165,6 +206,7 @@ abstract class BaseTemplate extends StatelessWidget {
     );
   }
 
+  // ── Watermark ─────────────────────────────────────────────────────────────
   Widget buildWatermark() {
     return Positioned(
       bottom: 6,
@@ -173,7 +215,7 @@ abstract class BaseTemplate extends StatelessWidget {
         'RishtaBiodata.app',
         style: TextStyle(
           fontSize: 7,
-          color: Colors.black.withOpacity(0.15),
+          color: Colors.black.withOpacity(0.12),
           letterSpacing: 0.3,
         ),
       ),

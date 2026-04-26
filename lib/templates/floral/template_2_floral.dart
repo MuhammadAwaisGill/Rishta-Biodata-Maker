@@ -8,7 +8,6 @@ class Template2Floral extends BaseTemplate {
   static const _pink      = Color(0xFFAD1457);
   static const _lightPink = Color(0xFFF8BBD0);
   static const _darkPink  = Color(0xFF880E4F);
-  static const _pinkBg    = Color(0x1AAD1457); // 10% opacity — static
 
   @override
   Widget build(BuildContext context) {
@@ -33,74 +32,47 @@ class Template2Floral extends BaseTemplate {
                     end: Alignment.bottomRight,
                   ),
                 ),
-                padding: const EdgeInsets.symmetric(
-                    vertical: 16, horizontal: 16),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
                 child: const Column(
                   children: [
-                    Text('❀ ❀ ❀',
-                        style: TextStyle(fontSize: 18, color: _lightPink)),
-                    SizedBox(height: 6),
-                    Text(
-                      'RISHTA BIODATA',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 2),
-                    ),
+                    Text('❀ ❀ ❀', style: TextStyle(fontSize: 14, color: _lightPink)),
                     SizedBox(height: 4),
-                    Text('❀ ❀ ❀',
-                        style: TextStyle(fontSize: 18, color: _lightPink)),
+                    Text('RISHTA BIODATA',
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2)),
+                    SizedBox(height: 4),
+                    Text('❀ ❀ ❀', style: TextStyle(fontSize: 14, color: _lightPink)),
                   ],
                 ),
               ),
 
               // ── Body ───────────────────────────────────────────────────
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(10),
                 child: Column(
                   children: [
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        buildPhoto(
-                            photoPath: biodata.photoPath,
-                            borderColor: _pink,
-                            size: 85),
-                        const SizedBox(width: 14),
+                        buildPhoto(photoPath: biodata.photoPath, borderColor: _pink, size: 72),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               if (biodata.name.isNotEmpty)
                                 Text(biodata.name,
-                                    style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: _pink)),
+                                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: _pink),
+                                    maxLines: 1, overflow: TextOverflow.ellipsis),
                               if (biodata.maritalStatus.isNotEmpty)
-                                Text(biodata.maritalStatus,
-                                    style: const TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.black54)),
+                                Text(biodata.maritalStatus, style: const TextStyle(fontSize: 9, color: Colors.black54), maxLines: 1),
                               if (biodata.age.isNotEmpty)
-                                Text('Age: ${biodata.age}',
-                                    style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black54)),
+                                Text('Age: ${biodata.age}', style: const TextStyle(fontSize: 9, color: Colors.black54)),
                               if (biodata.city.isNotEmpty)
-                                Text(biodata.city,
-                                    style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black54)),
+                                Text(biodata.city, style: const TextStyle(fontSize: 9, color: Colors.black54), maxLines: 1),
                             ],
                           ),
                         ),
-                        buildQrCode(
-                          foregroundColor: _pink,
-                          backgroundColor: Colors.white,
-                          size: 55,
-                        ),
+                        buildQrCode(foregroundColor: _pink, backgroundColor: Colors.white),
                       ],
                     ),
 
@@ -112,43 +84,38 @@ class Template2Floral extends BaseTemplate {
                     buildInfoRow(label: 'City',           value: biodata.city,          labelColor: _pink, valueColor: Colors.black87),
                     buildInfoRow(label: 'Mother Tongue',  value: biodata.motherTongue,  labelColor: _pink, valueColor: Colors.black87),
                     buildInfoRow(label: 'Marital Status', value: biodata.maritalStatus, labelColor: _pink, valueColor: Colors.black87),
-                    if (biodata.personalNotes.isNotEmpty)
-                      buildInfoRow(label: 'Notes', value: biodata.personalNotes, labelColor: _pink, valueColor: Colors.black87),
+                    buildNotesRow(value: biodata.personalNotes, labelColor: _pink, valueColor: Colors.black87),
 
                     buildSectionTitle(title: 'Education & Career', color: _pink),
                     buildInfoRow(label: 'Education',  value: biodata.education,  labelColor: _pink, valueColor: Colors.black87),
                     buildInfoRow(label: 'Institute',  value: biodata.institute,  labelColor: _pink, valueColor: Colors.black87),
                     buildInfoRow(label: 'Profession', value: biodata.profession, labelColor: _pink, valueColor: Colors.black87),
                     buildInfoRow(label: 'Salary',     value: biodata.salary,     labelColor: _pink, valueColor: Colors.black87),
-                    if (biodata.educationNotes.isNotEmpty)
-                      buildInfoRow(label: 'Notes', value: biodata.educationNotes, labelColor: _pink, valueColor: Colors.black87),
+                    buildNotesRow(value: biodata.educationNotes, labelColor: _pink, valueColor: Colors.black87),
 
                     buildSectionTitle(title: 'Family', color: _pink),
                     buildInfoRow(label: "Father's Name", value: biodata.fatherName,       labelColor: _pink, valueColor: Colors.black87),
                     buildInfoRow(label: "Father's Job",  value: biodata.fatherProfession, labelColor: _pink, valueColor: Colors.black87),
                     buildSiblingsRow(label: 'Brothers', count: biodata.brothers, married: biodata.brothersMarried, labelColor: _pink, valueColor: Colors.black87),
                     buildSiblingsRow(label: 'Sisters',  count: biodata.sisters,  married: biodata.sistersMarried,  labelColor: _pink, valueColor: Colors.black87),
-                    buildInfoRow(label: 'Family Type',   value: biodata.familyType,       labelColor: _pink, valueColor: Colors.black87),
-                    buildInfoRow(label: 'Caste',         value: biodata.caste,            labelColor: _pink, valueColor: Colors.black87),
-                    if (biodata.familyNotes.isNotEmpty)
-                      buildInfoRow(label: 'Notes', value: biodata.familyNotes, labelColor: _pink, valueColor: Colors.black87),
+                    buildInfoRow(label: 'Family Type',  value: biodata.familyType, labelColor: _pink, valueColor: Colors.black87),
+                    buildInfoRow(label: 'Caste',        value: biodata.caste,      labelColor: _pink, valueColor: Colors.black87),
+                    buildNotesRow(value: biodata.familyNotes, labelColor: _pink, valueColor: Colors.black87),
 
                     buildSectionTitle(title: 'Religious', color: _pink),
+                    buildInfoRow(label: 'Religion',      value: biodata.religion,      labelColor: _pink, valueColor: Colors.black87),
                     buildInfoRow(label: 'Sect',          value: biodata.sect,          labelColor: _pink, valueColor: Colors.black87),
                     buildInfoRow(label: 'Religiousness', value: biodata.religiousness, labelColor: _pink, valueColor: Colors.black87),
-                    if (biodata.religiousNotes.isNotEmpty)
-                      buildInfoRow(label: 'Notes', value: biodata.religiousNotes, labelColor: _pink, valueColor: Colors.black87),
+                    buildNotesRow(value: biodata.religiousNotes, labelColor: _pink, valueColor: Colors.black87),
 
                     if (biodata.notes.isNotEmpty) ...[
                       buildSectionTitle(title: 'Additional Notes', color: _pink),
                       Text(biodata.notes,
-                          style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.black87,
-                              height: 1.5)),
+                          style: const TextStyle(fontSize: 10, color: Colors.black87, height: 1.3),
+                          maxLines: 2, overflow: TextOverflow.ellipsis),
                     ],
 
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                   ],
                 ),
               ),
@@ -157,17 +124,12 @@ class Template2Floral extends BaseTemplate {
               Container(
                 width: double.infinity,
                 decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                      colors: [_darkPink, _pink],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight),
+                  gradient: LinearGradient(colors: [_darkPink, _pink], begin: Alignment.topLeft, end: Alignment.bottomRight),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.symmetric(vertical: 6),
                 child: const Center(
-                  child: Text(
-                    '❀ Made with Rishta Biodata Maker ❀',
-                    style: TextStyle(fontSize: 11, color: Colors.white),
-                  ),
+                  child: Text('❀ Made with Rishta Biodata Maker ❀',
+                      style: TextStyle(fontSize: 9, color: Colors.white)),
                 ),
               ),
             ],

@@ -5,10 +5,10 @@ import '../base_template.dart';
 class Template6Urdu extends BaseTemplate {
   const Template6Urdu({super.key, required super.biodata});
 
-  static const _deep    = Color(0xFF1A0A2E);   // deep purple-black
-  static const _purple  = Color(0xFF6A0DAD);   // royal purple
-  static const _gold    = Color(0xFFD4AF37);   // antique gold
-  static const _cream   = Color(0xFFFFF8E7);   // warm cream
+  static const _deep   = Color(0xFF1A0A2E);
+  static const _purple = Color(0xFF6A0DAD);
+  static const _gold   = Color(0xFFD4AF37);
+  static const _cream  = Color(0xFFFFF8E7);
 
   @override
   Widget build(BuildContext context) {
@@ -23,177 +23,125 @@ class Template6Urdu extends BaseTemplate {
           ),
           child: Column(
             children: [
-              // ── Ornamental top border ──────────────────────────────────────
               Container(
-                height: 6,
+                height: 5,
                 decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [_gold, _purple, _gold, _purple, _gold],
-                  ),
+                  gradient: LinearGradient(colors: [_gold, _purple, _gold, _purple, _gold]),
                 ),
               ),
 
-              // ── Header ────────────────────────────────────────────────────
+              // ── Header ────────────────────────────────────────────────
               Container(
                 width: double.infinity,
                 color: _deep,
-                padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
                 child: Column(
                   children: [
-                    // Arabic Bismillah
-                    const Text(
-                      'بِسۡمِ اللّٰہِ الرَّحۡمٰنِ الرَّحِیۡمِ',
+                    Text(
+                      biodata.religion == 'Islam' ? 'بِسۡمِ اللّٰہِ الرَّحۡمٰنِ الرَّحِیۡمِ' : '✦ RISHTA BIODATA ✦',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: _gold,
-                        height: 1.8,
-                      ),
+                      style: const TextStyle(fontSize: 16, color: _gold, height: 1.6),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     _ornament(),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'رِشتہ بایوڈاٹا',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 22,
-                        color: _gold,
-                        height: 1.6,
-                      ),
-                    ),
-                    const Text(
-                      'RISHTA BIODATA',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFFB8A060),
-                        letterSpacing: 3,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
+                    const Text('رِشتہ بایوڈاٹا',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 18, color: _gold, height: 1.4)),
+                    const Text('RISHTA BIODATA',
+                        style: TextStyle(fontSize: 9, color: Color(0xFFB8A060), letterSpacing: 3)),
+                    const SizedBox(height: 4),
                     _ornament(),
                   ],
                 ),
               ),
 
-              // ── Cream body ─────────────────────────────────────────────────
-              Container(
-                width: double.infinity,
-                color: const Color(0xFF4A0E8A).withOpacity(0.08),
-                height: 4,
-              ),
+              Container(width: double.infinity, color: const Color(0x144A0E8A), height: 3),
 
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(10),
                 child: Column(
                   children: [
-                    // Photo + name + QR
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        buildPhoto(
-                          photoPath: biodata.photoPath,
-                          borderColor: _purple,
-                          size: 85,
-                        ),
-                        const SizedBox(width: 14),
+                        buildPhoto(photoPath: biodata.photoPath, borderColor: _purple, size: 72),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               if (biodata.name.isNotEmpty)
-                                Text(
-                                  biodata.name,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: _purple,
-                                  ),
-                                ),
+                                Text(biodata.name,
+                                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: _purple),
+                                    maxLines: 1, overflow: TextOverflow.ellipsis),
                               if (biodata.maritalStatus.isNotEmpty)
-                                Text(
-                                  biodata.maritalStatus,
-                                  style: const TextStyle(fontSize: 11, color: Colors.black54),
-                                ),
+                                Text(biodata.maritalStatus, style: const TextStyle(fontSize: 9, color: Colors.black54), maxLines: 1),
                               if (biodata.age.isNotEmpty)
-                                Text(
-                                  'Age: ${biodata.age}',
-                                  style: const TextStyle(fontSize: 12, color: Colors.black54),
-                                ),
+                                Text('Age: ${biodata.age}', style: const TextStyle(fontSize: 9, color: Colors.black54)),
                               if (biodata.city.isNotEmpty)
-                                Text(
-                                  biodata.city,
-                                  style: const TextStyle(fontSize: 12, color: Colors.black54),
-                                ),
+                                Text(biodata.city, style: const TextStyle(fontSize: 9, color: Colors.black54), maxLines: 1),
                             ],
                           ),
                         ),
-                        buildQrCode(
-                          foregroundColor: _purple,
-                          backgroundColor: _cream,
-                        ),
+                        buildQrCode(foregroundColor: _purple, backgroundColor: _cream),
                       ],
                     ),
 
                     _goldDivider(),
 
-                    _section('Personal Information', [
-                      _row('Full Name',      biodata.name),
-                      _row('Age',            biodata.age),
-                      _row('Height',         biodata.height),
-                      _row('Complexion',     biodata.complexion),
-                      _row('City',           biodata.city),
-                      _row('Mother Tongue',  biodata.motherTongue),
-                      _row('Marital Status', biodata.maritalStatus),
-                    ]),
+                    buildSectionTitle(title: 'Personal Information', color: _purple),
+                    buildInfoRow(label: 'Full Name',      value: biodata.name,          labelColor: _purple, valueColor: Colors.black87),
+                    buildInfoRow(label: 'Age',            value: biodata.age,           labelColor: _purple, valueColor: Colors.black87),
+                    buildInfoRow(label: 'Height',         value: biodata.height,        labelColor: _purple, valueColor: Colors.black87),
+                    buildInfoRow(label: 'Complexion',     value: biodata.complexion,    labelColor: _purple, valueColor: Colors.black87),
+                    buildInfoRow(label: 'City',           value: biodata.city,          labelColor: _purple, valueColor: Colors.black87),
+                    buildInfoRow(label: 'Mother Tongue',  value: biodata.motherTongue,  labelColor: _purple, valueColor: Colors.black87),
+                    buildInfoRow(label: 'Marital Status', value: biodata.maritalStatus, labelColor: _purple, valueColor: Colors.black87),
+                    buildNotesRow(value: biodata.personalNotes, labelColor: _purple, valueColor: Colors.black87),
 
-                    _section('Education & Career', [
-                      _row('Education',  biodata.education),
-                      _row('Institute',  biodata.institute),
-                      _row('Profession', biodata.profession),
-                      _row('Salary',     biodata.salary),
-                    ]),
+                    buildSectionTitle(title: 'Education & Career', color: _purple),
+                    buildInfoRow(label: 'Education',  value: biodata.education,  labelColor: _purple, valueColor: Colors.black87),
+                    buildInfoRow(label: 'Institute',  value: biodata.institute,  labelColor: _purple, valueColor: Colors.black87),
+                    buildInfoRow(label: 'Profession', value: biodata.profession, labelColor: _purple, valueColor: Colors.black87),
+                    buildInfoRow(label: 'Salary',     value: biodata.salary,     labelColor: _purple, valueColor: Colors.black87),
+                    buildNotesRow(value: biodata.educationNotes, labelColor: _purple, valueColor: Colors.black87),
 
-                    _section('Family Information', [
-                      _row("Father's Name", biodata.fatherName),
-                      _row("Father's Job",  biodata.fatherProfession),
-                      _row("Mother's Name", biodata.motherName),
-                      _row('Brothers',      biodata.brothers),
-                      _row('Sisters',       biodata.sisters),
-                      _row('Family Type',   biodata.familyType),
-                      _row('Caste',         biodata.caste),
-                    ]),
+                    buildSectionTitle(title: 'Family Information', color: _purple),
+                    buildInfoRow(label: "Father's Name", value: biodata.fatherName,       labelColor: _purple, valueColor: Colors.black87),
+                    buildInfoRow(label: "Father's Job",  value: biodata.fatherProfession, labelColor: _purple, valueColor: Colors.black87),
+                    buildSiblingsRow(label: 'Brothers', count: biodata.brothers, married: biodata.brothersMarried, labelColor: _purple, valueColor: Colors.black87),
+                    buildSiblingsRow(label: 'Sisters',  count: biodata.sisters,  married: biodata.sistersMarried,  labelColor: _purple, valueColor: Colors.black87),
+                    buildInfoRow(label: 'Family Type',  value: biodata.familyType, labelColor: _purple, valueColor: Colors.black87),
+                    buildInfoRow(label: 'Caste',        value: biodata.caste,      labelColor: _purple, valueColor: Colors.black87),
+                    buildNotesRow(value: biodata.familyNotes, labelColor: _purple, valueColor: Colors.black87),
 
-                    _section('Religious', [
-                      _row('Sect',          biodata.sect),
-                      _row('Religiousness', biodata.religiousness),
-                    ]),
+                    buildSectionTitle(title: 'Religious', color: _purple),
+                    buildInfoRow(label: 'Religion',      value: biodata.religion,      labelColor: _purple, valueColor: Colors.black87),
+                    buildInfoRow(label: 'Sect',          value: biodata.sect,          labelColor: _purple, valueColor: Colors.black87),
+                    buildInfoRow(label: 'Religiousness', value: biodata.religiousness, labelColor: _purple, valueColor: Colors.black87),
+                    buildNotesRow(value: biodata.religiousNotes, labelColor: _purple, valueColor: Colors.black87),
 
                     if (biodata.notes.isNotEmpty) ...[
                       _goldDivider(),
-                      Text(
-                        biodata.notes,
-                        style: const TextStyle(
-                            fontSize: 12, color: Colors.black87, height: 1.5),
-                      ),
+                      Text(biodata.notes,
+                          style: const TextStyle(fontSize: 10, color: Colors.black87, height: 1.3),
+                          maxLines: 2, overflow: TextOverflow.ellipsis),
                     ],
 
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                   ],
                 ),
               ),
 
-              // ── Footer ────────────────────────────────────────────────────
-              Container(height: 4, color: _gold.withOpacity(0.5)),
+              Container(height: 3, color: _gold.withOpacity(0.5)),
               Container(
                 width: double.infinity,
                 color: _deep,
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.symmetric(vertical: 7),
                 child: const Center(
-                  child: Text(
-                    '✦ Made with Rishta Biodata Maker ✦',
-                    style: TextStyle(fontSize: 11, color: _gold),
-                  ),
+                  child: Text('✦ Made with Rishta Biodata Maker ✦',
+                      style: TextStyle(fontSize: 9, color: _gold)),
                 ),
               ),
             ],
@@ -208,49 +156,28 @@ class Template6Urdu extends BaseTemplate {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(width: 60, height: 1, color: _gold.withOpacity(0.5)),
+        Container(width: 50, height: 1, color: _gold.withOpacity(0.5)),
         const SizedBox(width: 6),
-        const Text('❖', style: TextStyle(color: _gold, fontSize: 14)),
+        const Text('❖', style: TextStyle(color: _gold, fontSize: 12)),
         const SizedBox(width: 6),
-        Container(width: 60, height: 1, color: _gold.withOpacity(0.5)),
+        Container(width: 50, height: 1, color: _gold.withOpacity(0.5)),
       ],
     );
   }
 
   Widget _goldDivider() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
           Expanded(child: Container(height: 1, color: _gold.withOpacity(0.35))),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 6),
-            child: Text('❖', style: TextStyle(color: _gold, fontSize: 10)),
+            child: Text('❖', style: TextStyle(color: _gold, fontSize: 9)),
           ),
           Expanded(child: Container(height: 1, color: _gold.withOpacity(0.35))),
         ],
       ),
-    );
-  }
-
-  Widget _section(String title, List<Widget> rows) {
-    final nonEmpty = rows.where((w) => w is! SizedBox).toList();
-    if (nonEmpty.isEmpty) return const SizedBox.shrink();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        buildSectionTitle(title: title, color: _purple),
-        ...rows,
-      ],
-    );
-  }
-
-  Widget _row(String label, String value) {
-    return buildInfoRow(
-      label: label,
-      value: value,
-      labelColor: _purple,
-      valueColor: Colors.black87,
     );
   }
 }

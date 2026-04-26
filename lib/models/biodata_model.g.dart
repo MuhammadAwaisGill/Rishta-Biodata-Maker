@@ -1,10 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// Manually maintained for backward compatibility
 
 part of 'biodata_model.dart';
-
-// **************************************************************************
-// TypeAdapterGenerator
-// **************************************************************************
 
 class BiodataAdapter extends TypeAdapter<Biodata> {
   @override
@@ -17,16 +14,16 @@ class BiodataAdapter extends TypeAdapter<Biodata> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Biodata()
-      ..id               = fields[0] as String
-      ..name             = fields[1] as String
-      ..age              = fields[2] as String
-      ..height           = fields[3] as String
-      ..city             = fields[4] as String
-      ..education        = fields[5] as String
-      ..profession       = fields[6] as String
-      ..fatherName       = fields[7] as String
-      ..motherName       = fields[8] as String
-      ..brothers         = fields[9] as String
+      ..id               = fields[0]  as String
+      ..name             = fields[1]  as String
+      ..age              = fields[2]  as String
+      ..height           = fields[3]  as String
+      ..city             = fields[4]  as String
+      ..education        = fields[5]  as String
+      ..profession       = fields[6]  as String
+      ..fatherName       = fields[7]  as String
+      ..motherName       = fields[8]  as String
+      ..brothers         = fields[9]  as String
       ..sisters          = fields[10] as String
       ..familyType       = fields[11] as String
       ..sect             = fields[12] as String
@@ -48,13 +45,14 @@ class BiodataAdapter extends TypeAdapter<Biodata> {
       ..personalNotes    = (fields[28] as String?) ?? ''
       ..educationNotes   = (fields[29] as String?) ?? ''
       ..familyNotes      = (fields[30] as String?) ?? ''
-      ..religiousNotes   = (fields[31] as String?) ?? '';
+      ..religiousNotes   = (fields[31] as String?) ?? ''
+      ..religion         = (fields[32] as String?) ?? 'Islam';
   }
 
   @override
   void write(BinaryWriter writer, Biodata obj) {
     writer
-      ..writeByte(32)
+      ..writeByte(33)
       ..writeByte(0)  ..write(obj.id)
       ..writeByte(1)  ..write(obj.name)
       ..writeByte(2)  ..write(obj.age)
@@ -86,7 +84,8 @@ class BiodataAdapter extends TypeAdapter<Biodata> {
       ..writeByte(28) ..write(obj.personalNotes)
       ..writeByte(29) ..write(obj.educationNotes)
       ..writeByte(30) ..write(obj.familyNotes)
-      ..writeByte(31) ..write(obj.religiousNotes);
+      ..writeByte(31) ..write(obj.religiousNotes)
+      ..writeByte(32) ..write(obj.religion);
   }
 
   @override

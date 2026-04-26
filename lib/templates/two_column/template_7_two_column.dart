@@ -26,7 +26,7 @@ class Template7TwoColumn extends BaseTemplate {
               // ── Header ──────────────────────────────────────────────────
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(12),
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [Color(0xFF004D40), _teal],
@@ -36,49 +36,29 @@ class Template7TwoColumn extends BaseTemplate {
                 ),
                 child: Row(
                   children: [
-                    buildPhoto(
-                      photoPath: biodata.photoPath,
-                      borderColor: _accent,
-                      size: 80,
-                    ),
-                    const SizedBox(width: 14),
+                    buildPhoto(photoPath: biodata.photoPath, borderColor: _accent, size: 68),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'RISHTA BIODATA',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: _accent,
-                              letterSpacing: 2.5,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          const Text('RISHTA BIODATA',
+                              style: TextStyle(fontSize: 8, color: _accent, letterSpacing: 2.5, fontWeight: FontWeight.w600)),
                           const SizedBox(height: 2),
                           if (biodata.name.isNotEmpty)
-                            Text(
-                              biodata.name,
-                              style: const TextStyle(
-                                fontSize: 19,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
+                            Text(biodata.name,
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                                maxLines: 1, overflow: TextOverflow.ellipsis),
                           if (biodata.profession.isNotEmpty)
-                            Text(
-                              biodata.profession,
-                              style: TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.white.withOpacity(0.75)),
-                            ),
-                          const SizedBox(height: 4),
+                            Text(biodata.profession,
+                                style: TextStyle(fontSize: 9, color: Colors.white.withOpacity(0.75)),
+                                maxLines: 1, overflow: TextOverflow.ellipsis),
+                          const SizedBox(height: 3),
                           Row(
                             children: [
-                              if (biodata.age.isNotEmpty)
-                                _headerChip('Age ${biodata.age}'),
+                              if (biodata.age.isNotEmpty) _headerChip('Age ${biodata.age}'),
                               if (biodata.city.isNotEmpty) ...[
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 5),
                                 _headerChip(biodata.city),
                               ],
                             ],
@@ -86,18 +66,14 @@ class Template7TwoColumn extends BaseTemplate {
                         ],
                       ),
                     ),
-                    buildQrCode(
-                      foregroundColor: Colors.white,
-                      backgroundColor: _teal,
-                      size: 60,
-                    ),
+                    buildQrCode(foregroundColor: Colors.white, backgroundColor: _teal, size: 52),
                   ],
                 ),
               ),
 
               // ── Two-column body ──────────────────────────────────────────
               Padding(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(10),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -111,26 +87,25 @@ class Template7TwoColumn extends BaseTemplate {
                             _cell('Complexion',     biodata.complexion),
                             _cell('Mother Tongue',  biodata.motherTongue),
                             _cell('Marital Status', biodata.maritalStatus),
+                            if (biodata.personalNotes.isNotEmpty) _cell('Notes', biodata.personalNotes),
                           ]),
                           _colSection('Education', [
                             _cell('Qualification',  biodata.education),
-                            _cell('Institute',       biodata.institute),
-                            _cell('Salary',          biodata.salary),
+                            _cell('Institute',      biodata.institute),
+                            _cell('Salary',         biodata.salary),
+                            if (biodata.educationNotes.isNotEmpty) _cell('Notes', biodata.educationNotes),
                           ]),
                           _colSection('Religious', [
-                            _cell('Sect',           biodata.sect),
-                            _cell('Practice',       biodata.religiousness),
+                            _cell('Religion',     biodata.religion),
+                            _cell('Sect',         biodata.sect),
+                            _cell('Practice',     biodata.religiousness),
+                            if (biodata.religiousNotes.isNotEmpty) _cell('Notes', biodata.religiousNotes),
                           ]),
                         ],
                       ),
                     ),
 
-                    // Vertical divider
-                    Container(
-                      width: 1,
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      color: _teal.withOpacity(0.2),
-                    ),
+                    Container(width: 1, margin: const EdgeInsets.symmetric(horizontal: 8), color: _teal.withOpacity(0.2)),
 
                     // Right column
                     Expanded(
@@ -140,19 +115,17 @@ class Template7TwoColumn extends BaseTemplate {
                           _colSection('Family', [
                             _cell("Father's Name",  biodata.fatherName),
                             _cell("Father's Job",   biodata.fatherProfession),
-                            _cell("Mother's Name",  biodata.motherName),
-                            _cell('Brothers',        biodata.brothers),
-                            _cell('Sisters',         biodata.sisters),
-                            _cell('Family Type',     biodata.familyType),
-                            _cell('Caste',           biodata.caste),
+                            _cellSiblings('Brothers', biodata.brothers, biodata.brothersMarried),
+                            _cellSiblings('Sisters',  biodata.sisters,  biodata.sistersMarried),
+                            _cell('Family Type',    biodata.familyType),
+                            _cell('Caste',          biodata.caste),
+                            if (biodata.familyNotes.isNotEmpty) _cell('Notes', biodata.familyNotes),
                           ]),
                           if (biodata.notes.isNotEmpty) ...[
                             _colSection('Notes', []),
-                            Text(
-                              biodata.notes,
-                              style: const TextStyle(
-                                  fontSize: 11, color: Colors.black87, height: 1.4),
-                            ),
+                            Text(biodata.notes,
+                                style: const TextStyle(fontSize: 9, color: Colors.black87, height: 1.3),
+                                maxLines: 2, overflow: TextOverflow.ellipsis),
                           ],
                         ],
                       ),
@@ -165,12 +138,9 @@ class Template7TwoColumn extends BaseTemplate {
               Container(
                 width: double.infinity,
                 color: _teal,
-                padding: const EdgeInsets.symmetric(vertical: 7),
+                padding: const EdgeInsets.symmetric(vertical: 6),
                 child: const Center(
-                  child: Text(
-                    'Made with Rishta Biodata Maker',
-                    style: TextStyle(fontSize: 10, color: _accent),
-                  ),
+                  child: Text('Made with Rishta Biodata Maker', style: TextStyle(fontSize: 9, color: _accent)),
                 ),
               ),
             ],
@@ -183,13 +153,12 @@ class Template7TwoColumn extends BaseTemplate {
 
   Widget _headerChip(String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.15),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Text(text,
-          style: const TextStyle(color: Colors.white, fontSize: 10)),
+      child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 9)),
     );
   }
 
@@ -198,51 +167,40 @@ class Template7TwoColumn extends BaseTemplate {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 4),
+          padding: const EdgeInsets.only(top: 8, bottom: 3),
           child: Row(
             children: [
-              Container(width: 3, height: 11, color: _teal),
-              const SizedBox(width: 5),
-              Text(
-                title.toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w700,
-                  color: _teal,
-                  letterSpacing: 1,
-                ),
-              ),
+              Container(width: 3, height: 10, color: _teal),
+              const SizedBox(width: 4),
+              Text(title.toUpperCase(),
+                  style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w700, color: _teal, letterSpacing: 1)),
             ],
           ),
         ),
         Divider(color: _teal.withOpacity(0.15), height: 1),
-        const SizedBox(height: 4),
+        const SizedBox(height: 3),
         ...rows,
       ],
     );
   }
 
   Widget _cell(String label, String value) {
-    if (value.isEmpty) return const SizedBox.shrink();
+    if (value.trim().isEmpty) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: 3),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 9,
-              color: _lightTeal,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 11, color: Colors.black87),
-          ),
+          Text(label, style: const TextStyle(fontSize: 8, color: _lightTeal, fontWeight: FontWeight.w600)),
+          Text(value, style: const TextStyle(fontSize: 9, color: Colors.black87), maxLines: 1, overflow: TextOverflow.ellipsis),
         ],
       ),
     );
+  }
+
+  Widget _cellSiblings(String label, String count, String married) {
+    if (count.trim().isEmpty) return const SizedBox.shrink();
+    final display = married.trim().isEmpty ? count : '$count ($married)';
+    return _cell(label, display);
   }
 }

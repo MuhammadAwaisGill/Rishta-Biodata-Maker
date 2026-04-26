@@ -13,12 +13,12 @@ class Biodata extends HiveObject {
   @HiveField(5)  late String   education;
   @HiveField(6)  late String   profession;
   @HiveField(7)  late String   fatherName;
-  @HiveField(8)  late String   motherName;   // kept for compatibility but hidden from form
+  @HiveField(8)  late String   motherName;
   @HiveField(9)  late String   brothers;
   @HiveField(10) late String   sisters;
   @HiveField(11) late String   familyType;
-  @HiveField(12) late String   sect;
-  @HiveField(13) late String   religiousness;
+  @HiveField(12) late String   sect;          // kept for backward compat, now free text
+  @HiveField(13) late String   religiousness; // kept for backward compat, now free text
   @HiveField(14) late String   photoPath;
   @HiveField(15) late int      templateId;
   @HiveField(16) late String   notes;
@@ -31,13 +31,13 @@ class Biodata extends HiveObject {
   @HiveField(23) late String   fatherProfession;
   @HiveField(24) late String   caste;
   @HiveField(25) late String   maritalStatus;
-  // New fields
-  @HiveField(26) late String   brothersMarried;   // e.g. "1 married, 1 unmarried"
-  @HiveField(27) late String   sistersMarried;    // e.g. "2 married"
-  @HiveField(28) late String   personalNotes;     // extra notes for personal section
-  @HiveField(29) late String   educationNotes;    // extra notes for education section
-  @HiveField(30) late String   familyNotes;       // extra notes for family section
-  @HiveField(31) late String   religiousNotes;    // extra notes for religious section
+  @HiveField(26) late String   brothersMarried;
+  @HiveField(27) late String   sistersMarried;
+  @HiveField(28) late String   personalNotes;
+  @HiveField(29) late String   educationNotes;
+  @HiveField(30) late String   familyNotes;
+  @HiveField(31) late String   religiousNotes;
+  @HiveField(32) late String   religion;      // NEW: e.g. Islam, Christianity, Sikh
 
   Biodata();
 
@@ -74,6 +74,7 @@ class Biodata extends HiveObject {
     educationNotes   = '';
     familyNotes      = '';
     religiousNotes   = '';
+    religion         = 'Islam'; // default
   }
 
   Biodata copyWith({
@@ -107,6 +108,7 @@ class Biodata extends HiveObject {
     String?   educationNotes,
     String?   familyNotes,
     String?   religiousNotes,
+    String?   religion,
   }) {
     final b              = Biodata.empty();
     b.id                 = id;
@@ -141,6 +143,7 @@ class Biodata extends HiveObject {
     b.educationNotes     = educationNotes  ?? this.educationNotes;
     b.familyNotes        = familyNotes     ?? this.familyNotes;
     b.religiousNotes     = religiousNotes  ?? this.religiousNotes;
+    b.religion           = religion        ?? this.religion;
     return b;
   }
 
@@ -150,7 +153,7 @@ class Biodata extends HiveObject {
   double get completionPercent {
     final fields = [
       name, age, height, city, education, profession,
-      fatherName, sect, religiousness,
+      fatherName, religion,
     ];
     final filled = fields.where((f) => f.trim().isNotEmpty).length;
     return filled / fields.length;
@@ -189,6 +192,7 @@ class Biodata extends HiveObject {
     'educationNotes': educationNotes,
     'familyNotes': familyNotes,
     'religiousNotes': religiousNotes,
+    'religion': religion,
   };
 
   factory Biodata.fromJson(Map<String, dynamic> json) {
@@ -225,6 +229,7 @@ class Biodata extends HiveObject {
     b.educationNotes   = json['educationNotes'] ?? '';
     b.familyNotes      = json['familyNotes'] ?? '';
     b.religiousNotes   = json['religiousNotes'] ?? '';
+    b.religion         = json['religion'] ?? 'Islam';
     return b;
   }
 }
