@@ -34,6 +34,8 @@ class CardPreviewScreen extends ConsumerStatefulWidget {
 }
 
 class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
+  // RepaintBoundary key sits OUTSIDE InteractiveViewer
+  // so zoom transform never contaminates the capture
   final _repaintKey = GlobalKey();
   bool _isExporting = false;
   bool _designSaved = false;
@@ -41,19 +43,18 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
   @override
   void initState() {
     super.initState();
+    // Preload ad after frame — never blocks UI
     WidgetsBinding.instance.addPostFrameCallback((_) => _preloadAd());
   }
 
   void _preloadAd() {
     final adService = ref.read(adServiceProvider);
     adService.loadRewardedAd(onLoaded: () {
-      if (mounted) {
-        ref.read(rewardedAdReadyProvider.notifier).state = true;
-      }
+      if (mounted) ref.read(rewardedAdReadyProvider.notifier).state = true;
     });
   }
 
-  Widget _buildTemplate(int id, Biodata b) {
+  static Widget _buildTemplate(int id, Biodata b) {
     switch (id) {
       case 1:  return Template1Islamic(biodata: b);
       case 2:  return Template2Floral(biodata: b);
@@ -71,8 +72,8 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final biodata   = ref.watch(biodataProvider);
-    final templateId= ref.watch(selectedTemplateProvider);
+    final biodata    = ref.watch(biodataProvider);
+    final templateId = ref.watch(selectedTemplateProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFEEEEEE),
@@ -92,7 +93,6 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
           ),
         ),
         actions: [
-          // Save icon — manual save
           IconButton(
             onPressed: _isExporting ? null : _saveDesignManually,
             icon: Icon(
@@ -107,16 +107,37 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
       ),
       body: Column(
         children: [
-          // ── Card preview — scrollable ─────────────────────────────────
+          // ── Scrollable preview ────────────────────────────────────────
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSizes.md),
-              child: RepaintBoundary(
-                key: _repaintKey,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: _buildTemplate(templateId, biodata),
-                ),
+              child: Column(
+                children: [
+                  // RepaintBoundary is OUTSIDE InteractiveViewer —
+                  // captures the template at its natural size, not zoomed
+                  RepaintBoundary(
+                    key: _repaintKey,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: _buildTemplate(templateId, biodata),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  // Hint label
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.pinch_rounded,
+                          size: 14, color: AppColors.textMuted),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Pinch to zoom',
+                        style: TextStyle(
+                            fontSize: 11, color: AppColors.textMuted),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
@@ -153,6 +174,8 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
     if (_isExporting) return;
     setState(() => _isExporting = true);
     try {
+      // Small delay ensures the widget is fully painted before capture
+      await Future.delayed(const Duration(milliseconds: 60));
       final bytes = await ExportService().captureAsImage(_repaintKey);
       if (bytes == null) {
         _snack('Failed to capture card. Please try again.', error: true);
@@ -171,6 +194,7 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
       }
     } catch (e) {
       _snack('Something went wrong.', error: true);
+      debugPrint('captureAndSave error: $e');
     } finally {
       if (mounted) setState(() => _isExporting = false);
     }
@@ -180,6 +204,7 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
     if (_isExporting) return;
     setState(() => _isExporting = true);
     try {
+      await Future.delayed(const Duration(milliseconds: 60));
       final bytes = await ExportService().captureAsImage(_repaintKey);
       if (bytes == null) {
         _snack('Failed to capture card.', error: true);
@@ -190,7 +215,7 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
           '${dir.path}/biodata_${DateTime.now().millisecondsSinceEpoch}.png');
       await file.writeAsBytes(bytes);
       await ShareService().shareImage(file.path);
-      // Clean up temp file after 2 min
+      // Clean up after 2 min
       Future.delayed(const Duration(minutes: 2), () {
         if (file.existsSync()) file.deleteSync();
       });
@@ -213,7 +238,8 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
       }
       await Printing.sharePdf(
         bytes: pdfBytes,
-        filename: '${biodata.displayName.replaceAll(' ', '_')}_biodata.pdf',
+        filename:
+        '${biodata.displayName.replaceAll(' ', '_')}_biodata.pdf',
       );
     } catch (e) {
       _snack('Something went wrong.', error: true);
@@ -258,7 +284,6 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
 }
 
 // ── Action bar ────────────────────────────────────────────────────────────────
-
 class _ActionBar extends StatelessWidget {
   final bool isExporting;
   final VoidCallback onDownload;
@@ -293,7 +318,7 @@ class _ActionBar extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Primary — Download
+            // Primary download button
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -305,7 +330,8 @@ class _ActionBar extends StatelessWidget {
                   disabledBackgroundColor: const Color(0x996A1B1B),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                    borderRadius:
+                    BorderRadius.circular(AppSizes.radiusMd),
                   ),
                 ),
                 icon: isExporting
@@ -330,7 +356,7 @@ class _ActionBar extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            // Secondary row — 3 buttons
+            // Secondary row
             Row(
               children: [
                 Expanded(
@@ -383,27 +409,30 @@ class _SecondaryBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final active = onTap != null;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: Color.fromRGBO(color.red, color.green, color.blue, 0.08),
+          color: Color.fromRGBO(
+              color.red, color.green, color.blue, active ? 0.08 : 0.04),
           borderRadius: BorderRadius.circular(AppSizes.radiusSm),
           border: Border.all(
-            color: Color.fromRGBO(color.red, color.green, color.blue, 0.25),
+            color: Color.fromRGBO(
+                color.red, color.green, color.blue, active ? 0.25 : 0.1),
           ),
         ),
         child: Column(
           children: [
-            Icon(icon, color: onTap == null ? AppColors.textMuted : color,
-                size: 20),
+            Icon(icon,
+                color: active ? color : AppColors.textMuted, size: 20),
             const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
                 fontSize: 11,
-                color: onTap == null ? AppColors.textMuted : color,
+                color: active ? color : AppColors.textMuted,
                 fontWeight: FontWeight.w600,
               ),
             ),

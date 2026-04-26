@@ -16,7 +16,8 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final designs = ref.watch(savedDesignsProvider);
+    // Only watch count — avoids full rebuild when a design's fields change
+    final count = ref.watch(savedDesignsProvider.select((d) => d.length));
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -33,7 +34,7 @@ class HomeScreen extends ConsumerWidget {
           ),
         ),
         actions: [
-          if (designs.isNotEmpty)
+          if (count > 0)
             IconButton(
               onPressed: () => _showClearAllDialog(context, ref),
               icon: const Icon(Icons.delete_sweep_rounded,
@@ -42,14 +43,10 @@ class HomeScreen extends ConsumerWidget {
             ),
         ],
       ),
-      body: designs.isEmpty
+      body: count == 0
           ? _EmptyState(onCreate: () => _showTemplatePicker(context, ref))
-          : _DesignsList(
-        designs: designs,
-        onCreate: () => _showTemplatePicker(context, ref),
-        ref: ref,
-      ),
-      floatingActionButton: designs.isNotEmpty
+          : _DesignsList(onCreate: () => _showTemplatePicker(context, ref)),
+      floatingActionButton: count > 0
           ? FloatingActionButton.extended(
         onPressed: () => _showTemplatePicker(context, ref),
         backgroundColor: AppColors.primary,
@@ -70,6 +67,8 @@ class HomeScreen extends ConsumerWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      // useRootNavigator avoids rebuilding the shell scaffold
+      useRootNavigator: false,
       builder: (_) => TemplatePickerSheet(
         onSelect: (templateId) {
           Navigator.pop(context);
@@ -120,28 +119,25 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-// ── Designs list ──────────────────────────────────────────────────────────────
-
-class _DesignsList extends StatelessWidget {
-  final List<Biodata> designs;
+// ── Designs list — reads full list only here, not in HomeScreen ───────────────
+class _DesignsList extends ConsumerWidget {
   final VoidCallback onCreate;
-  final WidgetRef ref;
-
-  const _DesignsList({
-    required this.designs,
-    required this.onCreate,
-    required this.ref,
-  });
+  const _DesignsList({required this.onCreate});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final designs = ref.watch(savedDesignsProvider);
+
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
       itemCount: designs.length,
+      // ValueKey ensures Flutter diffs correctly — no full re-render
       separatorBuilder: (_, __) => const SizedBox(height: AppSizes.sm),
       itemBuilder: (context, index) {
         final design = designs[index];
         return DesignCard(
+          // Key prevents wrong card animating/rebuilding on delete
+          key: ValueKey(design.id),
           biodata: design,
           index: index,
           onTap: () {
@@ -156,10 +152,10 @@ class _DesignsList extends StatelessWidget {
                 design.templateId;
             context.push(AppRoutes.form);
           },
-          onDelete: () => _showDeleteDialog(context, design.id),
+          onDelete: () => _showDeleteDialog(context, ref, design.id),
           onDuplicate: () {
-            final dup = design.copyWith();
-            dup.id = DateTime.now().millisecondsSinceEpoch.toString();
+            final dup     = design.copyWith();
+            dup.id        = DateTime.now().millisecondsSinceEpoch.toString();
             dup.createdAt = DateTime.now();
             ref.read(savedDesignsProvider.notifier).save(dup);
           },
@@ -168,7 +164,7 @@ class _DesignsList extends StatelessWidget {
     );
   }
 
-  void _showDeleteDialog(BuildContext context, String id) {
+  void _showDeleteDialog(BuildContext context, WidgetRef ref, String id) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -181,7 +177,8 @@ class _DesignsList extends StatelessWidget {
             Text('Delete Biodata'),
           ],
         ),
-        content: const Text('Are you sure you want to delete this biodata?'),
+        content: const Text(
+            'Are you sure you want to delete this biodata?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -206,8 +203,7 @@ class _DesignsList extends StatelessWidget {
   }
 }
 
-// ── Empty state ───────────────────────────────────────────────────────────────
-
+// ── Empty state — fully const ─────────────────────────────────────────────────
 class _EmptyState extends StatelessWidget {
   final VoidCallback onCreate;
   const _EmptyState({required this.onCreate});
@@ -220,19 +216,7 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: const BoxDecoration(
-                color: Color(0x146A1B1B), // primary @ 8% opacity — static
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.article_outlined,
-                size: 48,
-                color: AppColors.primary,
-              ),
-            ),
+            const _EmptyIcon(),
             const SizedBox(height: 24),
             const Text(
               'No Biodatas Yet',
@@ -269,6 +253,28 @@ class _EmptyState extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// Separated const widget so it's never rebuilt
+class _EmptyIcon extends StatelessWidget {
+  const _EmptyIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 100,
+      height: 100,
+      decoration: const BoxDecoration(
+        color: Color(0x146A1B1B),
+        shape: BoxShape.circle,
+      ),
+      child: const Icon(
+        Icons.article_outlined,
+        size: 48,
+        color: AppColors.primary,
       ),
     );
   }

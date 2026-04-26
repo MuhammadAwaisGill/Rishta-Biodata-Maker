@@ -10,7 +10,6 @@ import 'core/theme/app_theme.dart';
 import 'models/biodata_model.dart';
 import 'services/ad_service.dart';
 import 'screens/splash/splash_screen.dart';
-import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/form/form_screen.dart';
 import 'screens/card_preview/card_preview_screen.dart';
@@ -22,6 +21,7 @@ import 'screens/settings/about_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Lock portrait — fast, synchronous
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -34,25 +34,28 @@ void main() async {
     ),
   );
 
+  // Hive init — must be before app runs
   await Hive.initFlutter();
   Hive.registerAdapter(BiodataAdapter());
   await Hive.openBox<Biodata>('biodatas');
-  await AdService.initialize();
+
+  // AdMob init deferred to after first frame — doesn't block UI
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    AdService.initialize();
+  });
 
   runApp(const ProviderScope(child: MyApp()));
 }
 
-// Defined at top level — never recreated on rebuild
+// Router defined at top level — never recreated on rebuild
 final _router = GoRouter(
   initialLocation: AppRoutes.splash,
+  // Disable debug logging in release
+  debugLogDiagnostics: false,
   routes: [
     GoRoute(
       path: AppRoutes.splash,
       builder: (_, __) => const SplashScreen(),
-    ),
-    GoRoute(
-      path: AppRoutes.onboarding,
-      builder: (_, __) => const OnboardingScreen(),
     ),
     GoRoute(
       path: AppRoutes.form,
@@ -106,7 +109,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// 2-tab shell
 class _ShellScaffold extends StatelessWidget {
   final Widget child;
   const _ShellScaffold({required this.child});

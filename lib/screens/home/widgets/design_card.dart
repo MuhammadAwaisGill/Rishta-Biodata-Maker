@@ -4,7 +4,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../models/biodata_model.dart';
 
-// Static maps — defined once, never rebuilt
+// All maps defined at file level — allocated once, never rebuilt
 const _templateColors = {
   1:  Color(0xFF6A1B1B),
   2:  Color(0xFFAD1457),
@@ -65,8 +65,11 @@ class DesignCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = _templateColors[biodata.templateId] ?? AppColors.primary;
-    final name = _templateNames[biodata.templateId] ?? 'Template';
+    final name  = _templateNames[biodata.templateId]  ?? 'Template';
     final emoji = _templateEmojis[biodata.templateId] ?? '📄';
+
+    // Compute subtitle once — not inside a child widget
+    final subtitle = _buildSubtitle();
 
     return Material(
       color: AppColors.surface,
@@ -80,16 +83,17 @@ class DesignCard extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              // Avatar
-              _Avatar(
-                photoPath: biodata.photoPath,
-                emoji: emoji,
-                color: color,
+              // RepaintBoundary isolates image from card repaints
+              RepaintBoundary(
+                child: _Avatar(
+                  photoPath: biodata.photoPath,
+                  emoji: emoji,
+                  color: color,
+                ),
               ),
 
               const SizedBox(width: 14),
 
-              // Info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,7 +110,7 @@ class DesignCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      _subtitle(),
+                      subtitle,
                       style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.textMuted,
@@ -122,7 +126,6 @@ class DesignCard extends StatelessWidget {
 
               const SizedBox(width: 8),
 
-              // Actions
               _Actions(
                 color: color,
                 onTap: onTap,
@@ -137,17 +140,16 @@ class DesignCard extends StatelessWidget {
     );
   }
 
-  String _subtitle() {
+  String _buildSubtitle() {
     final parts = <String>[];
-    if (biodata.age.isNotEmpty) parts.add('Age ${biodata.age}');
-    if (biodata.city.isNotEmpty) parts.add(biodata.city);
+    if (biodata.age.isNotEmpty)        parts.add('Age ${biodata.age}');
+    if (biodata.city.isNotEmpty)       parts.add(biodata.city);
     if (biodata.profession.isNotEmpty) parts.add(biodata.profession);
     return parts.isEmpty ? 'Tap to view' : parts.join(' • ');
   }
 }
 
-// ── Sub-widgets (all const-friendly) ─────────────────────────────────────────
-
+// ── Avatar — RepaintBoundary wraps expensive FileImage ───────────────────────
 class _Avatar extends StatelessWidget {
   final String photoPath;
   final String emoji;
@@ -165,9 +167,7 @@ class _Avatar extends StatelessWidget {
       width: 56,
       height: 56,
       decoration: BoxDecoration(
-        color: Color.fromRGBO(
-          color.red, color.green, color.blue, 0.1,
-        ),
+        color: Color.fromRGBO(color.red, color.green, color.blue, 0.1),
         shape: BoxShape.circle,
         border: Border.all(
           color: Color.fromRGBO(color.red, color.green, color.blue, 0.25),
@@ -181,9 +181,11 @@ class _Avatar extends StatelessWidget {
           width: 56,
           height: 56,
           fit: BoxFit.cover,
-          // Cache at display size — big perf win
+          // Decode at display size — big memory & perf win
           cacheWidth: 112,
           cacheHeight: 112,
+          // Don't re-decode on every scroll
+          gaplessPlayback: true,
         ),
       )
           : Center(
@@ -241,10 +243,10 @@ class _Actions extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _IconBtn(icon: Icons.visibility_rounded, color: color, onTap: onTap),
-        _IconBtn(icon: Icons.edit_rounded, color: AppColors.primary, onTap: onEdit),
-        _IconBtn(icon: Icons.copy_rounded, color: AppColors.textMuted, onTap: onDuplicate),
-        _IconBtn(icon: Icons.delete_outline_rounded, color: AppColors.error, onTap: onDelete),
+        _IconBtn(icon: Icons.visibility_rounded,     color: color,             onTap: onTap),
+        _IconBtn(icon: Icons.edit_rounded,           color: AppColors.primary, onTap: onEdit),
+        _IconBtn(icon: Icons.copy_rounded,           color: AppColors.textMuted, onTap: onDuplicate),
+        _IconBtn(icon: Icons.delete_outline_rounded, color: AppColors.error,   onTap: onDelete),
       ],
     );
   }
@@ -254,7 +256,11 @@ class _IconBtn extends StatelessWidget {
   final IconData icon;
   final Color color;
   final VoidCallback onTap;
-  const _IconBtn({required this.icon, required this.color, required this.onTap});
+  const _IconBtn({
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {

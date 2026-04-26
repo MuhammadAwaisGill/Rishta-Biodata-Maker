@@ -10,14 +10,15 @@ class HiveService {
     _box.put(biodata.id, biodata);
   }
 
+  /// Called only once at startup — sorts descending by createdAt.
+  /// After that, the provider manages order in memory.
   List<Biodata> getAllDesigns() {
-    return _box.values.toList()
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final list = _box.values.toList();
+    list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return list;
   }
 
-  Biodata? getDesign(String id) {
-    return _box.get(id);
-  }
+  Biodata? getDesign(String id) => _box.get(id);
 
   void updateDesign(Biodata biodata) {
     _box.put(biodata.id, biodata);
