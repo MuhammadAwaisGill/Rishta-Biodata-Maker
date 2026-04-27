@@ -17,8 +17,8 @@ class Biodata extends HiveObject {
   @HiveField(9)  late String   brothers;
   @HiveField(10) late String   sisters;
   @HiveField(11) late String   familyType;
-  @HiveField(12) late String   sect;          // kept for backward compat, now free text
-  @HiveField(13) late String   religiousness; // kept for backward compat, now free text
+  @HiveField(12) late String   sect;
+  @HiveField(13) late String   religiousness;
   @HiveField(14) late String   photoPath;
   @HiveField(15) late int      templateId;
   @HiveField(16) late String   notes;
@@ -37,7 +37,7 @@ class Biodata extends HiveObject {
   @HiveField(29) late String   educationNotes;
   @HiveField(30) late String   familyNotes;
   @HiveField(31) late String   religiousNotes;
-  @HiveField(32) late String   religion;      // NEW: e.g. Islam, Christianity, Sikh
+  @HiveField(32) late String   religion;
 
   Biodata();
 
@@ -74,10 +74,13 @@ class Biodata extends HiveObject {
     educationNotes   = '';
     familyNotes      = '';
     religiousNotes   = '';
-    religion         = 'Islam'; // default
+    religion         = 'Islam';
   }
 
+  /// [newId] and [newCreatedAt] allow creating a true duplicate with a fresh identity.
   Biodata copyWith({
+    String?   newId,
+    DateTime? newCreatedAt,
     String?   name,
     String?   age,
     String?   height,
@@ -111,44 +114,45 @@ class Biodata extends HiveObject {
     String?   religion,
   }) {
     final b              = Biodata.empty();
-    b.id                 = id;
-    b.createdAt          = createdAt;
-    b.name               = name            ?? this.name;
-    b.age                = age             ?? this.age;
-    b.height             = height          ?? this.height;
-    b.city               = city            ?? this.city;
-    b.education          = education       ?? this.education;
-    b.profession         = profession      ?? this.profession;
-    b.fatherName         = fatherName      ?? this.fatherName;
-    b.motherName         = motherName      ?? this.motherName;
-    b.brothers           = brothers        ?? this.brothers;
-    b.sisters            = sisters         ?? this.sisters;
-    b.familyType         = familyType      ?? this.familyType;
-    b.sect               = sect            ?? this.sect;
-    b.religiousness      = religiousness   ?? this.religiousness;
-    b.photoPath          = photoPath       ?? this.photoPath;
-    b.templateId         = templateId      ?? this.templateId;
-    b.notes              = notes           ?? this.notes;
-    b.complexion         = complexion      ?? this.complexion;
-    b.motherTongue       = motherTongue    ?? this.motherTongue;
-    b.salary             = salary          ?? this.salary;
-    b.whatsappNumber     = whatsappNumber  ?? this.whatsappNumber;
-    b.institute          = institute       ?? this.institute;
+    b.id                 = newId         ?? id;
+    b.createdAt          = newCreatedAt  ?? createdAt;
+    b.name               = name             ?? this.name;
+    b.age                = age              ?? this.age;
+    b.height             = height           ?? this.height;
+    b.city               = city             ?? this.city;
+    b.education          = education        ?? this.education;
+    b.profession         = profession       ?? this.profession;
+    b.fatherName         = fatherName       ?? this.fatherName;
+    b.motherName         = motherName       ?? this.motherName;
+    b.brothers           = brothers         ?? this.brothers;
+    b.sisters            = sisters          ?? this.sisters;
+    b.familyType         = familyType       ?? this.familyType;
+    b.sect               = sect             ?? this.sect;
+    b.religiousness      = religiousness    ?? this.religiousness;
+    b.photoPath          = photoPath        ?? this.photoPath;
+    b.templateId         = templateId       ?? this.templateId;
+    b.notes              = notes            ?? this.notes;
+    b.complexion         = complexion       ?? this.complexion;
+    b.motherTongue       = motherTongue     ?? this.motherTongue;
+    b.salary             = salary           ?? this.salary;
+    b.whatsappNumber     = whatsappNumber   ?? this.whatsappNumber;
+    b.institute          = institute        ?? this.institute;
     b.fatherProfession   = fatherProfession ?? this.fatherProfession;
-    b.caste              = caste           ?? this.caste;
-    b.maritalStatus      = maritalStatus   ?? this.maritalStatus;
-    b.brothersMarried    = brothersMarried ?? this.brothersMarried;
-    b.sistersMarried     = sistersMarried  ?? this.sistersMarried;
-    b.personalNotes      = personalNotes   ?? this.personalNotes;
-    b.educationNotes     = educationNotes  ?? this.educationNotes;
-    b.familyNotes        = familyNotes     ?? this.familyNotes;
-    b.religiousNotes     = religiousNotes  ?? this.religiousNotes;
-    b.religion           = religion        ?? this.religion;
+    b.caste              = caste            ?? this.caste;
+    b.maritalStatus      = maritalStatus    ?? this.maritalStatus;
+    b.brothersMarried    = brothersMarried  ?? this.brothersMarried;
+    b.sistersMarried     = sistersMarried   ?? this.sistersMarried;
+    b.personalNotes      = personalNotes    ?? this.personalNotes;
+    b.educationNotes     = educationNotes   ?? this.educationNotes;
+    b.familyNotes        = familyNotes      ?? this.familyNotes;
+    b.religiousNotes     = religiousNotes   ?? this.religiousNotes;
+    b.religion           = religion         ?? this.religion;
     return b;
   }
 
   bool get isValid => name.trim().isNotEmpty || age.trim().isNotEmpty;
-  String get displayName => name.trim().isEmpty ? 'Unnamed Biodata' : name.trim();
+  String get displayName =>
+      name.trim().isEmpty ? 'Unnamed Biodata' : name.trim();
 
   double get completionPercent {
     final fields = [
@@ -197,39 +201,39 @@ class Biodata extends HiveObject {
 
   factory Biodata.fromJson(Map<String, dynamic> json) {
     final b = Biodata.empty();
-    b.id               = json['id'] ?? b.id;
-    b.name             = json['name'] ?? '';
-    b.age              = json['age'] ?? '';
-    b.height           = json['height'] ?? '';
-    b.city             = json['city'] ?? '';
-    b.education        = json['education'] ?? '';
-    b.profession       = json['profession'] ?? '';
-    b.fatherName       = json['fatherName'] ?? '';
-    b.motherName       = json['motherName'] ?? '';
-    b.brothers         = json['brothers'] ?? '';
-    b.sisters          = json['sisters'] ?? '';
-    b.familyType       = json['familyType'] ?? '';
-    b.sect             = json['sect'] ?? '';
-    b.religiousness    = json['religiousness'] ?? '';
-    b.photoPath        = json['photoPath'] ?? '';
-    b.templateId       = json['templateId'] ?? 1;
-    b.notes            = json['notes'] ?? '';
+    b.id               = json['id']               ?? b.id;
+    b.name             = json['name']             ?? '';
+    b.age              = json['age']              ?? '';
+    b.height           = json['height']           ?? '';
+    b.city             = json['city']             ?? '';
+    b.education        = json['education']        ?? '';
+    b.profession       = json['profession']       ?? '';
+    b.fatherName       = json['fatherName']       ?? '';
+    b.motherName       = json['motherName']       ?? '';
+    b.brothers         = json['brothers']         ?? '';
+    b.sisters          = json['sisters']          ?? '';
+    b.familyType       = json['familyType']       ?? '';
+    b.sect             = json['sect']             ?? '';
+    b.religiousness    = json['religiousness']    ?? '';
+    b.photoPath        = json['photoPath']        ?? '';
+    b.templateId       = json['templateId']       ?? 1;
+    b.notes            = json['notes']            ?? '';
     b.createdAt        = DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now();
-    b.complexion       = json['complexion'] ?? '';
-    b.motherTongue     = json['motherTongue'] ?? '';
-    b.salary           = json['salary'] ?? '';
-    b.whatsappNumber   = json['whatsappNumber'] ?? '';
-    b.institute        = json['institute'] ?? '';
+    b.complexion       = json['complexion']       ?? '';
+    b.motherTongue     = json['motherTongue']     ?? '';
+    b.salary           = json['salary']           ?? '';
+    b.whatsappNumber   = json['whatsappNumber']   ?? '';
+    b.institute        = json['institute']        ?? '';
     b.fatherProfession = json['fatherProfession'] ?? '';
-    b.caste            = json['caste'] ?? '';
-    b.maritalStatus    = json['maritalStatus'] ?? '';
-    b.brothersMarried  = json['brothersMarried'] ?? '';
-    b.sistersMarried   = json['sistersMarried'] ?? '';
-    b.personalNotes    = json['personalNotes'] ?? '';
-    b.educationNotes   = json['educationNotes'] ?? '';
-    b.familyNotes      = json['familyNotes'] ?? '';
-    b.religiousNotes   = json['religiousNotes'] ?? '';
-    b.religion         = json['religion'] ?? 'Islam';
+    b.caste            = json['caste']            ?? '';
+    b.maritalStatus    = json['maritalStatus']    ?? '';
+    b.brothersMarried  = json['brothersMarried']  ?? '';
+    b.sistersMarried   = json['sistersMarried']   ?? '';
+    b.personalNotes    = json['personalNotes']    ?? '';
+    b.educationNotes   = json['educationNotes']   ?? '';
+    b.familyNotes      = json['familyNotes']      ?? '';
+    b.religiousNotes   = json['religiousNotes']   ?? '';
+    b.religion         = json['religion']         ?? 'Islam';
     return b;
   }
 }
