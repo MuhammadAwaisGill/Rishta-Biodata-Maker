@@ -18,6 +18,7 @@ const _countOptions    = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10+
 const _familyTypes     = ['Joint Family', 'Separate Family'];
 const _sects           = ['Sunni', 'Shia', 'Deobandi', 'Barelvi', 'Ahl-e-Hadith', 'Other'];
 const _religiousness   = ['Very Religious', 'Moderate', 'Liberal'];
+const _religions       = ['Islam', 'Christianity', 'Hinduism', 'Sikhism', 'Other'];
 
 class FormScreen extends ConsumerWidget {
   const FormScreen({super.key});
@@ -85,7 +86,7 @@ class FormScreen extends ConsumerWidget {
   }
 }
 
-// ── Form body — StatefulWidget for form key only ──────────────────────────────
+// ── Form body ─────────────────────────────────────────────────────────────────
 class _FormBody extends StatefulWidget {
   final BiodataNotifier notifier;
   const _FormBody({required this.notifier});
@@ -109,7 +110,6 @@ class _FormBodyState extends State<_FormBody> {
       key: _formKey,
       child: ListView(
         padding: const EdgeInsets.all(AppSizes.md),
-        // cacheExtent reduces rebuild of off-screen items
         cacheExtent: 600,
         children: [
           // ── Photo ────────────────────────────────────────────────────────
@@ -125,6 +125,7 @@ class _FormBodyState extends State<_FormBody> {
           _ComplexionField(notifier: widget.notifier),
           _CityField(notifier: widget.notifier),
           _MotherTongueField(notifier: widget.notifier),
+          _PersonalNotesField(notifier: widget.notifier),
           const SizedBox(height: AppSizes.md),
 
           // ── Education & Career ───────────────────────────────────────────
@@ -133,6 +134,7 @@ class _FormBodyState extends State<_FormBody> {
           _InstituteField(notifier: widget.notifier),
           _ProfessionField(notifier: widget.notifier),
           _SalaryField(notifier: widget.notifier),
+          _EducationNotesField(notifier: widget.notifier),
           const SizedBox(height: AppSizes.md),
 
           // ── Family ───────────────────────────────────────────────────────
@@ -140,15 +142,20 @@ class _FormBodyState extends State<_FormBody> {
           _FatherNameField(notifier: widget.notifier),
           _FatherProfessionField(notifier: widget.notifier),
           _BrothersField(notifier: widget.notifier),
+          _BrothersMarriedField(notifier: widget.notifier),
           _SistersField(notifier: widget.notifier),
+          _SistersMarriedField(notifier: widget.notifier),
           _FamilyTypeField(notifier: widget.notifier),
           _CasteField(notifier: widget.notifier),
+          _FamilyNotesField(notifier: widget.notifier),
           const SizedBox(height: AppSizes.md),
 
           // ── Religious ────────────────────────────────────────────────────
           const _SectionHeader('Religious Information'),
+          _ReligionField(notifier: widget.notifier),
           _SectField(notifier: widget.notifier),
           _ReligiousnessField(notifier: widget.notifier),
+          _ReligiousNotesField(notifier: widget.notifier),
           const SizedBox(height: AppSizes.md),
 
           // ── Additional ───────────────────────────────────────────────────
@@ -185,8 +192,7 @@ class _FormBodyState extends State<_FormBody> {
   }
 }
 
-// ── Each field is its own Consumer — ONLY that field rebuilds on change ────────
-
+// ── Photo field ───────────────────────────────────────────────────────────────
 class _PhotoField extends ConsumerWidget {
   final BiodataNotifier notifier;
   const _PhotoField({required this.notifier});
@@ -243,8 +249,8 @@ class _PhotoField extends ConsumerWidget {
           children: [
             const SizedBox(height: AppSizes.sm),
             ListTile(
-              leading:
-              const Icon(Icons.camera_alt_rounded, color: AppColors.primary),
+              leading: const Icon(Icons.camera_alt_rounded,
+                  color: AppColors.primary),
               title: const Text('Take Photo'),
               onTap: () async {
                 Navigator.pop(context);
@@ -270,7 +276,7 @@ class _PhotoField extends ConsumerWidget {
   }
 }
 
-// ── Individual field widgets — each watches only its own slice ─────────────────
+// ── Individual field widgets ───────────────────────────────────────────────────
 
 class _NameField extends ConsumerWidget {
   final BiodataNotifier notifier;
@@ -384,6 +390,22 @@ class _MotherTongueField extends ConsumerWidget {
   }
 }
 
+class _PersonalNotesField extends ConsumerWidget {
+  final BiodataNotifier notifier;
+  const _PersonalNotesField({required this.notifier});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final v = ref.watch(biodataProvider.select((b) => b.personalNotes));
+    return _TextField(
+      label: 'Personal Notes',
+      initialValue: v,
+      onChanged: notifier.updatePersonalNotes,
+      hint: 'Any personal details to add...',
+      maxLines: 2,
+    );
+  }
+}
+
 class _EducationField extends ConsumerWidget {
   final BiodataNotifier notifier;
   const _EducationField({required this.notifier});
@@ -442,6 +464,22 @@ class _SalaryField extends ConsumerWidget {
   }
 }
 
+class _EducationNotesField extends ConsumerWidget {
+  final BiodataNotifier notifier;
+  const _EducationNotesField({required this.notifier});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final v = ref.watch(biodataProvider.select((b) => b.educationNotes));
+    return _TextField(
+      label: 'Education Notes',
+      initialValue: v,
+      onChanged: notifier.updateEducationNotes,
+      hint: 'Any additional education/career details...',
+      maxLines: 2,
+    );
+  }
+}
+
 class _FatherNameField extends ConsumerWidget {
   final BiodataNotifier notifier;
   const _FatherNameField({required this.notifier});
@@ -485,6 +523,22 @@ class _BrothersField extends ConsumerWidget {
   }
 }
 
+class _BrothersMarriedField extends ConsumerWidget {
+  final BiodataNotifier notifier;
+  const _BrothersMarriedField({required this.notifier});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final v = ref.watch(biodataProvider.select((b) => b.brothersMarried));
+    return _TextField(
+      label: 'Brothers Married',
+      initialValue: v,
+      onChanged: notifier.updateBrothersMarried,
+      hint: 'e.g. 2 married',
+      keyboardType: TextInputType.text,
+    );
+  }
+}
+
 class _SistersField extends ConsumerWidget {
   final BiodataNotifier notifier;
   const _SistersField({required this.notifier});
@@ -496,6 +550,22 @@ class _SistersField extends ConsumerWidget {
       value: v.isEmpty ? null : v,
       items: _countOptions,
       onChanged: (s) => notifier.updateSisters(s ?? ''),
+    );
+  }
+}
+
+class _SistersMarriedField extends ConsumerWidget {
+  final BiodataNotifier notifier;
+  const _SistersMarriedField({required this.notifier});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final v = ref.watch(biodataProvider.select((b) => b.sistersMarried));
+    return _TextField(
+      label: 'Sisters Married',
+      initialValue: v,
+      onChanged: notifier.updateSistersMarried,
+      hint: 'e.g. 1 married',
+      keyboardType: TextInputType.text,
     );
   }
 }
@@ -529,6 +599,37 @@ class _CasteField extends ConsumerWidget {
   }
 }
 
+class _FamilyNotesField extends ConsumerWidget {
+  final BiodataNotifier notifier;
+  const _FamilyNotesField({required this.notifier});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final v = ref.watch(biodataProvider.select((b) => b.familyNotes));
+    return _TextField(
+      label: 'Family Notes',
+      initialValue: v,
+      onChanged: notifier.updateFamilyNotes,
+      hint: 'Any family background details...',
+      maxLines: 2,
+    );
+  }
+}
+
+class _ReligionField extends ConsumerWidget {
+  final BiodataNotifier notifier;
+  const _ReligionField({required this.notifier});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final v = ref.watch(biodataProvider.select((b) => b.religion));
+    return _Dropdown(
+      label: 'Religion',
+      value: v.isEmpty ? null : v,
+      items: _religions,
+      onChanged: (s) => notifier.updateReligion(s ?? 'Islam'),
+    );
+  }
+}
+
 class _SectField extends ConsumerWidget {
   final BiodataNotifier notifier;
   const _SectField({required this.notifier});
@@ -559,6 +660,22 @@ class _ReligiousnessField extends ConsumerWidget {
   }
 }
 
+class _ReligiousNotesField extends ConsumerWidget {
+  final BiodataNotifier notifier;
+  const _ReligiousNotesField({required this.notifier});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final v = ref.watch(biodataProvider.select((b) => b.religiousNotes));
+    return _TextField(
+      label: 'Religious Notes',
+      initialValue: v,
+      onChanged: notifier.updateReligiousNotes,
+      hint: 'Any religious details or preferences...',
+      maxLines: 2,
+    );
+  }
+}
+
 class _WhatsAppField extends ConsumerWidget {
   final BiodataNotifier notifier;
   const _WhatsAppField({required this.notifier});
@@ -569,7 +686,7 @@ class _WhatsAppField extends ConsumerWidget {
       label: 'WhatsApp Number',
       initialValue: v,
       onChanged: notifier.updateWhatsappNumber,
-      hint: 'e.g. 03001234567  (adds QR code)',
+      hint: 'e.g. 03001234567  (adds QR code to card)',
       keyboardType: TextInputType.phone,
     );
   }
@@ -582,10 +699,10 @@ class _NotesField extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final v = ref.watch(biodataProvider.select((b) => b.notes));
     return _TextField(
-      label: 'Notes / Preferences',
+      label: 'Partner Preferences / Notes',
       initialValue: v,
       onChanged: notifier.updateNotes,
-      hint: 'Any additional info or partner preferences...',
+      hint: 'Any partner preferences or additional info...',
       maxLines: 3,
     );
   }

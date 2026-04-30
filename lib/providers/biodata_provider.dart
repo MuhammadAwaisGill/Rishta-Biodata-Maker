@@ -10,7 +10,6 @@ class BiodataNotifier extends StateNotifier<Biodata> {
   BiodataNotifier() : super(Biodata.empty());
 
   Timer? _debounce;
-  // Track last saved JSON to avoid redundant SharedPreferences writes
   String? _lastSavedJson;
 
   void _update(Biodata updated) {
@@ -22,7 +21,6 @@ class BiodataNotifier extends StateNotifier<Biodata> {
   Future<void> _writeDraft() async {
     try {
       final json = jsonEncode(state.toJson());
-      // Dirty check — only write if actually changed
       if (json == _lastSavedJson) return;
       _lastSavedJson = json;
       final prefs = await SharedPreferences.getInstance();
@@ -50,7 +48,7 @@ class BiodataNotifier extends StateNotifier<Biodata> {
       if (raw == null) return;
       final map = jsonDecode(raw) as Map<String, dynamic>;
       state = Biodata.fromJson(map);
-      _lastSavedJson = raw; // Sync dirty tracker
+      _lastSavedJson = raw;
     } catch (_) {}
   }
 
@@ -92,11 +90,12 @@ class BiodataNotifier extends StateNotifier<Biodata> {
   void updateFamilyNotes(String v)       => _update(state.copyWith(familyNotes: v));
 
   // ── Religious ─────────────────────────────────────────────────────────────
+  void updateReligion(String v)       => _update(state.copyWith(religion: v));
   void updateSect(String v)           => _update(state.copyWith(sect: v));
   void updateReligiousness(String v)  => _update(state.copyWith(religiousness: v));
   void updateReligiousNotes(String v) => _update(state.copyWith(religiousNotes: v));
 
-  // ── Preferences ───────────────────────────────────────────────────────────
+  // ── Additional ────────────────────────────────────────────────────────────
   void updateNotes(String v)          => _update(state.copyWith(notes: v));
   void updateWhatsappNumber(String v) => _update(state.copyWith(whatsappNumber: v));
 
@@ -106,7 +105,6 @@ class BiodataNotifier extends StateNotifier<Biodata> {
 
   void loadFromSaved(Biodata biodata) {
     state = biodata;
-    // Sync dirty tracker so editing a saved design doesn't force a draft write
     _lastSavedJson = jsonEncode(biodata.toJson());
   }
 

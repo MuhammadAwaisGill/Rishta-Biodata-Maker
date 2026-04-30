@@ -4,19 +4,17 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_routes.dart';
 import '../../core/constants/app_sizes.dart';
-import '../../models/biodata_model.dart';
 import '../../providers/biodata_provider.dart';
 import '../../providers/saved_designs_provider.dart';
 import '../../providers/template_provider.dart';
+import '../select_template/template_select_screen.dart';
 import 'widgets/design_card.dart';
-import 'widgets/template_picker_sheet.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Only watch count — avoids full rebuild when a design's fields change
     final count = ref.watch(savedDesignsProvider.select((d) => d.length));
 
     return Scaffold(
@@ -44,11 +42,12 @@ class HomeScreen extends ConsumerWidget {
         ],
       ),
       body: count == 0
-          ? _EmptyState(onCreate: () => _showTemplatePicker(context, ref))
-          : _DesignsList(onCreate: () => _showTemplatePicker(context, ref)),
+          ? _EmptyState(onCreate: () => _openTemplateSelector(context, ref))
+          : _DesignsList(
+          onCreate: () => _openTemplateSelector(context, ref)),
       floatingActionButton: count > 0
           ? FloatingActionButton.extended(
-        onPressed: () => _showTemplatePicker(context, ref),
+        onPressed: () => _openTemplateSelector(context, ref),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 3,
@@ -62,20 +61,17 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  void _showTemplatePicker(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      // useRootNavigator avoids rebuilding the shell scaffold
-      useRootNavigator: false,
-      builder: (_) => TemplatePickerSheet(
-        onSelect: (templateId) {
-          Navigator.pop(context);
-          ref.read(biodataProvider.notifier).resetForm();
-          ref.read(selectedTemplateProvider.notifier).state = templateId;
-          context.push(AppRoutes.form);
-        },
+  void _openTemplateSelector(BuildContext context, WidgetRef ref) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TemplateSelectScreen(
+          onSelect: (templateId) {
+            ref.read(biodataProvider.notifier).resetForm();
+            ref.read(selectedTemplateProvider.notifier).state = templateId;
+            context.push(AppRoutes.form);
+          },
+        ),
       ),
     );
   }
@@ -119,7 +115,7 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-// ── Designs list — reads full list only here, not in HomeScreen ───────────────
+// ── Designs list ──────────────────────────────────────────────────────────────
 class _DesignsList extends ConsumerWidget {
   final VoidCallback onCreate;
   const _DesignsList({required this.onCreate});
@@ -131,12 +127,10 @@ class _DesignsList extends ConsumerWidget {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
       itemCount: designs.length,
-      // ValueKey ensures Flutter diffs correctly — no full re-render
       separatorBuilder: (_, __) => const SizedBox(height: AppSizes.sm),
       itemBuilder: (context, index) {
         final design = designs[index];
         return DesignCard(
-          // Key prevents wrong card animating/rebuilding on delete
           key: ValueKey(design.id),
           biodata: design,
           index: index,
@@ -154,10 +148,26 @@ class _DesignsList extends ConsumerWidget {
           },
           onDelete: () => _showDeleteDialog(context, ref, design.id),
           onDuplicate: () {
-            final dup     = design.copyWith();
-            dup.id        = DateTime.now().millisecondsSinceEpoch.toString();
-            dup.createdAt = DateTime.now();
+            // Use copyWith(newId, newCreatedAt) — no mutation of HiveObject
+            final dup = design.copyWith(
+              newId: DateTime.now().millisecondsSinceEpoch.toString(),
+              newCreatedAt: DateTime.now(),
+            );
             ref.read(savedDesignsProvider.notifier).save(dup);
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(
+                  content: const Text('✅ Biodata duplicated!'),
+                  backgroundColor: AppColors.primary,
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 2),
+                  margin: const EdgeInsets.fromLTRB(16, 0, 16, 90),
+                  shape: RoundedRectangleBorder(
+                      borderRadius:
+                      BorderRadius.circular(AppSizes.radiusSm)),
+                ),
+              );
           },
         );
       },
@@ -177,8 +187,8 @@ class _DesignsList extends ConsumerWidget {
             Text('Delete Biodata'),
           ],
         ),
-        content: const Text(
-            'Are you sure you want to delete this biodata?'),
+        content:
+        const Text('Are you sure you want to delete this biodata?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -203,7 +213,7 @@ class _DesignsList extends ConsumerWidget {
   }
 }
 
-// ── Empty state — fully const ─────────────────────────────────────────────────
+// ── Empty state ───────────────────────────────────────────────────────────────
 class _EmptyState extends StatelessWidget {
   final VoidCallback onCreate;
   const _EmptyState({required this.onCreate});
@@ -258,7 +268,6 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-// Separated const widget so it's never rebuilt
 class _EmptyIcon extends StatelessWidget {
   const _EmptyIcon();
 
