@@ -1,17 +1,26 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
+
+    <!-- ── Permissions ──────────────────────────────────────────────── -->
+    <!-- Required by AdMob — app crashes on launch without this -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- Camera — for taking biodata photo -->
     <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+
+    <!-- Storage — Android 12 and below only -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29"/>
+
+    <!-- Media access — Android 13+ (API 33+) replaces READ_EXTERNAL_STORAGE -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"
+        android:minSdkVersion="33"/>
+
     <application
         android:label="Rishta Biodata Maker"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-
-        <!-- AdMob App ID (test ID — replace with real one before release) -->
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/>
 
         <activity
             android:name=".MainActivity"
@@ -24,25 +33,34 @@
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
-                android:resource="@style/NormalTheme"
-                />
+                android:resource="@style/NormalTheme"/>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
-        <!-- Don't delete the meta-data below.
-             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+        <!-- ── AdMob App ID ─────────────────────────────────────────── -->
+        <!-- ⚠️  REPLACE ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX         -->
+        <!--    with your REAL AdMob App ID from apps.admob.com          -->
+        <!--    Without this the app CRASHES on startup                  -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX"/>
+
+        <!-- Keeps Google Play Services version check quiet -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version"/>
+
         <meta-data
             android:name="flutterEmbedding"
-            android:value="2" />
+            android:value="2"/>
     </application>
 
+    <!-- Required to query AdMob's ad services on Android 11+ -->
     <queries>
-        <intent>
-            <action android:name="android.intent.action.PROCESS_TEXT"/>
-            <data android:mimeType="text/plain"/>
-        </intent>
+        <package android:name="com.google.android.gms"/>
     </queries>
+
 </manifest>

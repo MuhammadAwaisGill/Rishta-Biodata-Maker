@@ -77,7 +77,8 @@ class Biodata extends HiveObject {
     religion         = 'Islam';
   }
 
-  /// [newId] and [newCreatedAt] allow creating a true duplicate with a fresh identity.
+  /// [newId] and [newCreatedAt] give a duplicate a fresh identity without
+  /// mutating the source HiveObject — fixes the fragile direct-field mutation.
   Biodata copyWith({
     String?   newId,
     DateTime? newCreatedAt,
@@ -114,8 +115,8 @@ class Biodata extends HiveObject {
     String?   religion,
   }) {
     final b              = Biodata.empty();
-    b.id                 = newId         ?? id;
-    b.createdAt          = newCreatedAt  ?? createdAt;
+    b.id                 = newId          ?? id;
+    b.createdAt          = newCreatedAt   ?? createdAt;
     b.name               = name             ?? this.name;
     b.age                = age              ?? this.age;
     b.height             = height           ?? this.height;

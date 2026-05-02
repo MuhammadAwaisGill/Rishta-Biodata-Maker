@@ -2,10 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class AdService {
-  // ── Test IDs — replace with real AdMob IDs before release ───────────────
-  static const _rewardedAdUnitId      = 'ca-app-pub-3940256099942544/5224354917';
-  static const _interstitialAdUnitId  = 'ca-app-pub-3940256099942544/1033173712';
-  static const _bannerAdUnitId        = 'ca-app-pub-3940256099942544/6300978111';
+  // ── ⚠️ REPLACE THESE WITH YOUR REAL AdMob IDs BEFORE RELEASE ────────────
+  // These are Google's official test IDs — they will show test ads only.
+  // Get your real IDs from: https://apps.admob.com
+  static const _rewardedAdUnitId     = 'ca-app-pub-3940256099942544/5224354917';
+  static const _interstitialAdUnitId = 'ca-app-pub-3940256099942544/1033173712';
+  static const _bannerAdUnitId       = 'ca-app-pub-3940256099942544/6300978111';
+  // ─────────────────────────────────────────────────────────────────────────
 
   RewardedAd?     _rewardedAd;
   InterstitialAd? _interstitialAd;
@@ -76,7 +79,8 @@ class AdService {
     _rewardedAd = null;
   }
 
-  // ── Interstitial Ad (after saving a design) ───────────────────────────────
+  // ── Interstitial Ad (shown after saving a design) ─────────────────────────
+  // Called from card_preview_screen.dart after _saveDesign() succeeds.
   Future<void> loadInterstitialAd() async {
     await InterstitialAd.load(
       adUnitId: _interstitialAdUnitId,
@@ -122,5 +126,7 @@ class AdService {
   void dispose() {
     _rewardedAd?.dispose();
     _interstitialAd?.dispose();
+    _rewardedAd = null;
+    _interstitialAd = null;
   }
 }

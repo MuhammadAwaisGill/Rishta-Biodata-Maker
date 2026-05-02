@@ -16,7 +16,6 @@ class ExportService {
       {int retries = 3}) async {
     for (int attempt = 0; attempt < retries; attempt++) {
       try {
-        // Give the widget time to settle if first attempt
         if (attempt > 0) {
           await Future.delayed(Duration(milliseconds: 100 * attempt));
         }
@@ -28,7 +27,6 @@ class ExportService {
         if (renderObject == null) continue;
         if (renderObject is! RenderRepaintBoundary) continue;
 
-        // Wait if paint is pending
         if (renderObject.debugNeedsPaint) {
           await Future.delayed(const Duration(milliseconds: 100));
         }
@@ -75,7 +73,6 @@ class ExportService {
       final primary   = colors[0];
       final secondary = colors[1];
 
-      // Load photo bytes if available
       pw.ImageProvider? photoImage;
       if (biodata.photoPath.isNotEmpty) {
         try {
@@ -158,7 +155,10 @@ class ExportService {
                             pw.SizedBox(height: 4),
                             if (biodata.name.isNotEmpty)
                               pw.Text(
-                                biodata.name,
+                                // Truncate name to prevent header overflow
+                                biodata.name.length > 40
+                                    ? '${biodata.name.substring(0, 40)}…'
+                                    : biodata.name,
                                 style: pw.TextStyle(
                                   fontSize: 22,
                                   color: PdfColors.white,
@@ -255,6 +255,7 @@ class ExportService {
                                   ]),
                               pw.SizedBox(height: 12),
                               _pdfSection('Religious', primary, secondary, [
+                                _pdfPair('Religion', biodata.religion, primary),
                                 _pdfPair('Sect', biodata.sect, primary),
                                 _pdfPair('Religiousness', biodata.religiousness, primary),
                                 if (biodata.religiousNotes.isNotEmpty)
@@ -264,10 +265,17 @@ class ExportService {
                                 pw.SizedBox(height: 12),
                                 _pdfSection('Additional Notes',
                                     primary, secondary, [
-                                      pw.Text(biodata.notes,
-                                          style: const pw.TextStyle(
-                                              fontSize: 10,
-                                              color: PdfColors.black)),
+                                      // Clamp notes to 300 chars — long text overflows A4
+                                      pw.Text(
+                                        biodata.notes.length > 300
+                                            ? '${biodata.notes.substring(0, 300)}…'
+                                            : biodata.notes,
+                                        style: const pw.TextStyle(
+                                            fontSize: 9,
+                                            color: PdfColors.black),
+                                        maxLines: 6,
+                                        overflow: pw.TextOverflow.clip,
+                                      ),
                                     ]),
                               ],
                             ],
@@ -348,6 +356,8 @@ class ExportService {
   }
 
   pw.Widget _pdfChip(String text, PdfColor color) {
+    // Truncate chip text so header chips never overflow
+    final display = text.length > 20 ? '${text.substring(0, 20)}…' : text;
     return pw.Container(
       padding:
       const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -355,7 +365,7 @@ class ExportService {
         color: PdfColors.white,
         borderRadius: const pw.BorderRadius.all(pw.Radius.circular(10)),
       ),
-      child: pw.Text(text,
+      child: pw.Text(display,
           style: pw.TextStyle(
               fontSize: 8,
               color: color,
@@ -398,6 +408,8 @@ class ExportService {
 
   pw.Widget _pdfPair(String label, String value, PdfColor labelColor) {
     if (value.trim().isEmpty) return pw.SizedBox();
+    // Clamp value to 60 chars — prevents long text overflowing the column
+    final display = value.length > 60 ? '${value.substring(0, 60)}…' : value;
     return pw.Padding(
       padding: const pw.EdgeInsets.only(bottom: 4),
       child: pw.Row(
@@ -413,9 +425,12 @@ class ExportService {
           ),
           pw.Text(': ', style: const pw.TextStyle(fontSize: 9)),
           pw.Expanded(
-            child: pw.Text(value,
-                style: pw.TextStyle(
-                    fontSize: 9, color: PdfColors.black)),
+            child: pw.Text(
+              display,
+              style: pw.TextStyle(fontSize: 9, color: PdfColors.black),
+              maxLines: 2,
+              overflow: pw.TextOverflow.clip,
+            ),
           ),
         ],
       ),

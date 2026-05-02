@@ -43,8 +43,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     await Future.delayed(const Duration(milliseconds: 1800));
     if (!mounted) return;
 
-    final notifier = ProviderScope.containerOf(context)
-        .read(biodataProvider.notifier);
+    // Use ref.read — safe because this is ConsumerStatefulWidget
+    final notifier = ref.read(biodataProvider.notifier);
     final hasDraft = await notifier.hasDraft();
 
     if (!mounted) return;
@@ -79,9 +79,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
         actions: [
           TextButton(
             onPressed: () {
-              ProviderScope.containerOf(context)
-                  .read(biodataProvider.notifier)
-                  .resetForm();
+              ref.read(biodataProvider.notifier).resetForm();
               Navigator.pop(context);
               context.go(AppRoutes.home);
             },
@@ -110,7 +108,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        // Static gradient — never animated, zero rebuild
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFF2A0606), Color(0xFF6A1B1B), Color(0xFF8B2020)],
@@ -120,10 +117,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
         ),
         child: Stack(
           children: [
-            // Const decor — never rebuilds
             const _BackgroundDecor(),
-
-            // AnimatedBuilder scoped only to logo+text
             Center(
               child: AnimatedBuilder(
                 animation: _ctrl,
@@ -131,7 +125,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   opacity: _fade,
                   child: ScaleTransition(scale: _scale, child: child),
                 ),
-                // child built ONCE, reused every frame — key perf win
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [

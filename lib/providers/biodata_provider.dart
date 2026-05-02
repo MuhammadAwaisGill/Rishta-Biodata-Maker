@@ -18,6 +18,15 @@ class BiodataNotifier extends StateNotifier<Biodata> {
     _debounce = Timer(const Duration(milliseconds: 800), _writeDraft);
   }
 
+  /// Cancels the pending debounce and writes the draft immediately.
+  /// Call this before navigating away from the form to ensure the last
+  /// keystroke is persisted synchronously, not after the screen disposes.
+  Future<void> flushDraft() async {
+    _debounce?.cancel();
+    _debounce = null;
+    await _writeDraft();
+  }
+
   Future<void> _writeDraft() async {
     try {
       final json = jsonEncode(state.toJson());
@@ -110,6 +119,7 @@ class BiodataNotifier extends StateNotifier<Biodata> {
 
   Future<void> resetForm() async {
     _debounce?.cancel();
+    _debounce = null;
     _lastSavedJson = null;
     state = Biodata.empty();
     await clearDraft();

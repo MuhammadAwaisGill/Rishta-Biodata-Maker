@@ -148,7 +148,7 @@ class _DesignsList extends ConsumerWidget {
           },
           onDelete: () => _showDeleteDialog(context, ref, design.id),
           onDuplicate: () {
-            // Use copyWith(newId, newCreatedAt) — no mutation of HiveObject
+            // ✅ Fixed: use copyWith(newId, newCreatedAt) — no direct HiveObject mutation
             final dup = design.copyWith(
               newId: DateTime.now().millisecondsSinceEpoch.toString(),
               newCreatedAt: DateTime.now(),

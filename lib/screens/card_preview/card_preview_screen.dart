@@ -13,6 +13,7 @@ import '../../providers/biodata_provider.dart';
 import '../../providers/template_provider.dart';
 import '../../providers/saved_designs_provider.dart';
 import '../../providers/ad_provider.dart';
+import '../../services/ad_service.dart';
 import '../../services/export_service.dart';
 import '../../services/share_service.dart';
 import '../../templates/islamic/template_1_islamic.dart';
@@ -34,24 +35,30 @@ class CardPreviewScreen extends ConsumerStatefulWidget {
 }
 
 class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
-  // RepaintBoundary key sits OUTSIDE InteractiveViewer
-  // so zoom transform never contaminates the capture
+  // RepaintBoundary key sits OUTSIDE InteractiveViewer — zoom never contaminates capture
   final _repaintKey = GlobalKey();
   bool _isExporting = false;
   bool _designSaved = false;
 
+  // Track whether interstitial has been shown this session to avoid spam
+  bool _interstitialShownThisSession = false;
+
   @override
   void initState() {
     super.initState();
-    // Preload ad after frame — never blocks UI
-    WidgetsBinding.instance.addPostFrameCallback((_) => _preloadAd());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _preloadAds());
   }
 
-  void _preloadAd() {
+  void _preloadAds() {
     final adService = ref.read(adServiceProvider);
+
+    // Rewarded ad — shown before download
     adService.loadRewardedAd(onLoaded: () {
       if (mounted) ref.read(rewardedAdReadyProvider.notifier).state = true;
     });
+
+    // Interstitial ad — shown once after first save
+    adService.loadInterstitialAd();
   }
 
   static Widget _buildTemplate(int id, Biodata b) {
@@ -75,82 +82,89 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
     final biodata    = ref.watch(biodataProvider);
     final templateId = ref.watch(selectedTemplateProvider);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFEEEEEE),
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-        ),
-        title: const Text(
-          'Your Biodata Card',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+    return PopScope(
+      // Show interstitial once when user navigates back, not mid-save
+      onPopInvoked: (didPop) {
+        if (didPop && _designSaved && !_interstitialShownThisSession) {
+          _interstitialShownThisSession = true;
+          ref.read(adServiceProvider).showInterstitialAd();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFEEEEEE),
+        appBar: AppBar(
+          backgroundColor: AppColors.primary,
+          elevation: 0,
+          leading: IconButton(
+            onPressed: () => context.pop(),
+            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
           ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: _isExporting ? null : _saveDesignManually,
-            icon: Icon(
-              _designSaved
-                  ? Icons.bookmark_rounded
-                  : Icons.bookmark_add_outlined,
+          title: const Text(
+            'Your Biodata Card',
+            style: TextStyle(
               color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
-            tooltip: _designSaved ? 'Saved' : 'Save Design',
           ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // ── Scrollable preview ────────────────────────────────────────
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSizes.md),
-              child: Column(
-                children: [
-                  // RepaintBoundary is OUTSIDE InteractiveViewer —
-                  // captures the template at its natural size, not zoomed
-                  RepaintBoundary(
-                    key: _repaintKey,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: _buildTemplate(templateId, biodata),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // Hint label
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.pinch_rounded,
-                          size: 14, color: AppColors.textMuted),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Pinch to zoom',
-                        style: TextStyle(
-                            fontSize: 11, color: AppColors.textMuted),
+          actions: [
+            IconButton(
+              onPressed: _isExporting ? null : _saveDesignManually,
+              icon: Icon(
+                _designSaved
+                    ? Icons.bookmark_rounded
+                    : Icons.bookmark_add_outlined,
+                color: Colors.white,
+              ),
+              tooltip: _designSaved ? 'Saved' : 'Save Design',
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            // ── Scrollable preview ────────────────────────────────────────
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(AppSizes.md),
+                child: Column(
+                  children: [
+                    // RepaintBoundary OUTSIDE InteractiveViewer for clean capture
+                    RepaintBoundary(
+                      key: _repaintKey,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: _buildTemplate(templateId, biodata),
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.pinch_rounded,
+                            size: 14, color: AppColors.textMuted),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Scroll to see full card',
+                          style: TextStyle(
+                              fontSize: 11, color: AppColors.textMuted),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
 
-          // ── Action bar ────────────────────────────────────────────────
-          _ActionBar(
-            isExporting: _isExporting,
-            onDownload: _handleDownload,
-            onShare: _handleShare,
-            onPdf: _handlePdf,
-            onEdit: () => context.pop(),
-          ),
-        ],
+            // ── Action bar ────────────────────────────────────────────────
+            _ActionBar(
+              isExporting: _isExporting,
+              onDownload: _handleDownload,
+              onShare: _handleShare,
+              onPdf: _handlePdf,
+              onEdit: () => context.pop(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -174,7 +188,6 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
     if (_isExporting) return;
     setState(() => _isExporting = true);
     try {
-      // Small delay ensures the widget is fully painted before capture
       await Future.delayed(const Duration(milliseconds: 60));
       final bytes = await ExportService().captureAsImage(_repaintKey);
       if (bytes == null) {
@@ -183,6 +196,7 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
       }
       final result = await ExportService().saveToGallery(bytes);
       if (result != null) {
+        // Save design on first successful download
         if (!_designSaved) {
           _saveDesign();
           setState(() => _designSaved = true);

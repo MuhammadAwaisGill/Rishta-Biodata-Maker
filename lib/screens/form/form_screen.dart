@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_routes.dart';
 import '../../core/constants/app_sizes.dart';
+import '../../core/utils/permission_handler.dart';
 import '../../providers/biodata_provider.dart';
 import '../../services/image_service.dart';
 
@@ -26,6 +27,8 @@ class FormScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notifier = ref.read(biodataProvider.notifier);
+    // Watch only completionPercent — rebuilds only this widget, not the form
+    final pct = ref.watch(biodataProvider.select((b) => b.completionPercent));
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -51,6 +54,10 @@ class FormScreen extends ConsumerWidget {
                 style: TextStyle(color: Colors.white70, fontSize: 13)),
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(4),
+          child: _CompletionBar(percent: pct),
+        ),
       ),
       body: _FormBody(notifier: notifier),
     );
@@ -86,6 +93,42 @@ class FormScreen extends ConsumerWidget {
   }
 }
 
+// ── Completion progress bar ───────────────────────────────────────────────────
+// Sits at the bottom of the AppBar. Fills gold as key fields are completed.
+// Uses completionPercent from the model — animates smoothly via TweenAnimation.
+class _CompletionBar extends StatelessWidget {
+  final double percent;
+  const _CompletionBar({required this.percent});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (_, constraints) {
+        return SizedBox(
+          height: 4,
+          width: constraints.maxWidth,
+          child: Stack(
+            children: [
+              // Track
+              Container(
+                color: Colors.white.withOpacity(0.2),
+                width: constraints.maxWidth,
+              ),
+              // Fill — animates on every rebuild
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+                color: const Color(0xFFD4AF37),
+                width: constraints.maxWidth * percent.clamp(0.0, 1.0),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
 // ── Form body ─────────────────────────────────────────────────────────────────
 class _FormBody extends StatefulWidget {
   final BiodataNotifier notifier;
@@ -98,8 +141,12 @@ class _FormBody extends StatefulWidget {
 class _FormBodyState extends State<_FormBody> {
   final _formKey = GlobalKey<FormState>();
 
-  void _generate() {
+  Future<void> _generate() async {
     if (_formKey.currentState?.validate() ?? false) {
+      // Flush the debounced draft write immediately so it does not fire
+      // after navigation against a potentially disposed provider context.
+      await widget.notifier.flushDraft();
+      if (!mounted) return;
       context.push(AppRoutes.cardPreview);
     }
   }
@@ -152,7 +199,7 @@ class _FormBodyState extends State<_FormBody> {
 
           // ── Religious ────────────────────────────────────────────────────
           const _SectionHeader('Religious Information'),
-          _ReligionField(notifier: widget.notifier),
+          _ReligionField(notifier: widget.notifier),   // ← was missing
           _SectField(notifier: widget.notifier),
           _ReligiousnessField(notifier: widget.notifier),
           _ReligiousNotesField(notifier: widget.notifier),
@@ -254,8 +301,9 @@ class _PhotoField extends ConsumerWidget {
               title: const Text('Take Photo'),
               onTap: () async {
                 Navigator.pop(context);
-                final file = await ImageService().pickFromCamera();
-                if (file != null) notifier.updatePhotoPath(file.path);
+                final outcome = await ImageService().pickFromCamera();
+                if (!context.mounted) return;
+                _handlePickOutcome(context, outcome);
               },
             ),
             ListTile(
@@ -264,8 +312,9 @@ class _PhotoField extends ConsumerWidget {
               title: const Text('Choose from Gallery'),
               onTap: () async {
                 Navigator.pop(context);
-                final file = await ImageService().pickFromGallery();
-                if (file != null) notifier.updatePhotoPath(file.path);
+                final outcome = await ImageService().pickFromGallery();
+                if (!context.mounted) return;
+                _handlePickOutcome(context, outcome);
               },
             ),
             const SizedBox(height: AppSizes.sm),
@@ -273,6 +322,53 @@ class _PhotoField extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  void _handlePickOutcome(BuildContext context, ImagePickOutcome outcome) {
+    switch (outcome.result) {
+      case ImagePickResult.success:
+        notifier.updatePhotoPath(outcome.file!.path);
+        break;
+      case ImagePickResult.permissionPermanentlyDenied:
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppSizes.radiusMd)),
+            title: const Text('Permission Required'),
+            content: const Text(
+                'Camera/photo access was permanently denied. '
+                    'Please enable it in your device Settings to add a photo.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  PermissionService.openSettings();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Open Settings'),
+              ),
+            ],
+          ),
+        );
+        break;
+      case ImagePickResult.permissionDenied:
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Permission denied. Please allow access and try again.'),
+          behavior: SnackBarBehavior.floating,
+        ));
+        break;
+      case ImagePickResult.cancelled:
+      case ImagePickResult.error:
+        break;
+    }
   }
 }
 
@@ -615,6 +711,7 @@ class _FamilyNotesField extends ConsumerWidget {
   }
 }
 
+// ── Religion field — was completely missing from the form ─────────────────────
 class _ReligionField extends ConsumerWidget {
   final BiodataNotifier notifier;
   const _ReligionField({required this.notifier});
@@ -796,10 +893,15 @@ class _Dropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Guard: if the stored value is not in the current items list
+    // (e.g. after a reset produces '' or a migration renames an option),
+    // fall back to null so Flutter never throws "value not in items".
+    final safeValue = (value != null && items.contains(value)) ? value : null;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSizes.md),
       child: DropdownButtonFormField<String>(
-        value: value,
+        value: safeValue,
         isExpanded: true,
         decoration: _decor(label, null),
         items: items
