@@ -30,8 +30,6 @@ dependencies:
   # Permissions
   permission_handler: ^11.3.1
 
-  # Onboarding — add back when onboarding screen is implemented
-  # introduction_screen: ^3.1.14
 
   # Splash
   flutter_native_splash: ^2.4.3

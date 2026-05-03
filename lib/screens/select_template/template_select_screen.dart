@@ -145,55 +145,9 @@ class _TemplateSelectScreenState extends State<TemplateSelectScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: TextButton(
-              onPressed: () {
-                widget.onSelect(_selected);
-                Navigator.pop(context);
-              },
-              style: TextButton.styleFrom(
-                backgroundColor: AppColors.secondary,
-                foregroundColor: Colors.black87,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 6),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-              ),
-              child: const Text(
-                'Use This',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-              ),
-            ),
-          ),
-        ],
       ),
       body: Column(
         children: [
-          // ── Info banner ────────────────────────────────────────────────
-          Container(
-            width: double.infinity,
-            color: AppColors.primary.withOpacity(0.06),
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppSizes.md, vertical: 10),
-            child: Row(
-              children: [
-                Icon(Icons.touch_app_rounded,
-                    size: 16, color: AppColors.primary.withOpacity(0.7)),
-                const SizedBox(width: 8),
-                Text(
-                  'Tap a template to preview — then tap "Use This"',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.primary.withOpacity(0.8),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
           // ── Grid ──────────────────────────────────────────────────────
           Expanded(
             child: GridView.builder(
@@ -202,7 +156,7 @@ class _TemplateSelectScreenState extends State<TemplateSelectScreen> {
                 crossAxisCount: 2,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
-                childAspectRatio: 0.72,
+                childAspectRatio: 0.62,
               ),
               itemCount: _templates.length,
               itemBuilder: (context, index) {

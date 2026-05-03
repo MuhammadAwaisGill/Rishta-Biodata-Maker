@@ -2,13 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class AdService {
-  // ── ⚠️ REPLACE THESE WITH YOUR REAL AdMob IDs BEFORE RELEASE ────────────
-  // These are Google's official test IDs — they will show test ads only.
-  // Get your real IDs from: https://apps.admob.com
-  static const _rewardedAdUnitId     = 'ca-app-pub-3940256099942544/5224354917';
-  static const _interstitialAdUnitId = 'ca-app-pub-3940256099942544/1033173712';
-  static const _bannerAdUnitId       = 'ca-app-pub-3940256099942544/6300978111';
-  // ─────────────────────────────────────────────────────────────────────────
+
+  static const _rewardedAdUnitId     = 'ca-app-pub-7701409180488122/1342527511';
+  static const _interstitialAdUnitId = 'ca-app-pub-7701409180488122/6730585560';
 
   RewardedAd?     _rewardedAd;
   InterstitialAd? _interstitialAd;
@@ -18,21 +14,6 @@ class AdService {
 
   static Future<void> initialize() async {
     await MobileAds.instance.initialize();
-  }
-
-  // ── Banner Ad ────────────────────────────────────────────────────────────
-  BannerAd createBannerAd() {
-    return BannerAd(
-      adUnitId: _bannerAdUnitId,
-      size: AdSize.banner,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdFailedToLoad: (ad, error) {
-          debugPrint('Banner ad failed: $error');
-          ad.dispose();
-        },
-      ),
-    );
   }
 
   // ── Rewarded Ad (shown before download) ──────────────────────────────────
@@ -57,7 +38,6 @@ class AdService {
 
   void showRewardedAd({required VoidCallback onRewarded}) {
     if (_rewardedAd == null || !isRewardedAdReady) {
-      // Ad not ready — still reward the user so UX isn't broken
       onRewarded();
       return;
     }

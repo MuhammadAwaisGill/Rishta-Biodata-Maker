@@ -7,6 +7,7 @@ import '../../core/constants/app_sizes.dart';
 import '../../providers/biodata_provider.dart';
 import '../../providers/saved_designs_provider.dart';
 import '../../providers/template_provider.dart';
+import '../form/form_screen.dart';
 import '../select_template/template_select_screen.dart';
 import 'widgets/design_card.dart';
 
@@ -69,7 +70,10 @@ class HomeScreen extends ConsumerWidget {
           onSelect: (templateId) {
             ref.read(biodataProvider.notifier).resetForm();
             ref.read(selectedTemplateProvider.notifier).state = templateId;
-            context.push(AppRoutes.form);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const FormScreen()),
+            );
           },
         ),
       ),

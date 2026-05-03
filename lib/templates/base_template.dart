@@ -106,7 +106,9 @@ abstract class BaseTemplate extends StatelessWidget {
     required Color valueColor,
   }) {
     if (count.trim().isEmpty) return const SizedBox.shrink();
-    final display = married.trim().isEmpty ? count : '$count ($married)';
+    final display = married.trim().isEmpty
+        ? count
+        : '$count (Married: $married)';
     return buildInfoRow(
       label: label,
       value: display,

@@ -1,7 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- ── Permissions ──────────────────────────────────────────────── -->
-    <!-- Required by AdMob — app crashes on launch without this -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <!-- Camera — for taking biodata photo -->
@@ -40,13 +43,9 @@
             </intent-filter>
         </activity>
 
-        <!-- ── AdMob App ID ─────────────────────────────────────────── -->
-        <!-- ⚠️  REPLACE ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX         -->
-        <!--    with your REAL AdMob App ID from apps.admob.com          -->
-        <!--    Without this the app CRASHES on startup                  -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX"/>
+            android:value="ca-app-pub-7701409180488122~7987826912"/>
 
         <!-- Keeps Google Play Services version check quiet -->
         <meta-data
@@ -58,9 +57,17 @@
             android:value="2"/>
     </application>
 
-    <!-- Required to query AdMob's ad services on Android 11+ -->
+    <!-- Required to query AdMob and url_launcher services on Android 11+ -->
     <queries>
         <package android:name="com.google.android.gms"/>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO"/>
+            <data android:scheme="mailto"/>
+        </intent>
     </queries>
 
 </manifest>

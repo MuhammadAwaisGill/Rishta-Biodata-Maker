@@ -7,6 +7,7 @@ import '../../core/constants/app_routes.dart';
 import '../../core/constants/app_sizes.dart';
 import '../../core/utils/permission_handler.dart';
 import '../../providers/biodata_provider.dart';
+import '../../providers/template_provider.dart';
 import '../../services/image_service.dart';
 
 // ── Static dropdown options ───────────────────────────────────────────────────
@@ -17,23 +18,37 @@ const _qualifications  = ['Matric', 'Intermediate', 'BA / BSc', 'MA / MSc', 'MBA
 const _salaryRanges    = ['Prefer not to say', 'Below 50,000 PKR', '50,000 - 100,000 PKR', '100,000 - 150,000 PKR', '150,000 - 250,000 PKR', '250,000+ PKR'];
 const _countOptions    = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10+'];
 const _familyTypes     = ['Joint Family', 'Separate Family'];
-const _sects           = ['Sunni', 'Shia', 'Deobandi', 'Barelvi', 'Ahl-e-Hadith', 'Other'];
 const _religiousness   = ['Very Religious', 'Moderate', 'Liberal'];
 const _religions       = ['Islam', 'Christianity', 'Hinduism', 'Sikhism', 'Other'];
+
+Color _getTemplateColor(int templateId) {
+  switch (templateId) {
+    case 2:  return const Color(0xFFAD1457);
+    case 4:  return const Color(0xFF0D47A1);
+    case 5:  return const Color(0xFF424242);
+    case 6:  return const Color(0xFF6A0DAD);
+    case 7:  return const Color(0xFF00695C);
+    case 8:  return const Color(0xFF1C1C1E);
+    case 9:  return const Color(0xFF4A0828);
+    case 10: return const Color(0xFF283593);
+    default: return const Color(0xFF6A1B1B);
+  }
+}
 
 class FormScreen extends ConsumerWidget {
   const FormScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notifier = ref.read(biodataProvider.notifier);
-    // Watch only completionPercent — rebuilds only this widget, not the form
-    final pct = ref.watch(biodataProvider.select((b) => b.completionPercent));
+    final notifier    = ref.read(biodataProvider.notifier);
+    final pct         = ref.watch(biodataProvider.select((b) => b.completionPercent));
+    final templateId  = ref.watch(selectedTemplateProvider);
+    final color       = _getTemplateColor(templateId);
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
+        backgroundColor: color,
         elevation: 0,
         leading: IconButton(
           onPressed: () => context.pop(),
@@ -727,16 +742,34 @@ class _ReligionField extends ConsumerWidget {
   }
 }
 
+List<String> _getSects(String religion) {
+  switch (religion) {
+    case 'Islam':
+      return ['Sunni', 'Shia', 'Deobandi', 'Barelvi', 'Ahl-e-Hadith', 'Other'];
+    case 'Christianity':
+      return ['Catholic', 'Protestant', 'Orthodox', 'Baptist', 'Other'];
+    case 'Hinduism':
+      return ['Shaiva', 'Vaishnava', 'Shakta', 'Smarta', 'Other'];
+    case 'Sikhism':
+      return ['Amritdhari', 'Keshdhari', 'Sahajdhari', 'Other'];
+    default:
+      return ['Other'];
+  }
+}
+
 class _SectField extends ConsumerWidget {
   final BiodataNotifier notifier;
   const _SectField({required this.notifier});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final v = ref.watch(biodataProvider.select((b) => b.sect));
+    final sect     = ref.watch(biodataProvider.select((b) => b.sect));
+    final religion = ref.watch(biodataProvider.select((b) => b.religion));
+    final sects    = _getSects(religion);
+    final safeValue = sects.contains(sect) ? sect : null;
     return _Dropdown(
       label: 'Sect',
-      value: v.isEmpty ? null : v,
-      items: _sects,
+      value: safeValue,
+      items: sects,
       onChanged: (s) => notifier.updateSect(s ?? ''),
     );
   }
