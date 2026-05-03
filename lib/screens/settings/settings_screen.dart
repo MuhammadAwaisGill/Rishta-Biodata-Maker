@@ -40,28 +40,12 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
-          // ── Hero card ─────────────────────────────────────────────────
+          // ── Hero card ──────────────────────────────────────────────────
           _HeroCard(savedCount: savedCount),
 
           const SizedBox(height: AppSizes.md),
 
-          // ── App Preferences ───────────────────────────────────────────
-          const _SectionLabel('App'),
-          _SettingsTile(
-            icon: Icons.color_lens_rounded,
-            iconColor: const Color(0xFF9C27B0),
-            title: 'Templates',
-            subtitle: '10 beautiful biodata designs',
-            trailing: const _Badge('10'),
-            onTap: () {
-              // Go to home tab which shows template picker
-              context.go(AppRoutes.home);
-            },
-          ),
-
-          const SizedBox(height: AppSizes.sm),
-
-          // ── Support ───────────────────────────────────────────────────
+          // ── Support ────────────────────────────────────────────────────
           const _SectionLabel('Support'),
           _SettingsTile(
             icon: Icons.star_rounded,
@@ -95,7 +79,7 @@ class SettingsScreen extends ConsumerWidget {
 
           const SizedBox(height: AppSizes.sm),
 
-          // ── Legal ─────────────────────────────────────────────────────
+          // ── Legal ──────────────────────────────────────────────────────
           const _SectionLabel('Legal'),
           _SettingsTile(
             icon: Icons.privacy_tip_rounded,
@@ -114,7 +98,7 @@ class SettingsScreen extends ConsumerWidget {
 
           const SizedBox(height: AppSizes.sm),
 
-          // ── About ─────────────────────────────────────────────────────
+          // ── About ──────────────────────────────────────────────────────
           const _SectionLabel('About'),
           _SettingsTile(
             icon: Icons.info_rounded,
@@ -126,7 +110,7 @@ class SettingsScreen extends ConsumerWidget {
 
           const SizedBox(height: AppSizes.xl),
 
-          // ── Footer ────────────────────────────────────────────────────
+          // ── Footer ─────────────────────────────────────────────────────
           const _Footer(),
           const SizedBox(height: AppSizes.xl),
         ],
@@ -163,7 +147,7 @@ class SettingsScreen extends ConsumerWidget {
   }
 }
 
-// ── Hero card — shows app identity + stats ────────────────────────────────────
+// ── Hero card ─────────────────────────────────────────────────────────────────
 
 class _HeroCard extends StatelessWidget {
   final int savedCount;
@@ -224,10 +208,12 @@ class _HeroCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFD4AF37).withOpacity(0.2),
+                        color:
+                        const Color(0xFFD4AF37).withOpacity(0.2),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                            color: const Color(0xFFD4AF37).withOpacity(0.5)),
+                            color: const Color(0xFFD4AF37)
+                                .withOpacity(0.5)),
                       ),
                       child: const Text(
                         'Version 1.0.0',
@@ -246,7 +232,7 @@ class _HeroCard extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          // Stats row
+          // Stats row — accurate, relevant stats only
           Container(
             padding: const EdgeInsets.symmetric(vertical: 14),
             decoration: BoxDecoration(
@@ -265,14 +251,14 @@ class _HeroCard extends StatelessWidget {
                 _verticalDivider(),
                 const _Stat(
                   value: '10',
-                  label: 'Beautiful\nTemplates',
+                  label: 'Design\nTemplates',
                   icon: Icons.palette_rounded,
                 ),
                 _verticalDivider(),
                 const _Stat(
-                  value: '3',
-                  label: 'Export\nFormats',
-                  icon: Icons.download_rounded,
+                  value: '100%',
+                  label: 'Data on\nDevice',
+                  icon: Icons.lock_rounded,
                 ),
               ],
             ),
@@ -461,34 +447,6 @@ class _SettingsTile extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Badge widget ──────────────────────────────────────────────────────────────
-
-class _Badge extends StatelessWidget {
-  final String text;
-  const _Badge(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-            color: AppColors.primary.withOpacity(0.3), width: 1),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 11,
-          color: AppColors.primary,
-          fontWeight: FontWeight.bold,
         ),
       ),
     );

@@ -13,7 +13,6 @@ import '../../providers/biodata_provider.dart';
 import '../../providers/template_provider.dart';
 import '../../providers/saved_designs_provider.dart';
 import '../../providers/ad_provider.dart';
-import '../../services/ad_service.dart';
 import '../../services/export_service.dart';
 import '../../services/share_service.dart';
 import '../../templates/islamic/template_1_islamic.dart';
@@ -35,12 +34,11 @@ class CardPreviewScreen extends ConsumerStatefulWidget {
 }
 
 class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
-  // RepaintBoundary key sits OUTSIDE InteractiveViewer — zoom never contaminates capture
   final _repaintKey = GlobalKey();
   bool _isExporting = false;
   bool _designSaved = false;
 
-  // Track whether interstitial has been shown this session to avoid spam
+  // Guard: only show interstitial once per preview session
   bool _interstitialShownThisSession = false;
 
   @override
@@ -51,13 +49,10 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
 
   void _preloadAds() {
     final adService = ref.read(adServiceProvider);
-
-    // Rewarded ad — shown before download
     adService.loadRewardedAd(onLoaded: () {
-      if (mounted) ref.read(rewardedAdReadyProvider.notifier).state = true;
+      // No external StateProvider to update — isRewardedAdReady is a getter
+      if (mounted) setState(() {}); // rebuild so download button shows ad-ready state
     });
-
-    // Interstitial ad — shown once after first save
     adService.loadInterstitialAd();
   }
 
@@ -77,18 +72,28 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
     }
   }
 
+  // ── Back navigation — show interstitial BEFORE leaving ───────────────────
+  Future<void> _handleBack() async {
+    if (_designSaved && !_interstitialShownThisSession) {
+      _interstitialShownThisSession = true;
+      // Show ad, then navigate after it's dismissed
+      ref.read(adServiceProvider).showInterstitialAd(onDismissed: () {
+        if (mounted) context.pop();
+      });
+    } else {
+      context.pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final biodata    = ref.watch(biodataProvider);
     final templateId = ref.watch(selectedTemplateProvider);
 
     return PopScope(
-      // Show interstitial once when user navigates back, not mid-save
+      canPop: false, // we handle all pops manually via _handleBack
       onPopInvoked: (didPop) {
-        if (didPop && _designSaved && !_interstitialShownThisSession) {
-          _interstitialShownThisSession = true;
-          ref.read(adServiceProvider).showInterstitialAd();
-        }
+        if (!didPop) _handleBack();
       },
       child: Scaffold(
         backgroundColor: const Color(0xFFEEEEEE),
@@ -96,7 +101,7 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
           backgroundColor: AppColors.primary,
           elevation: 0,
           leading: IconButton(
-            onPressed: () => context.pop(),
+            onPressed: _handleBack,
             icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
           ),
           title: const Text(
@@ -122,13 +127,11 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
         ),
         body: Column(
           children: [
-            // ── Scrollable preview ────────────────────────────────────────
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(AppSizes.md),
                 child: Column(
                   children: [
-                    // RepaintBoundary OUTSIDE InteractiveViewer for clean capture
                     RepaintBoundary(
                       key: _repaintKey,
                       child: ClipRRect(
@@ -140,7 +143,7 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.pinch_rounded,
+                        Icon(Icons.swipe_rounded,
                             size: 14, color: AppColors.textMuted),
                         const SizedBox(width: 6),
                         Text(
@@ -154,14 +157,12 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
                 ),
               ),
             ),
-
-            // ── Action bar ────────────────────────────────────────────────
             _ActionBar(
               isExporting: _isExporting,
               onDownload: _handleDownload,
               onShare: _handleShare,
               onPdf: _handlePdf,
-              onEdit: () => context.pop(),
+              onEdit: _handleBack,
             ),
           ],
         ),
@@ -172,11 +173,9 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
   // ── Handlers ──────────────────────────────────────────────────────────────
 
   Future<void> _handleDownload() async {
-    final adReady   = ref.read(rewardedAdReadyProvider);
     final adService = ref.read(adServiceProvider);
-    if (adReady) {
+    if (adService.isRewardedAdReady) {
       adService.showRewardedAd(onRewarded: () async {
-        ref.read(rewardedAdReadyProvider.notifier).state = false;
         await _captureAndSave();
       });
     } else {
@@ -196,7 +195,6 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
       }
       final result = await ExportService().saveToGallery(bytes);
       if (result != null) {
-        // Save design on first successful download
         if (!_designSaved) {
           _saveDesign();
           setState(() => _designSaved = true);
@@ -229,7 +227,6 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
           '${dir.path}/biodata_${DateTime.now().millisecondsSinceEpoch}.png');
       await file.writeAsBytes(bytes);
       await ShareService().shareImage(file.path);
-      // Clean up after 2 min
       Future.delayed(const Duration(minutes: 2), () {
         if (file.existsSync()) file.deleteSync();
       });

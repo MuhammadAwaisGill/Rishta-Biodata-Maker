@@ -7,8 +7,8 @@ import '../../core/constants/app_sizes.dart';
 import '../../providers/biodata_provider.dart';
 import '../../providers/saved_designs_provider.dart';
 import '../../providers/template_provider.dart';
-import '../form/form_screen.dart';
 import '../select_template/template_select_screen.dart';
+import '../form/form_screen.dart';
 import 'widgets/design_card.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -16,7 +16,8 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final count = ref.watch(savedDesignsProvider.select((d) => d.length));
+    final count =
+    ref.watch(savedDesignsProvider.select((d) => d.length));
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -43,12 +44,12 @@ class HomeScreen extends ConsumerWidget {
         ],
       ),
       body: count == 0
-          ? _EmptyState(onCreate: () => _openTemplateSelector(context, ref))
+          ? _EmptyState(onCreate: () => _startNewBiodata(context, ref))
           : _DesignsList(
-          onCreate: () => _openTemplateSelector(context, ref)),
+          onCreate: () => _startNewBiodata(context, ref)),
       floatingActionButton: count > 0
           ? FloatingActionButton.extended(
-        onPressed: () => _openTemplateSelector(context, ref),
+        onPressed: () => _startNewBiodata(context, ref),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 3,
@@ -62,16 +63,19 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  void _openTemplateSelector(BuildContext context, WidgetRef ref) {
-    Navigator.push(
-      context,
+  // ── Consistent Navigator.push flow for template → form ────────────────────
+  // We intentionally use Navigator.push (not go_router) for the create flow
+  // because it's a multi-step wizard that should stack correctly and share
+  // the same back-button behaviour. go_router is used for tab-level navigation.
+  void _startNewBiodata(BuildContext context, WidgetRef ref) {
+    ref.read(biodataProvider.notifier).resetForm();
+
+    Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => TemplateSelectScreen(
           onSelect: (templateId) {
-            ref.read(biodataProvider.notifier).resetForm();
             ref.read(selectedTemplateProvider.notifier).state = templateId;
-            Navigator.push(
-              context,
+            Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const FormScreen()),
             );
           },
@@ -109,7 +113,8 @@ class HomeScreen extends ConsumerWidget {
               backgroundColor: AppColors.error,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppSizes.radiusSm)),
+                  borderRadius:
+                  BorderRadius.circular(AppSizes.radiusSm)),
             ),
             child: const Text('Clear All'),
           ),
@@ -148,11 +153,13 @@ class _DesignsList extends ConsumerWidget {
             ref.read(biodataProvider.notifier).loadFromSaved(design);
             ref.read(selectedTemplateProvider.notifier).state =
                 design.templateId;
-            context.push(AppRoutes.form);
+            // Use Navigator.push so back from form returns to home correctly
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const FormScreen()),
+            );
           },
           onDelete: () => _showDeleteDialog(context, ref, design.id),
           onDuplicate: () {
-            // ✅ Fixed: use copyWith(newId, newCreatedAt) — no direct HiveObject mutation
             final dup = design.copyWith(
               newId: DateTime.now().millisecondsSinceEpoch.toString(),
               newCreatedAt: DateTime.now(),

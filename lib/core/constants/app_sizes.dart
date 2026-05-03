@@ -20,9 +20,6 @@ class AppSizes {
   static const iconLg = 32.0;
 
   // Card
-  static const cardElevation = 2.0;
+  static const cardElevation      = 2.0;
   static const templateCardHeight = 220.0;
-
-  // Ad
-  static const bannerAdHeight = 52.0;
 }

@@ -5,13 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:gal/gal.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import '../models/biodata_model.dart';
 
 class ExportService {
 
-  // ── Capture widget as PNG — with retry + timeout ─────────────────────────
+  // ── Capture widget as PNG — with retry + timeout ──────────────────────────
   Future<Uint8List?> captureAsImage(GlobalKey key,
       {int retries = 3}) async {
     for (int attempt = 0; attempt < retries; attempt++) {
@@ -68,9 +67,9 @@ class ExportService {
   // ── Generate designed PDF ─────────────────────────────────────────────────
   Future<Uint8List?> exportAsPdf(Biodata biodata) async {
     try {
-      final pdf     = pw.Document();
-      final colors  = _getTemplateColors(biodata.templateId);
-      final primary   = colors[0];
+      final pdf      = pw.Document();
+      final colors   = _getTemplateColors(biodata.templateId);
+      final primary  = colors[0];
       final secondary = colors[1];
 
       pw.ImageProvider? photoImage;
@@ -155,7 +154,6 @@ class ExportService {
                             pw.SizedBox(height: 4),
                             if (biodata.name.isNotEmpty)
                               pw.Text(
-                                // Truncate name to prevent header overflow
                                 biodata.name.length > 40
                                     ? '${biodata.name.substring(0, 40)}…'
                                     : biodata.name,
@@ -205,23 +203,23 @@ class ExportService {
                             children: [
                               _pdfSection('Personal Information',
                                   primary, secondary, [
-                                    _pdfPair('Full Name', biodata.name, primary),
-                                    _pdfPair('Age', biodata.age, primary),
-                                    _pdfPair('Height', biodata.height, primary),
-                                    _pdfPair('Complexion', biodata.complexion, primary),
-                                    _pdfPair('City', biodata.city, primary),
-                                    _pdfPair('Mother Tongue', biodata.motherTongue, primary),
-                                    _pdfPair('Marital Status', biodata.maritalStatus, primary),
+                                    _pdfPair('Full Name',     biodata.name,          primary),
+                                    _pdfPair('Age',           biodata.age,           primary),
+                                    _pdfPair('Height',        biodata.height,        primary),
+                                    _pdfPair('Complexion',    biodata.complexion,    primary),
+                                    _pdfPair('City',          biodata.city,          primary),
+                                    _pdfPair('Mother Tongue', biodata.motherTongue,  primary),
+                                    _pdfPair('Marital Status',biodata.maritalStatus, primary),
                                     if (biodata.personalNotes.isNotEmpty)
                                       _pdfPair('Notes', biodata.personalNotes, primary),
                                   ]),
                               pw.SizedBox(height: 12),
                               _pdfSection('Education & Career',
                                   primary, secondary, [
-                                    _pdfPair('Education', biodata.education, primary),
-                                    _pdfPair('Institute', biodata.institute, primary),
+                                    _pdfPair('Education',  biodata.education,  primary),
+                                    _pdfPair('Institute',  biodata.institute,  primary),
                                     _pdfPair('Profession', biodata.profession, primary),
-                                    _pdfPair('Salary', biodata.salary, primary),
+                                    _pdfPair('Salary',     biodata.salary,     primary),
                                     if (biodata.educationNotes.isNotEmpty)
                                       _pdfPair('Notes', biodata.educationNotes, primary),
                                   ]),
@@ -232,8 +230,7 @@ class ExportService {
                         // Vertical separator
                         pw.Container(
                           width: 1,
-                          margin: const pw.EdgeInsets.symmetric(
-                              horizontal: 16),
+                          margin: const pw.EdgeInsets.symmetric(horizontal: 16),
                           color: secondary,
                         ),
 
@@ -244,19 +241,20 @@ class ExportService {
                             children: [
                               _pdfSection('Family Information',
                                   primary, secondary, [
-                                    _pdfPair("Father's Name", biodata.fatherName, primary),
-                                    _pdfPair("Father's Job", biodata.fatherProfession, primary),
+                                    _pdfPair("Father's Name", biodata.fatherName,       primary),
+                                    _pdfPair("Father's Job",  biodata.fatherProfession, primary),
+                                    _pdfPair("Mother's Name", biodata.motherName,        primary),
                                     _pdfPairSiblings('Brothers', biodata.brothers, biodata.brothersMarried, primary),
-                                    _pdfPairSiblings('Sisters', biodata.sisters, biodata.sistersMarried, primary),
-                                    _pdfPair('Family Type', biodata.familyType, primary),
-                                    _pdfPair('Caste', biodata.caste, primary),
+                                    _pdfPairSiblings('Sisters',  biodata.sisters,  biodata.sistersMarried,  primary),
+                                    _pdfPair('Family Type',   biodata.familyType,  primary),
+                                    _pdfPair('Caste',         biodata.caste,       primary),
                                     if (biodata.familyNotes.isNotEmpty)
                                       _pdfPair('Notes', biodata.familyNotes, primary),
                                   ]),
                               pw.SizedBox(height: 12),
                               _pdfSection('Religious', primary, secondary, [
-                                _pdfPair('Religion', biodata.religion, primary),
-                                _pdfPair('Sect', biodata.sect, primary),
+                                _pdfPair('Religion',      biodata.religion,      primary),
+                                _pdfPair('Sect',          biodata.sect,          primary),
                                 _pdfPair('Religiousness', biodata.religiousness, primary),
                                 if (biodata.religiousNotes.isNotEmpty)
                                   _pdfPair('Notes', biodata.religiousNotes, primary),
@@ -265,7 +263,6 @@ class ExportService {
                                 pw.SizedBox(height: 12),
                                 _pdfSection('Additional Notes',
                                     primary, secondary, [
-                                      // Clamp notes to 300 chars — long text overflows A4
                                       pw.Text(
                                         biodata.notes.length > 300
                                             ? '${biodata.notes.substring(0, 300)}…'
@@ -291,8 +288,7 @@ class ExportService {
                 pw.Container(
                   width: double.infinity,
                   color: primary,
-                  padding:
-                  const pw.EdgeInsets.symmetric(vertical: 10),
+                  padding: const pw.EdgeInsets.symmetric(vertical: 10),
                   child: pw.Center(
                     child: pw.Text(
                       '✦  Made with Rishta Biodata Maker  ✦',
@@ -324,20 +320,6 @@ class ExportService {
     }
   }
 
-  Future<String?> saveAsPdf(Uint8List bytes) async {
-    try {
-      final directory = await getApplicationDocumentsDirectory();
-      final fileName =
-          'biodata_${DateTime.now().millisecondsSinceEpoch}.pdf';
-      final file = File('${directory.path}/$fileName');
-      await file.writeAsBytes(bytes);
-      return file.path;
-    } catch (e) {
-      debugPrint('saveAsPdf error: $e');
-      return null;
-    }
-  }
-
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   List<PdfColor> _getTemplateColors(int templateId) {
@@ -356,11 +338,9 @@ class ExportService {
   }
 
   pw.Widget _pdfChip(String text, PdfColor color) {
-    // Truncate chip text so header chips never overflow
     final display = text.length > 20 ? '${text.substring(0, 20)}…' : text;
     return pw.Container(
-      padding:
-      const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: pw.BoxDecoration(
         color: PdfColors.white,
         borderRadius: const pw.BorderRadius.all(pw.Radius.circular(10)),
@@ -375,8 +355,7 @@ class ExportService {
 
   pw.Widget _pdfSection(String title, PdfColor primary,
       PdfColor secondary, List<pw.Widget> rows) {
-    final nonEmpty =
-    rows.where((w) => w is! pw.SizedBox).toList();
+    final nonEmpty = rows.where((w) => w is! pw.SizedBox).toList();
     if (nonEmpty.isEmpty) return pw.SizedBox();
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -408,7 +387,6 @@ class ExportService {
 
   pw.Widget _pdfPair(String label, String value, PdfColor labelColor) {
     if (value.trim().isEmpty) return pw.SizedBox();
-    // Clamp value to 60 chars — prevents long text overflowing the column
     final display = value.length > 60 ? '${value.substring(0, 60)}…' : value;
     return pw.Padding(
       padding: const pw.EdgeInsets.only(bottom: 4),

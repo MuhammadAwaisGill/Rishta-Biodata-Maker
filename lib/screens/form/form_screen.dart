@@ -40,10 +40,10 @@ class FormScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notifier    = ref.read(biodataProvider.notifier);
-    final pct         = ref.watch(biodataProvider.select((b) => b.completionPercent));
-    final templateId  = ref.watch(selectedTemplateProvider);
-    final color       = _getTemplateColor(templateId);
+    final notifier   = ref.read(biodataProvider.notifier);
+    final pct        = ref.watch(biodataProvider.select((b) => b.completionPercent));
+    final templateId = ref.watch(selectedTemplateProvider);
+    final color      = _getTemplateColor(templateId);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -51,7 +51,7 @@ class FormScreen extends ConsumerWidget {
         backgroundColor: color,
         elevation: 0,
         leading: IconButton(
-          onPressed: () => context.pop(),
+          onPressed: () => Navigator.of(context).pop(),
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
         ),
         title: const Text(
@@ -109,8 +109,6 @@ class FormScreen extends ConsumerWidget {
 }
 
 // ── Completion progress bar ───────────────────────────────────────────────────
-// Sits at the bottom of the AppBar. Fills gold as key fields are completed.
-// Uses completionPercent from the model — animates smoothly via TweenAnimation.
 class _CompletionBar extends StatelessWidget {
   final double percent;
   const _CompletionBar({required this.percent});
@@ -118,28 +116,24 @@ class _CompletionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-      builder: (_, constraints) {
-        return SizedBox(
-          height: 4,
-          width: constraints.maxWidth,
-          child: Stack(
-            children: [
-              // Track
-              Container(
-                color: Colors.white.withOpacity(0.2),
-                width: constraints.maxWidth,
-              ),
-              // Fill — animates on every rebuild
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOut,
-                color: const Color(0xFFD4AF37),
-                width: constraints.maxWidth * percent.clamp(0.0, 1.0),
-              ),
-            ],
-          ),
-        );
-      },
+      builder: (_, constraints) => SizedBox(
+        height: 4,
+        width: constraints.maxWidth,
+        child: Stack(
+          children: [
+            Container(
+              color: Colors.white.withOpacity(0.2),
+              width: constraints.maxWidth,
+            ),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+              color: const Color(0xFFD4AF37),
+              width: constraints.maxWidth * percent.clamp(0.0, 1.0),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -158,8 +152,6 @@ class _FormBodyState extends State<_FormBody> {
 
   Future<void> _generate() async {
     if (_formKey.currentState?.validate() ?? false) {
-      // Flush the debounced draft write immediately so it does not fire
-      // after navigation against a potentially disposed provider context.
       await widget.notifier.flushDraft();
       if (!mounted) return;
       context.push(AppRoutes.cardPreview);
@@ -203,6 +195,7 @@ class _FormBodyState extends State<_FormBody> {
           const _SectionHeader('Family Information'),
           _FatherNameField(notifier: widget.notifier),
           _FatherProfessionField(notifier: widget.notifier),
+          _MotherNameField(notifier: widget.notifier),
           _BrothersField(notifier: widget.notifier),
           _BrothersMarriedField(notifier: widget.notifier),
           _SistersField(notifier: widget.notifier),
@@ -214,7 +207,7 @@ class _FormBodyState extends State<_FormBody> {
 
           // ── Religious ────────────────────────────────────────────────────
           const _SectionHeader('Religious Information'),
-          _ReligionField(notifier: widget.notifier),   // ← was missing
+          _ReligionField(notifier: widget.notifier),
           _SectField(notifier: widget.notifier),
           _ReligiousnessField(notifier: widget.notifier),
           _ReligiousNotesField(notifier: widget.notifier),
@@ -226,7 +219,7 @@ class _FormBodyState extends State<_FormBody> {
           _NotesField(notifier: widget.notifier),
           const SizedBox(height: AppSizes.xl),
 
-          // ── Generate button ───────────────────────────────────────────────
+          // ── Generate button ──────────────────────────────────────────────
           SizedBox(
             width: double.infinity,
             height: 54,
@@ -387,7 +380,12 @@ class _PhotoField extends ConsumerWidget {
   }
 }
 
-// ── Individual field widgets ───────────────────────────────────────────────────
+// ── Field widgets ─────────────────────────────────────────────────────────────
+//
+// IMPORTANT: Every _TextField uses key: ValueKey(initialValue).
+// This forces Flutter to recreate the TextFormField whenever the underlying
+// value changes (e.g. when loading a saved biodata for editing), preventing
+// the stale-initialValue bug where fields display outdated data.
 
 class _NameField extends ConsumerWidget {
   final BiodataNotifier notifier;
@@ -619,6 +617,21 @@ class _FatherProfessionField extends ConsumerWidget {
   }
 }
 
+// ── Previously missing field — now wired up ───────────────────────────────────
+class _MotherNameField extends ConsumerWidget {
+  final BiodataNotifier notifier;
+  const _MotherNameField({required this.notifier});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final v = ref.watch(biodataProvider.select((b) => b.motherName));
+    return _TextField(
+        label: "Mother's Name",
+        initialValue: v,
+        onChanged: notifier.updateMotherName,
+        textCapitalization: TextCapitalization.words);
+  }
+}
+
 class _BrothersField extends ConsumerWidget {
   final BiodataNotifier notifier;
   const _BrothersField({required this.notifier});
@@ -644,7 +657,7 @@ class _BrothersMarriedField extends ConsumerWidget {
       label: 'Brothers Married',
       initialValue: v,
       onChanged: notifier.updateBrothersMarried,
-      hint: 'e.g. 2 married',
+      hint: 'e.g. 2',
       keyboardType: TextInputType.text,
     );
   }
@@ -675,7 +688,7 @@ class _SistersMarriedField extends ConsumerWidget {
       label: 'Sisters Married',
       initialValue: v,
       onChanged: notifier.updateSistersMarried,
-      hint: 'e.g. 1 married',
+      hint: 'e.g. 1',
       keyboardType: TextInputType.text,
     );
   }
@@ -726,7 +739,6 @@ class _FamilyNotesField extends ConsumerWidget {
   }
 }
 
-// ── Religion field — was completely missing from the form ─────────────────────
 class _ReligionField extends ConsumerWidget {
   final BiodataNotifier notifier;
   const _ReligionField({required this.notifier});
@@ -838,7 +850,7 @@ class _NotesField extends ConsumerWidget {
   }
 }
 
-// ── Shared stateless input widgets ────────────────────────────────────────────
+// ── Shared input widgets ──────────────────────────────────────────────────────
 
 class _SectionHeader extends StatelessWidget {
   final String title;
@@ -899,6 +911,9 @@ class _TextField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSizes.md),
       child: TextFormField(
+        // ValueKey ensures the field is rebuilt when the underlying value
+        // changes externally (e.g. loading a saved biodata for editing).
+        key: ValueKey(initialValue),
         initialValue: initialValue,
         onChanged: onChanged,
         validator: validator,
@@ -926,10 +941,8 @@ class _Dropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Guard: if the stored value is not in the current items list
-    // (e.g. after a reset produces '' or a migration renames an option),
-    // fall back to null so Flutter never throws "value not in items".
-    final safeValue = (value != null && items.contains(value)) ? value : null;
+    final safeValue =
+    (value != null && items.contains(value)) ? value : null;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSizes.md),
