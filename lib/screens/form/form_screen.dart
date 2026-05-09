@@ -9,6 +9,7 @@ import '../../core/utils/permission_handler.dart';
 import '../../providers/biodata_provider.dart';
 import '../../providers/template_provider.dart';
 import '../../services/image_service.dart';
+import '../card_preview/card_preview_screen.dart';
 
 // ── Static dropdown options ───────────────────────────────────────────────────
 const _complexions     = ['Fair', 'Wheatish', 'Brown', 'Dark Brown'];
@@ -139,22 +140,27 @@ class _CompletionBar extends StatelessWidget {
 }
 
 // ── Form body ─────────────────────────────────────────────────────────────────
-class _FormBody extends StatefulWidget {
+class _FormBody extends ConsumerStatefulWidget {
   final BiodataNotifier notifier;
   const _FormBody({required this.notifier});
 
   @override
-  State<_FormBody> createState() => _FormBodyState();
+  ConsumerState<_FormBody> createState() => _FormBodyState();
 }
 
-class _FormBodyState extends State<_FormBody> {
+class _FormBodyState extends ConsumerState<_FormBody> {
   final _formKey = GlobalKey<FormState>();
 
   Future<void> _generate() async {
     if (_formKey.currentState?.validate() ?? false) {
+      // Sync template id into biodata before navigating
+      final templateId = ref.read(selectedTemplateProvider);
+      widget.notifier.updateTemplateId(templateId);
       await widget.notifier.flushDraft();
       if (!mounted) return;
-      context.push(AppRoutes.cardPreview);
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const CardPreviewScreen()),
+      );
     }
   }
 

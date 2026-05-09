@@ -107,6 +107,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF2A0606),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(

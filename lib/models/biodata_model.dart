@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:hive/hive.dart';
 
 part 'biodata_model.g.dart';
+final _random = Random();
 
 @HiveType(typeId: 0)
 class Biodata extends HiveObject {
@@ -42,7 +45,7 @@ class Biodata extends HiveObject {
   Biodata();
 
   Biodata.empty() {
-    id               = DateTime.now().millisecondsSinceEpoch.toString();
+    id = '${DateTime.now().millisecondsSinceEpoch}_${_random.nextInt(99999)}';
     name             = '';
     age              = '';
     height           = '';

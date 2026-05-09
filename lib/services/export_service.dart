@@ -13,6 +13,7 @@ class ExportService {
   // ── Capture widget as PNG — with retry + timeout ──────────────────────────
   Future<Uint8List?> captureAsImage(GlobalKey key,
       {int retries = 3}) async {
+
     for (int attempt = 0; attempt < retries; attempt++) {
       try {
         if (attempt > 0) {

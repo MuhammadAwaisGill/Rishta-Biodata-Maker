@@ -91,7 +91,7 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
 
     return PopScope(
       canPop: false, // all pops handled manually via _handleBack
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _handleBack();
       },
       child: Scaffold(
@@ -260,7 +260,9 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
 
   void _saveDesign() {
     final biodata = ref.read(biodataProvider);
-    ref.read(savedDesignsProvider.notifier).save(biodata);
+    final templateId = ref.read(selectedTemplateProvider);
+    final synced = biodata.copyWith(templateId: templateId);
+    ref.read(savedDesignsProvider.notifier).save(synced);
   }
 
   void _saveDesignManually() {

@@ -21,6 +21,10 @@ class AdService {
 
   // ── Rewarded Ad ───────────────────────────────────────────────────────────
   Future<void> loadRewardedAd({required VoidCallback onLoaded}) async {
+    // Dispose existing before loading new
+    _rewardedAd?.dispose();
+    _rewardedAd = null;
+
     await RewardedAd.load(
       adUnitId: _rewardedAdUnitId,
       request: const AdRequest(),
@@ -60,6 +64,10 @@ class AdService {
 
   // ── Interstitial Ad ───────────────────────────────────────────────────────
   Future<void> loadInterstitialAd() async {
+    // Dispose existing before loading new
+    _interstitialAd?.dispose();
+    _interstitialAd = null;
+
     await InterstitialAd.load(
       adUnitId: _interstitialAdUnitId,
       request: const AdRequest(),

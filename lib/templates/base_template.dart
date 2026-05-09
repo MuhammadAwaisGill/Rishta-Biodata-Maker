@@ -163,6 +163,7 @@ abstract class BaseTemplate extends StatelessWidget {
     if (biodata.whatsappNumber.trim().isEmpty) return const SizedBox.shrink();
 
     final raw = biodata.whatsappNumber.replaceAll(RegExp(r'[\s\-()]'), '');
+    if (raw.isEmpty || raw.length < 7) return const SizedBox.shrink();
     final normalized = raw.startsWith('+')
         ? raw
         : raw.startsWith('0')

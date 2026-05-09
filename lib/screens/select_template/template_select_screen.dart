@@ -209,7 +209,7 @@ class _TemplateSelectScreenState extends State<TemplateSelectScreen> {
                   ),
                   icon: const Icon(Icons.check_circle_rounded, size: 20),
                   label: Text(
-                    'Use ${_templates.firstWhere((t) => t.id == _selected).name}',
+                    'Use ${_templates.firstWhere((t) => t.id == _selected, orElse: () => _templates.first).name}',
                     style: const TextStyle(
                         fontSize: 15, fontWeight: FontWeight.bold),
                   ),
