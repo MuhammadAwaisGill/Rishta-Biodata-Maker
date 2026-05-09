@@ -208,12 +208,11 @@ class _HeroCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color:
-                        const Color(0xFFD4AF37).withOpacity(0.2),
+                        color: const Color(0xFFD4AF37).withOpacity(0.2),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                            color: const Color(0xFFD4AF37)
-                                .withOpacity(0.5)),
+                            color:
+                            const Color(0xFFD4AF37).withOpacity(0.5)),
                       ),
                       child: const Text(
                         'Version 1.0.0',
@@ -232,7 +231,7 @@ class _HeroCard extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          // Stats row — accurate, relevant stats only
+          // Stats row — accurate stats only
           Container(
             padding: const EdgeInsets.symmetric(vertical: 14),
             decoration: BoxDecoration(

@@ -67,9 +67,9 @@ class ExportService {
   // ── Generate designed PDF ─────────────────────────────────────────────────
   Future<Uint8List?> exportAsPdf(Biodata biodata) async {
     try {
-      final pdf      = pw.Document();
-      final colors   = _getTemplateColors(biodata.templateId);
-      final primary  = colors[0];
+      final pdf       = pw.Document();
+      final colors    = _getTemplateColors(biodata.templateId);
+      final primary   = colors[0];
       final secondary = colors[1];
 
       pw.ImageProvider? photoImage;
@@ -203,13 +203,13 @@ class ExportService {
                             children: [
                               _pdfSection('Personal Information',
                                   primary, secondary, [
-                                    _pdfPair('Full Name',     biodata.name,          primary),
-                                    _pdfPair('Age',           biodata.age,           primary),
-                                    _pdfPair('Height',        biodata.height,        primary),
-                                    _pdfPair('Complexion',    biodata.complexion,    primary),
-                                    _pdfPair('City',          biodata.city,          primary),
-                                    _pdfPair('Mother Tongue', biodata.motherTongue,  primary),
-                                    _pdfPair('Marital Status',biodata.maritalStatus, primary),
+                                    _pdfPair('Full Name',      biodata.name,          primary),
+                                    _pdfPair('Age',            biodata.age,           primary),
+                                    _pdfPair('Height',         biodata.height,        primary),
+                                    _pdfPair('Complexion',     biodata.complexion,    primary),
+                                    _pdfPair('City',           biodata.city,          primary),
+                                    _pdfPair('Mother Tongue',  biodata.motherTongue,  primary),
+                                    _pdfPair('Marital Status', biodata.maritalStatus, primary),
                                     if (biodata.personalNotes.isNotEmpty)
                                       _pdfPair('Notes', biodata.personalNotes, primary),
                                   ]),
@@ -241,13 +241,13 @@ class ExportService {
                             children: [
                               _pdfSection('Family Information',
                                   primary, secondary, [
-                                    _pdfPair("Father's Name", biodata.fatherName,       primary),
-                                    _pdfPair("Father's Job",  biodata.fatherProfession, primary),
-                                    _pdfPair("Mother's Name", biodata.motherName,        primary),
+                                    _pdfPair("Father's Name",  biodata.fatherName,       primary),
+                                    _pdfPair("Father's Job",   biodata.fatherProfession, primary),
+                                    _pdfPair("Mother's Name",  biodata.motherName,       primary),
                                     _pdfPairSiblings('Brothers', biodata.brothers, biodata.brothersMarried, primary),
                                     _pdfPairSiblings('Sisters',  biodata.sisters,  biodata.sistersMarried,  primary),
-                                    _pdfPair('Family Type',   biodata.familyType,  primary),
-                                    _pdfPair('Caste',         biodata.caste,       primary),
+                                    _pdfPair('Family Type',    biodata.familyType,  primary),
+                                    _pdfPair('Caste',          biodata.caste,       primary),
                                     if (biodata.familyNotes.isNotEmpty)
                                       _pdfPair('Notes', biodata.familyNotes, primary),
                                   ]),

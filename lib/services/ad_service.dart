@@ -13,7 +13,10 @@ class AdService {
     await MobileAds.instance.initialize();
   }
 
+  /// True only when a rewarded ad is loaded and ready to show.
   bool get isRewardedAdReady     => _rewardedAd != null;
+
+  /// True only when an interstitial ad is loaded and ready to show.
   bool get isInterstitialAdReady => _interstitialAd != null;
 
   // ── Rewarded Ad ───────────────────────────────────────────────────────────

@@ -50,8 +50,7 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
   void _preloadAds() {
     final adService = ref.read(adServiceProvider);
     adService.loadRewardedAd(onLoaded: () {
-      // No external StateProvider to update — isRewardedAdReady is a getter
-      if (mounted) setState(() {}); // rebuild so download button shows ad-ready state
+      if (mounted) setState(() {}); // rebuild so download button reflects ready state
     });
     adService.loadInterstitialAd();
   }
@@ -72,11 +71,11 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
     }
   }
 
-  // ── Back navigation — show interstitial BEFORE leaving ───────────────────
+  // ── Back navigation — show interstitial BEFORE navigating away ────────────
   Future<void> _handleBack() async {
     if (_designSaved && !_interstitialShownThisSession) {
       _interstitialShownThisSession = true;
-      // Show ad, then navigate after it's dismissed
+      // Block navigation, show ad, THEN pop once dismissed
       ref.read(adServiceProvider).showInterstitialAd(onDismissed: () {
         if (mounted) context.pop();
       });
@@ -91,7 +90,7 @@ class _CardPreviewScreenState extends ConsumerState<CardPreviewScreen> {
     final templateId = ref.watch(selectedTemplateProvider);
 
     return PopScope(
-      canPop: false, // we handle all pops manually via _handleBack
+      canPop: false, // all pops handled manually via _handleBack
       onPopInvoked: (didPop) {
         if (!didPop) _handleBack();
       },

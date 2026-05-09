@@ -45,8 +45,7 @@ class HomeScreen extends ConsumerWidget {
       ),
       body: count == 0
           ? _EmptyState(onCreate: () => _startNewBiodata(context, ref))
-          : _DesignsList(
-          onCreate: () => _startNewBiodata(context, ref)),
+          : _DesignsList(onCreate: () => _startNewBiodata(context, ref)),
       floatingActionButton: count > 0
           ? FloatingActionButton.extended(
         onPressed: () => _startNewBiodata(context, ref),
@@ -63,10 +62,10 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  // ── Consistent Navigator.push flow for template → form ────────────────────
-  // We intentionally use Navigator.push (not go_router) for the create flow
-  // because it's a multi-step wizard that should stack correctly and share
-  // the same back-button behaviour. go_router is used for tab-level navigation.
+  // ── Multi-step wizard: always use Navigator.push, never context.push ──────
+  // go_router is used only for tab-level navigation (home ↔ settings).
+  // The template → form → preview wizard stacks on top via Navigator.push so
+  // the back button behaves correctly throughout the wizard.
   void _startNewBiodata(BuildContext context, WidgetRef ref) {
     ref.read(biodataProvider.notifier).resetForm();
 
@@ -153,7 +152,7 @@ class _DesignsList extends ConsumerWidget {
             ref.read(biodataProvider.notifier).loadFromSaved(design);
             ref.read(selectedTemplateProvider.notifier).state =
                 design.templateId;
-            // Use Navigator.push so back from form returns to home correctly
+            // Navigator.push keeps the back-button stack correct
             Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const FormScreen()),
             );
